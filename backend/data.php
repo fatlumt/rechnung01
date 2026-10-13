@@ -19,6 +19,7 @@ function data_post(string $owner,array $b):array {
  db()->beginTransaction();
  // Serialise each business's mutations, including numbering and partial payments.
  one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
+ if(!current_user())fail('Bitte erneut anmelden.',401);
  $result=data_change($owner,$b);db()->commit();return $result;
 }
 function data_change(string $owner,array $b):array {

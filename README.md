@@ -47,3 +47,15 @@ The customer dropdown inside an invoice or offer now includes **Neuer Kunde**. T
 Use **Speichern & PDF** to save a draft and download it immediately, or **Als PDF herunterladen** on a saved document. **Drucken** remains separate. PDFs contain selectable text, company branding, payment deductions and automatic table pagination. Downloads stay in the browser; no third-party PDF service receives invoice data.
 
 Under **Einstellungen → Firmenfarbe**, choose a colour or upload your logo and click **Farbe aus Logo übernehmen**. Save the company settings to apply it across your workspace and new documents. Colours are adjusted for readable text. Existing documents keep their saved company snapshot. No database migration is required for this update.
+
+## Superadmin and user management
+
+The original owner account (created with the setup code) is the Superadmin. Sign in and open **Einstellungen → Benutzerverwaltung** to create users, generate invitations, replace setup links, revoke unused invitations, deactivate accounts or reactivate them. The Superadmin account is protected from deactivation. Regular users cannot access these controls, including through direct API calls.
+
+**Benutzer erstellen** reserves an account immediately. **Benutzer einladen** creates the account when the invitation is accepted. Share the generated link personally; no email is sent automatically. Links are email-bound, expire after three days and can be used once. Generating a replacement invalidates older links. Recipients choose their own passwords. Deactivation blocks sign-in and invalidates existing sessions, without deleting business records. Pending accounts need a new setup link after reactivation.
+
+Every user has a separate company workspace. Superadmin management exposes account status and email addresses, not another company's customers, invoices or passwords. There is no impersonation or password-reset function.
+
+This release adds only the `kr_user_access` table automatically on the first database connection. Existing accounts, roles and business data remain intact; existing accounts are active by default. The database user needs CREATE permission for this additive upgrade. Alternatively, run the final CREATE TABLE statement from `backend/schema.sql` once. Never recreate an existing database.
+
+`tests/admin_test.py` uses the same local-only environment variables as the invoice API suite, with its own fresh isolated database. It checks authorization, account setup, invitation replacement/revocation, data isolation, owner protection and session invalidation.
