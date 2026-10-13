@@ -1,0 +1,12 @@
+.app{--brand:#2558d7;--brand-soft:#edf2ff;--brand-hover:#1848c0}
+.app .brandIcon,.app .primary{background:var(--brand);border-color:var(--brand);color:white}.app .primary:hover{background:var(--brand-hover)}
+.app .brandPeriod,.app .textButton,.app .settingsInfo a,.app .paperType{color:var(--brand)}
+.app .nav.active,.app .filters button.selected,.app .statIcon:not(.danger),.app .fileIcon,.app .customerAvatar,.app .emptyIcon,.app .badge.open,.app .avatar{background:var(--brand-soft);color:var(--brand)}
+.app .navCount,.app .balance,.app .alert.success{background:var(--brand-soft);color:var(--brand)}
+.app .setup{background:linear-gradient(110deg,var(--brand-soft),white)}.app .checkbox input{accent-color:var(--brand)}
+.app button:focus-visible,.app a:focus-visible,.app input:focus-visible,.app select:focus-visible,.app textarea:focus-visible{outline-color:var(--brand)}
+.app .secondary:hover,.app .nav:hover,.app .iconButton:hover{background:var(--brand-soft);color:var(--brand)}
+.colorChoice{display:flex;gap:12px;align-items:center;margin-bottom:20px}.colorChoice input[type=color]{width:64px;height:44px;padding:3px}.colorChoice .colorHex{max-width:130px}.colorSample{display:inline-block;padding:10px 16px;background:var(--brand);color:white;border-radius:6px}
+.nestedCustomer{z-index:50}.nestedCustomer .modal{margin:30px auto}.saveActions{display:flex;gap:10px;flex-wrap:wrap}
+.reference-invoice .reference-sender h1,.reference-invoice .reference-total-row.final,.reference-invoice .reference-total-row.gross{color:var(--brand,#080808)}
+.reference-invoice .reference-items th,.reference-invoice .reference-items tbody,.reference-invoice .reference-total-row.gross,.reference-invoice .reference-total-row.final{border-color:var(--brand,#363636)}

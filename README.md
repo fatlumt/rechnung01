@@ -36,6 +36,14 @@ For local use only, copy `backend/config.example.php` to the ignored `backend/co
 
 ## Current scope
 
-This is the first Swiss domestic-business MVP. It has one user per business, manual payment recording and browser printing/PDF. It does not yet include Swiss QR payment slips, bank sync, automatic email, password-reset emails, credit notes/cancellations, audit export, billing/subscriptions, or German e-invoices. Germany contacts can be stored, but billing is restricted to Swiss domestic customers. Keep issued mistakes outside normal editing; credit-note support is a next step. Configure hosting/database backups before using it for business records.
+This is the first Swiss domestic-business MVP. It has one user per business, manual payment recording and direct PDF downloads plus optional browser printing. It does not yet include Swiss QR payment slips, bank sync, automatic email, password-reset emails, credit notes/cancellations, audit export, billing/subscriptions, or German e-invoices. Germany contacts can be stored, but billing is restricted to Swiss domestic customers. Keep issued mistakes outside normal editing; credit-note support is a next step. Configure hosting/database backups before using it for business records.
 
 Print using A4, 100% scale and no browser headers/footers. Check long documents in print preview. The first template matches the approved layout; additional designs can be added later.
+
+## October update
+
+The customer dropdown inside an invoice or offer now includes **Neuer Kunde**. The customer form opens over the existing draft, preserves all entered values and selects the saved customer automatically. Escape closes the customer form first.
+
+Use **Speichern & PDF** to save a draft and download it immediately, or **Als PDF herunterladen** on a saved document. **Drucken** remains separate. PDFs contain selectable text, company branding, payment deductions and automatic table pagination. Downloads stay in the browser; no third-party PDF service receives invoice data.
+
+Under **Einstellungen → Firmenfarbe**, choose a colour or upload your logo and click **Farbe aus Logo übernehmen**. Save the company settings to apply it across your workspace and new documents. Colours are adjusted for readable text. Existing documents keep their saved company snapshot. No database migration is required for this update.

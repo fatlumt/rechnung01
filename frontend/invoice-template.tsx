@@ -1,4 +1,5 @@
 import React from 'react';
+import {themeStyle} from './theme';
 
 // Template 1: the customer's supplied Krasniqi invoice. No company is hardcoded.
 const amount=(n:number)=>new Intl.NumberFormat('de-CH',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n/100);
@@ -15,7 +16,7 @@ export default function InvoiceTemplate({doc,payments=[]}:{doc:any,payments?:any
   const deducted=reminder?d.paidAtCreation:(entries.length?paid:doc.paid||0);
   const balance=reminder?d.outstanding:Math.max(0,gross-deducted);
   const caption=doc.kind==='invoice'&&d.documentTitle?d.documentTitle:titles[doc.kind];
-  return <article className="reference-invoice" data-template="krasniqi-classic">
+  return <article className="reference-invoice" data-template="krasniqi-classic" style={c.brandColor?themeStyle(c.brandColor):{'--brand':'#363636'} as React.CSSProperties}>
     <div className="reference-logo">{c.logoUrl&&<img src={c.logoUrl} alt={`${c.name} Logo`}/>}</div>
     <div className="reference-heading">
       <section className="reference-sender"><strong>{c.name}</strong><div>{c.street} {c.house}</div><div>{c.zip} {c.city}</div>{c.phone&&<div>Tel: {c.phone}</div>}{c.email&&<div>{c.email}</div>}
