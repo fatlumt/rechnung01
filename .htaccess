@@ -1,0 +1,11 @@
+Options -Indexes
+DirectoryIndex index.php
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^digital\.krasniqi-plattenleger\.ch$ [NC]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://digital.krasniqi-plattenleger.ch%{REQUEST_URI} [R=302,L]
+RewriteRule ^(?:backend|frontend|tools|tests|private|public)(?:/|$) - [F,L,NC]
+RewriteRule (^|/)\. - [F,L]
+<FilesMatch "(?i)\.(sql|md|json|lock|log|ini|bak|zip|ya?ml|map)$">
+Require all denied
+</FilesMatch>
