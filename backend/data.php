@@ -32,8 +32,34 @@ function data_change(string $owner,array $b):array {
  if($action==='issue'){if($d['status']!=='draft')fail('Beleg ist bereits ausgestellt.');query("UPDATE kr_documents SET status='issued',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];}
  if($action==='delete'){if($d['status']!=='draft')fail('Nur Entwürfe können gelöscht werden.');query('DELETE FROM kr_documents WHERE owner=? AND id=?',[$owner,$id]);return ['ok'=>true];}
  if($action==='accept'){if($d['kind']!=='offer'||$d['status']!=='issued')fail('Nur ausgestellte Offerten können angenommen werden.');query("UPDATE kr_documents SET status='accepted',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];}
- if($action==='convert'){if($d['kind']!=='offer'||$d['status']!=='accepted')fail('Bitte die Offerte zuerst annehmen.');if(one('SELECT id FROM kr_documents WHERE owner=? AND source_offer=?',[$owner,$id]))fail('Für diese Offerte existiert bereits eine Rechnung.',409);$v=array_merge($d['data'],['kind'=>'invoice','documentTitle'=>'Rechnung','sourceId'=>$id,'sourceNumber'=>$d['number'],'date'=>date('Y-m-d'),'due'=>date('Y-m-d',strtotime('+'.$d['data']['company']['terms'].' days'))]);return add_document($owner,'invoice',$v);}
+ if($action==='convert'){
+  if($d['kind']!=='offer')fail('Nur Offerten können in Rechnungen umgewandelt werden.');
+  if(one('SELECT id FROM kr_documents WHERE owner=? AND source_offer=?',[$owner,$id]))fail('Für diese Offerte existiert bereits eine Rechnung.',409);
+  $copy=array_merge($d['data'],['kind'=>'invoice','documentTitle'=>'Rechnung','date'=>date('Y-m-d'),'due'=>date('Y-m-d',strtotime('+'.$d['data']['company']['terms'].' days'))]);
+  $v=draft($b['data']??$copy);if($v['kind']!=='invoice')fail('Zielbeleg muss eine Rechnung sein.');
+  $v['company']=$d['data']['company'];check_vat($v,$v['company']);
+  $v['customer']=$v['customerId']===$d['data']['customerId']?$d['data']['customer']:customer_snapshot($owner,$v['customerId']);
+  $v['currency']='CHF';$v['sourceId']=$id;$v['sourceNumber']=$d['number'];
+  return add_document($owner,'invoice',$v);
+ }
+ if($action==='status'){
+  if($d['kind']!=='invoice')fail('Dieser Status ist nur für Rechnungen verfügbar.');
+  $target=$b['status']??'';if(!in_array($target,['open','paid'],true))fail('Ungültiger Status.');
+  if($d['status']==='draft'){
+   if($target!=='open')fail('Bitte die Rechnung zuerst ausstellen.');
+   query("UPDATE kr_documents SET status='issued',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];
+  }
+  if($target==='paid'){$amount=$d['total']-$d['paid'];if($amount<=0)fail('Rechnung ist bereits bezahlt.',409);}
+  else{
+   if($d['paid']===0)return ['ok'=>true];
+   if(($b['confirmReversal']??false)!==true)fail('Bitte die Rückbuchung der Zahlungen bestätigen.',409);
+   $amount=-$d['paid'];
+  }
+  // Append a correction instead of deleting the original payment history.
+  query('INSERT INTO kr_payments(id,owner,document_id,amount,date) VALUES(?,?,?,?,?)',[id(),$owner,$id,$amount,date('Y-m-d')]);
+  query('UPDATE kr_documents SET paid=paid+?,version=version+1 WHERE owner=? AND id=?',[$amount,$owner,$id]);return ['ok'=>true];
+ }
  if($action==='pay'){if($d['kind']!=='invoice'||$d['status']==='draft')fail('Nur ausgestellte Rechnungen können bezahlt werden.');$amount=integer($b['amount']??null,1,$d['total']-$d['paid']);$date=day($b['date']??'');if($date>date('Y-m-d'))fail('Zahlungsdatum darf nicht in der Zukunft liegen.');query('UPDATE kr_documents SET paid=paid+?,version=version+1 WHERE owner=? AND id=?',[$amount,$owner,$id]);query('INSERT INTO kr_payments(id,owner,document_id,amount,date) VALUES(?,?,?,?,?)',[id(),$owner,$id,$amount,$date]);return ['ok'=>true];}
- if($action==='reminder'){if($d['kind']!=='invoice'||$d['status']==='draft'||$d['paid']>=$d['total']||$d['data']['due']>=date('Y-m-d'))fail('Erinnerungen sind für überfällige, offene Rechnungen verfügbar.');$kind=$b['kind']??'';if(!in_array($kind,['reminder','dunning'],true))fail('Ungültiger Belegtyp.');$due=day($b['due']??'');if($due<=date('Y-m-d'))fail('Bitte ein zukünftiges Zahlungsziel wählen.');$v=array_merge($d['data'],['date'=>date('Y-m-d'),'due'=>$due,'sourceId'=>$id,'sourceNumber'=>$d['number'],'outstanding'=>$d['total']-$d['paid'],'paidAtCreation'=>$d['paid'],'notes'=>text($b['notes']??'',4000,true)]);return add_document($owner,$kind,$v,'issued');}
+ if(in_array($action,['reminder','quickReminder'],true)){if($d['kind']!=='invoice'||$d['status']==='draft'||$d['paid']>=$d['total'])fail('Erinnerungen sind für ausgestellte, offene Rechnungen verfügbar.');$kind=$b['kind']??'';if(!in_array($kind,['reminder','dunning'],true))fail('Ungültiger Belegtyp.');$due=$action==='quickReminder'?date('Y-m-d',strtotime('+10 days')):day($b['due']??'');if($due<=date('Y-m-d'))fail('Bitte ein zukünftiges Zahlungsziel wählen.');$v=array_merge($d['data'],['date'=>date('Y-m-d'),'due'=>$due,'sourceId'=>$id,'sourceNumber'=>$d['number'],'outstanding'=>$d['total']-$d['paid'],'paidAtCreation'=>$d['paid'],'notes'=>$action==='quickReminder'?($kind==='reminder'?'Freundliche Zahlungserinnerung: Bitte überweisen Sie den offenen Rechnungsbetrag bis zum angegebenen Zahlungsziel. Falls Sie bereits bezahlt haben, betrachten Sie dieses Schreiben bitte als gegenstandslos.':'Mahnung: Zu dieser Rechnung ist noch ein Betrag offen. Bitte überweisen Sie diesen bis zum angegebenen Zahlungsziel. Falls Sie bereits bezahlt haben, kontaktieren Sie uns bitte.'):text($b['notes']??'',4000,true)]);if($action==='quickReminder')query('UPDATE kr_documents SET version=version+1 WHERE owner=? AND id=?',[$owner,$id]);return add_document($owner,$kind,$v,'issued');}
  fail('Aktion nicht verfügbar.');
 }

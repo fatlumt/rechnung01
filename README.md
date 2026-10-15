@@ -69,3 +69,13 @@ Choose **Nur Gesamtpreis** for one net price for the complete job (VAT is added 
 Payment metadata uses larger bold text; the logo area is larger. PDF filenames use the customer's name, document type and document date, for example `Muster AG_Rechnung_15.10.2026.pdf`. Filename-unsafe characters are replaced.
 
 Run `tests/document_options_test.py` with the same fresh local database setup as `tests/api_test.py` to check pricing, sections, visibility, VAT, payments, reminders and offer conversion.
+
+## Inline status and document actions
+
+Invoice rows now provide a status dropdown. **Offen – Rechnung ausstellen** issues a draft. **Bezahlt** records the remaining balance as a payment dated today. Returning a paid/partially paid invoice to **Offen** requires confirmation and appends a negative payment correction; previous journal entries are retained. Overdue status is calculated from the due date and outstanding balance, and cannot be manually cleared while still overdue.
+
+The action dropdown creates a **Zahlungserinnerung** or **Mahnung** for an issued invoice with an outstanding balance, using that balance, standard text and a deadline ten days from today. It immediately opens the saved document for preview/PDF, without sending email. Double submissions with a stale invoice version are rejected. Previously created reminders retain their balance snapshots after payment corrections.
+
+For any offer, **In Rechnung umwandeln** opens an editable copy. Nothing is created until Save; cancelling leaves the offer alone. Saving preserves the original offer, its company snapshot and copied customer (unless changed in the form), and creates a separate invoice draft with the edited content. One invoice per offer is enforced; after conversion the dropdown offers **Rechnung öffnen** instead.
+
+`tests/row_actions_test.py` runs on a fresh local test database and includes the base invoice suite plus payment correction, stale request, quick reminder, tenant isolation and offer conversion checks. No schema migration is needed.
