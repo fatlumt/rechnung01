@@ -59,3 +59,13 @@ Every user has a separate company workspace. Superadmin management exposes accou
 This release adds only the `kr_user_access` table automatically on the first database connection. Existing accounts, roles and business data remain intact; existing accounts are active by default. The database user needs CREATE permission for this additive upgrade. Alternatively, run the final CREATE TABLE statement from `backend/schema.sql` once. Never recreate an existing database.
 
 `tests/admin_test.py` uses the same local-only environment variables as the invoice API suite, with its own fresh isolated database. It checks authorization, account setup, invitation replacement/revocation, data isolation, owner protection and session invalidation.
+
+## Document layout and pricing options
+
+In a new invoice/offer or an editable draft, open **Felder auf diesem Beleg anzeigen** to show or hide payment method, reference, UID, due date, document number and service date separately. Values remain stored internally. The preview, print view and downloaded PDF honour these choices; hidden document numbers are also omitted from PDF page footers and metadata. Issued document content remains immutable.
+
+Choose **Nur Gesamtpreis** for one net price for the complete job (VAT is added at the selected rate). Descriptions and section titles remain visible, while item quantities/prices are hidden. Switching back to **Einzelpreise** preserves the entered item values. **Abschnitt hinzufügen** inserts a free-text heading; arrow buttons move headings and items into the desired order. Section headings do not affect totals. Options are saved with each document and carried through offer conversion and reminders. No database migration is needed.
+
+Payment metadata uses larger bold text; the logo area is larger. PDF filenames use the customer's name, document type and document date, for example `Muster AG_Rechnung_15.10.2026.pdf`. Filename-unsafe characters are replaced.
+
+Run `tests/document_options_test.py` with the same fresh local database setup as `tests/api_test.py` to check pricing, sections, visibility, VAT, payments, reminders and offer conversion.
