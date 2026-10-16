@@ -56,7 +56,7 @@ The original owner account (created with the setup code) is the Superadmin. Sign
 
 Every user has a separate company workspace. Superadmin management exposes account status and email addresses, not another company's customers, invoices or passwords. There is no impersonation or password-reset function.
 
-This release adds only the `kr_user_access` table automatically on the first database connection. Existing accounts, roles and business data remain intact; existing accounts are active by default. The database user needs CREATE permission for this additive upgrade. Alternatively, run the final CREATE TABLE statement from `backend/schema.sql` once. Never recreate an existing database.
+The account-management upgrade adds the `kr_user_access` table automatically on the first database connection. Existing accounts, roles and business data remain intact; existing accounts are active by default. The database user needs CREATE permission for this additive upgrade. Alternatively, run the corresponding CREATE TABLE statement from `backend/schema.sql` once. Never recreate an existing database.
 
 `tests/admin_test.py` uses the same local-only environment variables as the invoice API suite, with its own fresh isolated database. It checks authorization, account setup, invitation replacement/revocation, data isolation, owner protection and session invalidation.
 
@@ -72,10 +72,23 @@ Run `tests/document_options_test.py` with the same fresh local database setup as
 
 ## Inline status and document actions
 
-Invoice rows now provide a status dropdown. **Offen – Rechnung ausstellen** issues a draft. **Bezahlt** records the remaining balance as a payment dated today. Returning a paid/partially paid invoice to **Offen** requires confirmation and appends a negative payment correction; previous journal entries are retained. Overdue status is calculated from the due date and outstanding balance, and cannot be manually cleared while still overdue.
+Invoice rows now provide a status dropdown. **Offen – Rechnung ausstellen** opens the preview; **Verbindlich ausstellen** issues the draft after review. **Bezahlt** records the remaining balance as a payment dated today. Returning a paid/partially paid invoice to **Offen** requires confirmation and appends a negative payment correction; previous journal entries are retained. Overdue status is calculated from the due date and outstanding balance, and cannot be manually cleared while still overdue.
 
 The action dropdown creates a **Zahlungserinnerung** or **Mahnung** for an issued invoice with an outstanding balance, using that balance, standard text and a deadline ten days from today. It immediately opens the saved document for preview/PDF, without sending email. Double submissions with a stale invoice version are rejected. Previously created reminders retain their balance snapshots after payment corrections.
 
 For any offer, **In Rechnung umwandeln** opens an editable copy. Nothing is created until Save; cancelling leaves the offer alone. Saving preserves the original offer, its company snapshot and copied customer (unless changed in the form), and creates a separate invoice draft with the edited content. One invoice per offer is enforced; after conversion the dropdown offers **Rechnung öffnen** instead.
 
 `tests/row_actions_test.py` runs on a fresh local test database and includes the base invoice suite plus payment correction, stale request, quick reminder, tenant isolation and offer conversion checks. No schema migration is needed.
+
+
+## Mobile interface, payment notices and QR uploads
+
+The first Mahnung adds a single CHF 50 fee to the invoice balance. Subsequent Mahnungen never stack this fee. A Zahlungserinnerung creates no new fee, but includes any unpaid fee already charged. Payments settle principal first, then the fee; marking paid settles the combined balance. The additive `kr_dunning_fees` table is created automatically (CREATE permission required), with existing document content retained.
+
+New notices store a source-invoice snapshot. PDFs contain the notice, original invoice pages, then the optional payment-information page. Older notices use the available source invoice when exported from the app. Notice balances and new source snapshots remain unchanged by later payments or company edits. This is document creation only; nothing is emailed automatically.
+
+In Einstellungen, upload a reusable bank-issued Swiss QR image (PNG/JPG/WebP, up to 12 MB). The browser decodes and crops it locally, rejects fixed amounts, debtors and references, and matches its IBAN to company settings. Save the company profile. New documents retain the QR with their company snapshot; old documents keep their saved settings. The separate payment-information page is not an automatically generated standardized Swiss QR-bill payment part. The payer enters the displayed amount in their banking app.
+
+Phones use invoice cards, bottom navigation, touch-sized inputs and full-screen editors. Save opens a preview. Invoice/offer edits are recovered from local browser storage for seven days; this is device-local recovery, not cross-device draft sync. Save a draft to synchronize it with the account. Signing out removes local recovery entries for that account.
+
+Run `tests/payment_bundle_test.py` on a fresh isolated local database with the same environment variables as the base suite. It includes the base/row tests plus one-time fees, partial settlements, immutable attachments and QR constraints.

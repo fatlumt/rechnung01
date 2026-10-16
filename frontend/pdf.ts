@@ -1,16 +1,16 @@
+import {attachedInvoice,dueAmount} from './document-bundle';
 import {jsPDF} from 'jspdf';
 import {autoTable,__createTable} from 'jspdf-autotable';
 import {money,dateLabel,labels,documentTotals,visible,pdfFilename} from './model';
 import {inkColor} from './theme';
 
 // Generate text and tables directly, with page breaks rather than a screenshot.
-export function invoicePdf(doc:any,payments:any[]=[]){
- const pdf=new jsPDF({unit:'mm',format:'a4',compress:true});
+function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
  const d=doc.data,c=d.company,customer=d.customer;
  const accent=c.brandColor?inkColor(c.brandColor):'#363636';
  const reminder=['reminder','dunning'].includes(doc.kind);
  const title=doc.kind==='invoice'?(d.documentTitle||'Rechnung'):labels[doc.kind];
- pdf.setProperties({title:visible(d,'number')?`${title} ${doc.number}`:title,author:c.name,creator:'Klarrechnung'});
+
  const clean=(s:any)=>String(s??'').replace(/\u202f|\u00a0/g,' ');
  function block(text:string,x:number,y:number,width:number,size=11,bold=false){pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);pdf.setTextColor('#080808');const lines=pdf.splitTextToSize(clean(text),width);pdf.text(lines,x,y);return y+lines.length*size*.42;}
  function image(src:string|undefined,x:number,y:number,w:number,h:number){if(!src)return;const props=pdf.getImageProperties(src);const scale=Math.min(w/props.width,h/props.height);pdf.addImage(src,props.fileType,x,y,props.width*scale,props.height*scale);}
@@ -51,8 +51,8 @@ export function invoicePdf(doc:any,payments:any[]=[]){
  const entries=payments.filter(p=>p.document_id===doc.id),sum=documentTotals(d);
  const paid=entries.length?entries.reduce((n,p)=>n+p.amount,0):doc.paid||0;
  const rows:any[]=[];
- if(reminder)rows.push(['Offener Betrag',`${money(d.outstanding)} CHF`]);
- else {if(c.vat)rows.push(['Total exkl. MWST',`${money(sum.net)} CHF`]);if(c.vat)for(const [rate,value] of Object.entries(sum.groups))rows.push([`MWST ${rate}%`,`${money(value)} CHF`]);rows.push([c.vat?'Total inkl. MWST':'Total',`${money(sum.total)} CHF`]);for(const p of entries)rows.push([`${p.amount<0?'Zahlungskorrektur':'Akontozahlung'} (${dateLabel(p.date)})`,`${p.amount<0?'+':'-'} ${money(Math.abs(p.amount))} CHF`]);if(!entries.length&&paid)rows.push(['Bereits bezahlt',`- ${money(paid)} CHF`]);if(paid)rows.push([c.vat?'Restbetrag inkl. MWST':'Restbetrag',`${money(Math.max(0,sum.total-paid))} CHF`]);}
+ if(reminder){rows.push(['Offener Rechnungsbetrag',`${money(d.outstanding)} CHF`]);if(d.feeOutstanding)rows.push(['Mahngebühr (einmalig)',`${money(d.feeOutstanding)} CHF`]);rows.push(['Zahlbetrag',`${money(d.amountDue??d.outstanding)} CHF`]);}
+ else {if(c.vat)rows.push(['Total exkl. MWST',`${money(sum.net)} CHF`]);if(c.vat)for(const [rate,value] of Object.entries(sum.groups))rows.push([`MWST ${rate}%`,`${money(value)} CHF`]);rows.push([c.vat?'Total inkl. MWST':'Total',`${money(sum.total)} CHF`]);if(doc.fee){rows.push(['Mahngebühr (einmalig)',`${money(doc.fee)} CHF`]);rows.push(['Gesamtforderung',`${money(sum.total+doc.fee)} CHF`]);}for(const p of entries)rows.push([`${p.amount<0?'Zahlungskorrektur':'Akontozahlung'} (${dateLabel(p.date)})`,`${p.amount<0?'+':'-'} ${money(Math.abs(p.amount))} CHF`]);if(!entries.length&&paid)rows.push(['Bereits bezahlt',`- ${money(paid)} CHF`]);if(paid)rows.push([c.vat?'Restbetrag inkl. MWST':'Restbetrag',`${money(Math.max(0,sum.total+(doc.fee||0)-paid))} CHF`]);}
  if(y+rows.length*8+12>282){pdf.addPage();y=18}
  table({startY:y,pageBreak:'avoid',margin:{left:55,right:10,top:18,bottom:18},body:rows,styles:{font:'helvetica',fontSize:12,cellPadding:1.2,halign:'right',overflow:'linebreak'},columnStyles:{0:{cellWidth:99},1:{cellWidth:46}},didParseCell:(hook:any)=>{if(hook.row.index===rows.length-1){hook.cell.styles.fontStyle='bold';hook.cell.styles.textColor=accent;hook.cell.styles.lineWidth={top:.6};hook.cell.styles.lineColor=accent}}});
  if(!reminder&&d.notes)table({startY:y,body:[[clean(d.notes)]],styles:{font:'helvetica',fontSize:10,cellPadding:0}});
@@ -65,7 +65,26 @@ export function invoicePdf(doc:any,payments:any[]=[]){
  image(c.stampUrl,10,fy,54,21);let sy=fy+(c.stampUrl?24:3);
  if(c.signatory){pdf.setDrawColor(accent);pdf.line(10,sy,80,sy);sy=block(c.signatory,10,sy+5,70,10,true);if(c.signatoryRole)block(c.signatoryRole,10,sy,70,8,true)}
  if(bank)block(bank,90,fy+4,110,9);
- const pages=pdf.getNumberOfPages();for(let i=1;i<=pages;i++){pdf.setPage(i);pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor('#777777');pdf.text(`${visible(d,'number')?doc.number+' · ':''}${i} / ${pages}`,200,291,{align:'right'});}
+
  return pdf;
 }
-export function downloadInvoicePdf(doc:any,payments:any[]=[]){invoicePdf(doc,payments).save(pdfFilename(doc));}
+export function invoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){
+ const pdf=new jsPDF({unit:'mm',format:'a4',compress:true});const title=doc.kind==='invoice'?(doc.data.documentTitle||'Rechnung'):labels[doc.kind];
+ pdf.setProperties({title:visible(doc.data,'number')?`${title} ${doc.number}`:title,author:doc.data.company.name,creator:'Klarrechnung'});
+ renderDocument(pdf,doc,payments);
+ const source=attachedInvoice(doc,documents);if(source){pdf.addPage();renderDocument(pdf,source,[]);}
+ const c=doc.data.company;
+ if(c.qrUrl&&doc.kind!=='offer'){
+  pdf.addPage();pdf.setTextColor('#080808');pdf.setFont('helvetica','bold');pdf.setFontSize(22);pdf.text('Zahlungsinformationen',20,30);
+  pdf.setFontSize(12);pdf.text(pdf.splitTextToSize(c.name,170),20,44);pdf.setFont('helvetica','normal');
+  const reference=source||doc;pdf.text(visible(reference.data,'number')?`Rechnung: ${reference.number}`:`Rechnung vom ${dateLabel(reference.data.date)}`,20,60);
+  pdf.text(`Zahlbetrag: CHF ${money(dueAmount(doc))}`,20,72);
+  pdf.text(pdf.splitTextToSize(`IBAN: ${c.iban}`,170),20,84);
+  const props=pdf.getImageProperties(c.qrUrl);pdf.addImage(c.qrUrl,props.fileType,20,100,54,54);
+  pdf.setFontSize(11);pdf.text(pdf.splitTextToSize('Mit der Banking-App scannen. Den oben angegebenen Betrag eingeben und Empfänger sowie IBAN vor der Zahlung prüfen.',165),20,170);
+  pdf.setFontSize(9);pdf.text('Zahlungsinformation mit hochgeladenem Bank-QR-Code.',20,195);
+ }
+ const pages=pdf.getNumberOfPages();for(let i=1;i<=pages;i++){pdf.setPage(i);pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor('#777777');pdf.text(`${visible(doc.data,'number')?doc.number+' · ':''}${i} / ${pages}`,200,291,{align:'right'});}
+ return pdf;
+}
+export function downloadInvoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){invoicePdf(doc,payments,documents).save(pdfFilename(doc));}
