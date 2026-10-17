@@ -92,3 +92,11 @@ In Einstellungen, upload a reusable bank-issued Swiss QR image (PNG/JPG/WebP, up
 Phones use invoice cards, bottom navigation, touch-sized inputs and full-screen editors. Save opens a preview. Invoice/offer edits are recovered from local browser storage for seven days; this is device-local recovery, not cross-device draft sync. Save a draft to synchronize it with the account. Signing out removes local recovery entries for that account.
 
 Run `tests/payment_bundle_test.py` on a fresh isolated local database with the same environment variables as the base suite. It includes the base/row tests plus one-time fees, partial settlements, immutable attachments and QR constraints.
+
+## Discounts and PDF QR imports
+
+New invoices/offers and editable drafts have a **Rabatt** section: choose percentage or a CHF amount. The discount reduces the subtotal before VAT; it is allocated proportionally across item net values, with cumulative cent rounding. Tax is then calculated on each reduced item. The discount must leave a positive invoice total. Existing documents default to no discount, and issued documents remain immutable. Discounts survive offer conversion and appear in previews, PDFs and attached source invoices. The CHF 50 dunning fee is separate and not discounted.
+
+QR settings now also accept PDF files (12 MB, maximum 10 pages). PDF.js loads from this installation only when a PDF is selected, scans pages locally and extracts the first reusable Swiss bank QR code. Existing QR/IBAN checks still apply. Password-protected PDFs need an unprotected copy. Only the extracted QR image/payload is stored with company data, not the entire PDF. Build scripts copy the PDF.js reader/worker into assets/pdf-reader; include these assets when deploying.
+
+Mobile navigation icons use distinct colours and the active tab has a matching background and top indicator. Run tests/discount_test.py on a fresh isolated local database for the full API regression suite plus discount cases.

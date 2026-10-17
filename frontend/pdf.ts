@@ -1,7 +1,7 @@
 import {attachedInvoice,dueAmount} from './document-bundle';
 import {jsPDF} from 'jspdf';
 import {autoTable,__createTable} from 'jspdf-autotable';
-import {money,dateLabel,labels,documentTotals,visible,pdfFilename} from './model';
+import {money,dateLabel,labels,documentTotals,visible,pdfFilename,discountLabel} from './model';
 import {inkColor} from './theme';
 
 // Generate text and tables directly, with page breaks rather than a screenshot.
@@ -52,7 +52,7 @@ function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
  const paid=entries.length?entries.reduce((n,p)=>n+p.amount,0):doc.paid||0;
  const rows:any[]=[];
  if(reminder){rows.push(['Offener Rechnungsbetrag',`${money(d.outstanding)} CHF`]);if(d.feeOutstanding)rows.push(['Mahngebühr (einmalig)',`${money(d.feeOutstanding)} CHF`]);rows.push(['Zahlbetrag',`${money(d.amountDue??d.outstanding)} CHF`]);}
- else {if(c.vat)rows.push(['Total exkl. MWST',`${money(sum.net)} CHF`]);if(c.vat)for(const [rate,value] of Object.entries(sum.groups))rows.push([`MWST ${rate}%`,`${money(value)} CHF`]);rows.push([c.vat?'Total inkl. MWST':'Total',`${money(sum.total)} CHF`]);if(doc.fee){rows.push(['Mahngebühr (einmalig)',`${money(doc.fee)} CHF`]);rows.push(['Gesamtforderung',`${money(sum.total+doc.fee)} CHF`]);}for(const p of entries)rows.push([`${p.amount<0?'Zahlungskorrektur':'Akontozahlung'} (${dateLabel(p.date)})`,`${p.amount<0?'+':'-'} ${money(Math.abs(p.amount))} CHF`]);if(!entries.length&&paid)rows.push(['Bereits bezahlt',`- ${money(paid)} CHF`]);if(paid)rows.push([c.vat?'Restbetrag inkl. MWST':'Restbetrag',`${money(Math.max(0,sum.total+(doc.fee||0)-paid))} CHF`]);}
+ else {if(sum.discount){rows.push(['Zwischensumme',`${money(sum.subtotal)} CHF`]);rows.push([discountLabel(d),`- ${money(sum.discount)} CHF`]);}if(c.vat)rows.push(['Total exkl. MWST',`${money(sum.net)} CHF`]);if(c.vat)for(const [rate,value] of Object.entries(sum.groups))rows.push([`MWST ${rate}%`,`${money(value)} CHF`]);rows.push([c.vat?'Total inkl. MWST':'Total',`${money(sum.total)} CHF`]);if(doc.fee){rows.push(['Mahngebühr (einmalig)',`${money(doc.fee)} CHF`]);rows.push(['Gesamtforderung',`${money(sum.total+doc.fee)} CHF`]);}for(const p of entries)rows.push([`${p.amount<0?'Zahlungskorrektur':'Akontozahlung'} (${dateLabel(p.date)})`,`${p.amount<0?'+':'-'} ${money(Math.abs(p.amount))} CHF`]);if(!entries.length&&paid)rows.push(['Bereits bezahlt',`- ${money(paid)} CHF`]);if(paid)rows.push([c.vat?'Restbetrag inkl. MWST':'Restbetrag',`${money(Math.max(0,sum.total+(doc.fee||0)-paid))} CHF`]);}
  if(y+rows.length*8+12>282){pdf.addPage();y=18}
  table({startY:y,pageBreak:'avoid',margin:{left:55,right:10,top:18,bottom:18},body:rows,styles:{font:'helvetica',fontSize:12,cellPadding:1.2,halign:'right',overflow:'linebreak'},columnStyles:{0:{cellWidth:99},1:{cellWidth:46}},didParseCell:(hook:any)=>{if(hook.row.index===rows.length-1){hook.cell.styles.fontStyle='bold';hook.cell.styles.textColor=accent;hook.cell.styles.lineWidth={top:.6};hook.cell.styles.lineColor=accent}}});
  if(!reminder&&d.notes)table({startY:y,body:[[clean(d.notes)]],styles:{font:'helvetica',fontSize:10,cellPadding:0}});

@@ -45,10 +45,21 @@ function draft(mixed $v):array {
   if(!is_numeric($quantity)||$quantity<=0||$quantity>100000||!is_numeric($rate)||!in_array((float)$rate,[0.0,2.6,3.8,8.1],true))fail('Menge oder MWST ungültig.');
   $a['lines'][]=['description'=>text($l['description']??'',300,true),'quantity'=>(float)$quantity,'unit'=>text($l['unit']??'',25),'price'=>integer($l['price']??0,0,100000000),'rate'=>(float)$rate];$items++;
  }
+ $a['discountType']=$v['discountType']??'none';if(!in_array($a['discountType'],['none','percent','fixed'],true))fail('Ungültige Rabattart.');
+ $a['discountValue']=integer($v['discountValue']??0,0,$a['discountType']==='percent'?10000:100000000000);
+ if($a['discountType']==='none')$a['discountValue']=0;
  if(!$items)fail('Bitte mindestens eine Leistungsbeschreibung eingeben.');document_total($a);return $a;
 }
 function pricing_lines(array $d):array{return ($d['pricingMode']??'items')==='total'?[['quantity'=>1,'price'=>$d['totalPrice'],'rate'=>$d['totalRate']]]:$d['lines'];}
-function document_total(array $d):int{return total(pricing_lines($d));}
+function document_total(array $d):int{
+ $lines=array_values(array_filter(pricing_lines($d),fn($l)=>($l['type']??'item')!=='section'));
+ $subtotal=array_sum(array_map(fn($l)=>(int)round($l['price']*$l['quantity']),$lines));
+ if($subtotal<=0||$subtotal>100000000000)fail('Gesamtbetrag muss positiv und kleiner als CHF 1 Milliarde sein.');
+ $discount=match($d['discountType']??'none'){'percent'=>(int)round($subtotal*($d['discountValue']??0)/10000),'fixed'=>$d['discountValue']??0,default=>0};
+ if($discount<0||$discount>=$subtotal)fail('Der Rabatt muss kleiner als die Zwischensumme sein.');
+ $cumulative=0;$allocated=0;$adjusted=[];foreach($lines as $l){$n=(int)round($l['price']*$l['quantity']);$cumulative+=$n;$next=(int)round($cumulative/$subtotal*$discount);$adjusted[]=['quantity'=>1,'price'=>$n-($next-$allocated),'rate'=>$l['rate']];$allocated=$next;}
+ return total($adjusted);
+}
 function total(array $lines):int{$sum=0;foreach($lines as $l){if(($l['type']??'item')==='section')continue;$n=(int)round($l['price']*$l['quantity']);$sum+=$n+(int)round($n*$l['rate']/100);}if($sum<=0||$sum>100000000000)fail('Gesamtbetrag muss positiv und kleiner als CHF 1 Milliarde sein.');return $sum;}
 function decode_row(array $r):array{if(isset($r['data']))$r['data']=json_decode($r['data'],true,512,JSON_THROW_ON_ERROR);foreach(['total','paid','version'] as $k)if(isset($r[$k]))$r[$k]=(int)$r[$k];return $r;}
 function encode(array $v):string{return json_encode($v,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);}

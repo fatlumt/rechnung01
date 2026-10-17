@@ -9,3 +9,5 @@ RewriteRule (^|/)\. - [F,L]
 <FilesMatch "(?i)\.(sql|md|json|lock|log|ini|bak|zip|ya?ml|map)$">
 Require all denied
 </FilesMatch>
+
+AddType application/javascript .mjs
