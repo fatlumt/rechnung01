@@ -1,0 +1,11 @@
+export const countryOf=(v:any)=>v?.company?.country||v?.country||'CH';
+export const currencyOf=(v:any)=>v?.currency||(countryOf(v)==='DE'?'EUR':'CHF');
+export const taxLabel=(v:any)=>countryOf(v)==='DE'?'USt.':'MWST';
+export const taxRates=(v:any)=>!v?.vat?[0]:countryOf(v)==='DE'?[7,19]:[0,2.6,3.8,8.1];
+export const standardRate=(v:any)=>!v?.vat?0:countryOf(v)==='DE'?19:8.1;
+export const countryName=(v:any)=>countryOf(v)==='DE'?'Deutschland':'Schweiz';
+export const exemption=(v:any)=>countryOf(v)==='DE'?'Steuerbefreiung für Kleinunternehmer gemäß § 19 UStG.':'Nicht mehrwertsteuerpflichtig. Es wird keine MWST erhoben.';
+export const documentTitle=(doc:any)=>doc.kind==='invoice'?(doc.data.documentTitle||'Rechnung'):doc.kind==='offer'?(countryOf(doc.data)==='DE'?'Angebot':'Offerte'):doc.kind==='dunning'?'Mahnung':'Zahlungserinnerung';
+export const templateOf=(d:any)=>['modern','compact'].includes(d?.templateId)?d.templateId:'classic';
+export const templates=[['classic','Vorlage 1','Ihr bisheriger Briefkopf'],['modern','Modern','Farbiger Kopf und klare Flächen'],['compact','Kompakt','Weniger Abstand, mehr Positionen']] as const;
+export const germanPdfNotice='Deutschland: PDF-Beleg, keine strukturierte E-Rechnung (XRechnung/ZUGFeRD). Nur verwenden, wenn PDF für diesen Vorgang zulässig ist und der Empfänger erforderlichenfalls zustimmt. Keine Unterstützung für Reverse Charge, Auslandsgeschäfte oder öffentliche Auftraggeber.';

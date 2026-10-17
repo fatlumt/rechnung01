@@ -7,8 +7,9 @@ function data_get(string $owner):array {
  'documents'=>array_map('invoice_values',query('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? ORDER BY d.created DESC,d.number DESC',[$owner])->fetchAll()),
  'payments'=>array_map(fn($r)=>array_merge($r,['amount'=>(int)$r['amount']]),query('SELECT * FROM kr_payments WHERE owner=? ORDER BY date DESC,id',[$owner])->fetchAll())];
 }
-function customer_snapshot(string $owner,string $id):array {$r=one('SELECT data FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]);if(!$r)fail('Kunde nicht gefunden.',404);$c=decode_row($r)['data'];if($c['country']!=='CH')fail('Diese Version unterstützt Schweizer Inlandsgeschäfte.');return $c;}
-function check_vat(array $data,array $profile):void {if(!$profile['vat'])foreach(pricing_lines($data) as $line)if(($line['type']??'item')!=='section'&&$line['rate']!=0)fail('Ohne MWST-Pflicht müssen die Steuersätze 0 % sein.');}
+function customer_snapshot(string $owner,string $id):array {$r=one('SELECT data FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]);if(!$r)fail('Kunde nicht gefunden.',404);$c=decode_row($r)['data'];return $c;}
+function check_vat(array $data,array $profile):void {foreach(pricing_lines($data) as $line){if(($line['type']??'item')==='section')continue;$allowed=$profile['vat']?(($profile['country']??'CH')==='DE'?[7.0,19.0]:[0.0,2.6,3.8,8.1]):[0.0];if(!in_array((float)$line['rate'],$allowed,true))fail('Steuersatz passt nicht zum Länder- und Steuerprofil.');}}
+function document_country(array &$v):void{if($v['customer']['country']!==$v['company']['country'])fail('Aktuell werden nur Inlandsgeschäfte im Firmenland unterstützt.');$v['currency']=$v['company']['country']==='DE'?'EUR':'CHF';$v['language']='de';if($v['currency']==='EUR'){foreach(['uid','number','serviceDate'] as $k)$v['visibility'][$k]=true;}}
 function add_document(string $owner,string $kind,array $data,string $status='draft'):array {
  $sum=document_total($data);$id=id();$prefix=['invoice'=>'RE','offer'=>'OF','reminder'=>'ZE','dunning'=>'MA'][$kind];
  query('INSERT INTO kr_counters(owner,value) VALUES(?,1) ON DUPLICATE KEY UPDATE value=value+1',[$owner]);
@@ -24,11 +25,11 @@ function data_post(string $owner,array $b):array {
 }
 function data_change(string $owner,array $b):array {
  $action=$b['action']??'';
- if($action==='company'){$v=company($b['data']??null);$p=one('SELECT version FROM kr_businesses WHERE owner=?',[$owner]);if(integer($b['version']??null)!==($p?(int)$p['version']:0))fail('Firmendaten wurden inzwischen geändert. Bitte neu laden.',409);query('INSERT INTO kr_businesses(owner,data,version) VALUES(?,?,1) ON DUPLICATE KEY UPDATE data=VALUES(data),version=version+1',[$owner,encode($v)]);return ['ok'=>true];}
+ if($action==='company'){$v=company($b['data']??null);$p=one('SELECT version,data FROM kr_businesses WHERE owner=?',[$owner]);if($p&&decode_row($p)['data']['country']!==$v['country']&&one('SELECT id FROM kr_documents WHERE owner=? LIMIT 1',[$owner]))fail('Das Firmenland kann nach dem ersten Beleg nicht gewechselt werden. Bitte einen eigenen Firmenbereich verwenden.');if(integer($b['version']??null)!==($p?(int)$p['version']:0))fail('Firmendaten wurden inzwischen geändert. Bitte neu laden.',409);query('INSERT INTO kr_businesses(owner,data,version) VALUES(?,?,1) ON DUPLICATE KEY UPDATE data=VALUES(data),version=version+1',[$owner,encode($v)]);return ['ok'=>true];}
  if($action==='customer'){$v=address($b['data']??null);$id=$b['customerId']??null;if($id){$id=text($id,36,true);if(!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]))fail('Kunde nicht gefunden.',404);query('UPDATE kr_customers SET data=? WHERE owner=? AND id=?',[encode($v),$owner,$id]);}else{$id=id();query('INSERT INTO kr_customers(id,owner,data,created) VALUES(?,?,?,?)',[$id,$owner,encode($v),date('Y-m-d H:i:s')]);}return ['id'=>$id];}
- if($action==='create'){$v=draft($b['data']??null);$p=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$p)fail('Bitte zuerst Firmendaten speichern.');$profile=decode_row($p)['data'];check_vat($v,$profile);$v['company']=$profile;$v['customer']=customer_snapshot($owner,$v['customerId']);$v['currency']='CHF';return add_document($owner,$v['kind'],$v);}
+ if($action==='create'){$v=draft($b['data']??null);$p=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$p)fail('Bitte zuerst Firmendaten speichern.');$profile=decode_row($p)['data'];check_vat($v,$profile);$v['company']=$profile;$v['customer']=customer_snapshot($owner,$v['customerId']);$v['templateId']=template_id($b['data']['templateId']??$profile['templateId']??'classic');document_country($v);return add_document($owner,$v['kind'],$v);}
  $id=text($b['id']??'',36,true);$r=one('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND d.id=?',[$owner,$id]);if(!$r)fail('Beleg nicht gefunden.',404);$d=invoice_values($r);if(integer($b['version']??null)!==$d['version'])fail('Beleg wurde inzwischen geändert. Bitte neu laden.',409);
- if($action==='edit'){if($d['status']!=='draft')fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>customer_snapshot($owner,$v['customerId'])]);query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);return ['ok'=>true];}
+ if($action==='edit'){if($d['status']!=='draft')fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>customer_snapshot($owner,$v['customerId'])]);document_country($v);query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);return ['ok'=>true];}
  if($action==='issue'){if($d['status']!=='draft')fail('Beleg ist bereits ausgestellt.');query("UPDATE kr_documents SET status='issued',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];}
  if($action==='delete'){if($d['status']!=='draft')fail('Nur Entwürfe können gelöscht werden.');query('DELETE FROM kr_documents WHERE owner=? AND id=?',[$owner,$id]);return ['ok'=>true];}
  if($action==='accept'){if($d['kind']!=='offer'||$d['status']!=='issued')fail('Nur ausgestellte Offerten können angenommen werden.');query("UPDATE kr_documents SET status='accepted',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];}
@@ -36,10 +37,10 @@ function data_change(string $owner,array $b):array {
   if($d['kind']!=='offer')fail('Nur Offerten können in Rechnungen umgewandelt werden.');
   if(one('SELECT id FROM kr_documents WHERE owner=? AND source_offer=?',[$owner,$id]))fail('Für diese Offerte existiert bereits eine Rechnung.',409);
   $copy=array_merge($d['data'],['kind'=>'invoice','documentTitle'=>'Rechnung','date'=>date('Y-m-d'),'due'=>date('Y-m-d',strtotime('+'.$d['data']['company']['terms'].' days'))]);
-  $v=draft($b['data']??$copy);if($v['kind']!=='invoice')fail('Zielbeleg muss eine Rechnung sein.');
+  $v=draft($b['data']??$copy);$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!=='invoice')fail('Zielbeleg muss eine Rechnung sein.');
   $v['company']=$d['data']['company'];check_vat($v,$v['company']);
   $v['customer']=$v['customerId']===$d['data']['customerId']?$d['data']['customer']:customer_snapshot($owner,$v['customerId']);
-  $v['currency']='CHF';$v['sourceId']=$id;$v['sourceNumber']=$d['number'];
+  document_country($v);$v['sourceId']=$id;$v['sourceNumber']=$d['number'];
   return add_document($owner,'invoice',$v);
  }
  if($action==='status'){
@@ -64,13 +65,13 @@ function data_change(string $owner,array $b):array {
   if($d['kind']!=='invoice'||$d['status']==='draft'||$d['paid']>=$d['total'])fail('Erinnerungen sind für ausgestellte, offene Rechnungen verfügbar.');
   $kind=$b['kind']??'';if(!in_array($kind,['reminder','dunning'],true))fail('Ungültiger Belegtyp.');
   $due=$action==='quickReminder'?date('Y-m-d',strtotime('+10 days')):day($b['due']??'');if($due<=date('Y-m-d'))fail('Bitte ein zukünftiges Zahlungsziel wählen.');
-  $newFee=$kind==='dunning'&&!$d['fee'];if($newFee){
+  $newFee=$kind==='dunning'&&!$d['fee']&&($d['data']['currency']??'CHF')==='CHF';if($newFee){
    query('INSERT INTO kr_dunning_fees(document_id,owner,amount,created) VALUES(?,?,5000,?)',[$id,$owner,date('Y-m-d H:i:s')]);$d['fee']=5000;$d['total']+=5000;
   }
   $principal=max(0,$d['invoiceTotal']-$d['paid']);$feeRemaining=max(0,$d['fee']-max(0,$d['paid']-$d['invoiceTotal']));
   $source=$d;$source['total']=$d['invoiceTotal'];$source['fee']=0;$source['paid']=min($d['paid'],$d['invoiceTotal']);
   $v=array_merge($d['data'],['date'=>date('Y-m-d'),'due'=>$due,'sourceId'=>$id,'sourceNumber'=>$d['number'],'outstanding'=>$principal,'feeOutstanding'=>$feeRemaining,'amountDue'=>$principal+$feeRemaining,'paidAtCreation'=>$d['paid'],'sourceInvoice'=>$source,
-   'notes'=>$action==='quickReminder'?($kind==='reminder'?'Freundliche Zahlungserinnerung: Bitte überweisen Sie den offenen Betrag bis zum angegebenen Zahlungsziel. Falls Sie bereits bezahlt haben, betrachten Sie dieses Schreiben bitte als gegenstandslos.':'Mahnung: Bitte überweisen Sie den offenen Betrag einschliesslich der ausgewiesenen Mahngebühr bis zum angegebenen Zahlungsziel. Falls Sie bereits bezahlt haben, kontaktieren Sie uns bitte.'):text($b['notes']??'',4000,true)]);
+   'notes'=>$action==='quickReminder'?($kind==='reminder'?'Freundliche Zahlungserinnerung: Bitte überweisen Sie den offenen Betrag bis zum angegebenen Zahlungsziel. Falls Sie bereits bezahlt haben, betrachten Sie dieses Schreiben bitte als gegenstandslos.':'Mahnung: Bitte überweisen Sie den offenen Betrag gemäss der folgenden Aufstellung bis zum angegebenen Zahlungsziel. Falls Sie bereits bezahlt haben, kontaktieren Sie uns bitte.'):text($b['notes']??'',4000,true)]);
   // Fee creation and quick actions invalidate stale invoice requests.
   if($action==='quickReminder'||$newFee)query('UPDATE kr_documents SET version=version+1 WHERE owner=? AND id=?',[$owner,$id]);
   return add_document($owner,$kind,$v,'issued');

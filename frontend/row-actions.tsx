@@ -1,3 +1,4 @@
+import {currencyOf} from './country';
 import React from 'react';
 import {statusLabel} from './model';
 export function StatusControl({doc,busy,change}:any){
@@ -15,5 +16,5 @@ export function StatusControl({doc,busy,change}:any){
 export function ActionControl({doc,busy,choose,converted}:any){
  const invoice=doc.kind==='invoice'&&doc.status!=='draft'&&doc.paid<doc.total;
  if(!invoice&&doc.kind!=='offer')return <span className="muted">—</span>;
- return <select className="rowAction" value="" disabled={busy} aria-label={`Aktionen ${doc.number}`} onChange={e=>choose(doc,e.target.value)}><option value="" disabled>Aktion wählen …</option>{doc.kind==='offer'?<option value="convert">{converted?'Rechnung öffnen':'In Rechnung umwandeln'}</option>:<><option value="reminder">Zahlungserinnerung erstellen</option><option value="dunning">{doc.fee?'Mahnung erneut erstellen':'Mahnung (+ CHF 50) erstellen'}</option></>}</select>;
+ return <select className="rowAction" value="" disabled={busy} aria-label={`Aktionen ${doc.number}`} onChange={e=>choose(doc,e.target.value)}><option value="" disabled>Aktion wählen …</option>{doc.kind==='offer'?<option value="convert">{converted?'Rechnung öffnen':'In Rechnung umwandeln'}</option>:<><option value="reminder">Zahlungserinnerung erstellen</option><option value="dunning">{doc.fee?'Mahnung erneut erstellen':currencyOf(doc.data)==='CHF'?'Mahnung (+ CHF 50) erstellen':'Mahnung erstellen'}</option></>}</select>;
 }
