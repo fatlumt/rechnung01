@@ -73,7 +73,7 @@ function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
 }
 export function invoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){
  const pdf=new jsPDF({unit:'mm',format:'a4',compress:true});const title=documentTitle(doc);
- pdf.setProperties({title:visible(doc.data,'number')?`${title} ${doc.number}`:title,author:doc.data.company.name,creator:'Klarrechnung'});
+ pdf.setProperties({title:visible(doc.data,'number')?`${title} ${doc.number}`:title,author:doc.data.company.name,creator:'digitalrechnung'});
  renderDocument(pdf,doc,payments);
  const source=attachedInvoice(doc,documents);if(source){pdf.addPage();renderDocument(pdf,source,[]);}
  const c=doc.data.company;

@@ -1,4 +1,4 @@
-# Klarrechnung · Hostinger MVP
+# digitalrechnung · Hostinger MVP
 
 
 
@@ -206,3 +206,12 @@ QR settings now also accept PDF files (12 MB, maximum 10 pages). PDF.js loads fr
 
 Mobile navigation icons use distinct colours and the active tab has a matching background and top indicator. Run tests/discount_test.py on a fresh isolated local database for the full API regression suite plus discount cases.
 
+
+
+## digitalrechnung: first-use setup and guide
+
+The app is now named digitalrechnung. Newly registered accounts and existing accounts without a saved company see company setup before entering the workspace. Saving valid company data opens the dashboard. Email is prefilled from the account; logo, colour and design are optional. Returning users with a company skip setup. Settings remain editable under the existing country/document restrictions.
+
+**Hilfe & Anleitung** is available in the desktop sidebar, mobile **Mehr** menu and during company setup. Its twelve German topics cover company data, designs, customers, documents, discounts, PDFs, conversion, payments, reminders, QR uploads, mobile use and account help.
+
+This release does not rename the private `klarrechnung-config.php` file, session cookie or local draft-storage keys. These internal names remain compatible with existing installations and saved drafts. No database migration is needed.
