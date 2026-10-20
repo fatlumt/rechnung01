@@ -78,7 +78,7 @@ The app supports domestic businesses in Switzerland (CHF) and Germany (EUR), wit
 
 
 
-Choose Vorlage 1, Modern or Kompakt in company settings, or override the design on a draft. Existing documents retain their saved company, currency and design. Legacy documents keep Vorlage 1. German profiles support 19%/7% VAT or a small-business exemption, tax number/USt-IdNr and optional legal company details. Required German number, tax ID and service date cannot be hidden. Switzerland retains its reusable bank QR upload and CHF 50 dunning fee; this fee is not applied to German invoices. German language is currently the only document language.
+Choose Vorlage 1, Modern or Kompakt in company settings, as the default for new documents. Existing documents retain their saved company, currency and design. Legacy documents keep Vorlage 1. German profiles support 19%/7% VAT or a small-business exemption, tax number/USt-IdNr and optional legal company details. Required German number, tax ID and service date cannot be hidden. Switzerland retains its reusable bank QR upload and CHF 50 dunning fee; this fee is not applied to German invoices. German language is currently the only document language.
 
 
 
@@ -215,3 +215,7 @@ The app is now named digitalrechnung. Newly registered accounts and existing acc
 **Hilfe & Anleitung** is available in the desktop sidebar, mobile **Mehr** menu and during company setup. Its twelve German topics cover company data, designs, customers, documents, discounts, PDFs, conversion, payments, reminders, QR uploads, mobile use and account help.
 
 This release does not rename the private `klarrechnung-config.php` file, session cookie or local draft-storage keys. These internal names remain compatible with existing installations and saved drafts. No database migration is needed.
+
+
+## PDF preview consistency
+The preview renders the same generated PDF as download, including invoice and QR attachments and page breaks. Printing becomes available after rendering completes. Metadata labels are bold, values regular. Design selection is only in company settings; existing document snapshots retain their design.

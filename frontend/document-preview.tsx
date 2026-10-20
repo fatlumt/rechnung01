@@ -1,7 +1,43 @@
-import {currencyOf} from './country';
 import React,{useEffect,useRef,useState} from 'react';
-import InvoiceTemplate from './invoice-template';
-import {attachedInvoice,dueAmount} from './document-bundle';
-import {money,dateLabel,visible} from './model';
-function Page({children}:any){const host=useRef<HTMLDivElement>(null),paper=useRef<HTMLDivElement>(null);const [size,setSize]=useState({scale:1,height:1123});useEffect(()=>{const update=()=>{if(host.current&&paper.current)setSize({scale:Math.min(1,host.current.clientWidth/794),height:paper.current.offsetHeight})};const observer=new ResizeObserver(update);if(host.current)observer.observe(host.current);if(paper.current)observer.observe(paper.current);update();return()=>observer.disconnect()},[]);return <div className="previewPage" ref={host} style={{height:size.height*size.scale}}><div className="previewPaper" ref={paper} style={{transform:`scale(${size.scale})`}}>{children}</div></div>}
-export default function DocumentPreview({doc,payments,documents}:any){const source=attachedInvoice(doc,documents),c=doc.data.company,reference=source||doc;return <div className="documentBundle"><Page><InvoiceTemplate doc={doc} payments={payments}/></Page>{source&&<><p className="attachmentLabel noPrint">Beilage: Originalrechnung</p><Page><InvoiceTemplate doc={source} payments={[]}/></Page></>}{c.qrUrl&&currencyOf(doc.data)==='CHF'&&doc.kind!=='offer'&&<Page><article className="reference-invoice qrPaymentPage"><h1>Zahlungsinformationen</h1><h2>{c.name}</h2><p>{visible(reference.data,'number')?`Rechnung: ${reference.number}`:`Rechnung vom ${dateLabel(reference.data.date)}`}</p><p><strong>Zahlbetrag: CHF {money(dueAmount(doc))}</strong></p><p>IBAN: {c.iban}</p><img src={c.qrUrl} alt="Swiss QR-Code für die Zahlung"/><p>Mit der Banking-App scannen. Den oben angegebenen Betrag eingeben und Empfänger sowie IBAN vor der Zahlung prüfen.</p><small>Zahlungsinformation mit hochgeladenem Bank-QR-Code.</small></article></Page>}</div>}
+import {invoicePdf} from './pdf';
+// Preview the same generated PDF used by download, including attachments.
+export default function DocumentPreview({doc,payments,documents,onReady}:any){
+ const host=useRef<HTMLDivElement>(null);
+ const [state,setState]=useState('loading'),[retry,setRetry]=useState(0);
+ useEffect(()=>{
+  let cancelled=false,task:any;
+  const container=host.current!;
+  container.replaceChildren();setState('loading');onReady?.(false);
+  async function render(){
+   try{
+    const moduleUrl=new URL('assets/pdf-reader/pdf.min.mjs',document.baseURI).href;
+    const pdfjs=await import(/* webpackIgnore: true */ moduleUrl);
+    if(cancelled)return;
+    pdfjs.GlobalWorkerOptions.workerSrc=new URL('assets/pdf-reader/pdf.worker.min.mjs',document.baseURI).href;
+    const bytes=new Uint8Array(invoicePdf(doc,payments,documents).output('arraybuffer'));
+    task=pdfjs.getDocument({data:bytes,isEvalSupported:false,useWasm:false,useSystemFonts:true});
+    const pdf=await task.promise;
+    for(let n=1;n<=pdf.numPages;n++){
+     if(cancelled)return;
+     const page=await pdf.getPage(n),viewport=page.getViewport({scale:1.5});
+     if(cancelled)return;
+     const canvas=document.createElement('canvas');
+     canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+     canvas.setAttribute('role','img');canvas.setAttribute('aria-label',`Belegvorschau – Seite ${n} von ${pdf.numPages}`);
+     await page.render({canvas,canvasContext:canvas.getContext('2d')!,viewport}).promise;
+     page.cleanup();
+     if(cancelled)return;
+     container.append(canvas);
+    }
+    setState('ready');onReady?.(true);
+   }catch{if(!cancelled){container.replaceChildren();setState('error')}}
+  }
+  render();
+  return()=>{cancelled=true;if(task)void task.destroy().catch(()=>{});container.replaceChildren()};
+ },[doc,payments,documents,retry,onReady]);
+ return <div className="pdfPreview">
+  {state==='loading'&&<p className="hint noPrint" role="status">PDF-Vorschau wird erstellt …</p>}
+  {state==='error'&&<div className="alert error noPrint" role="alert">Die PDF-Vorschau konnte nicht geladen werden. Sie können den Beleg weiterhin als PDF herunterladen.<button type="button" onClick={()=>setRetry(n=>n+1)}>Erneut versuchen</button></div>}
+  <div className="pdfPreviewPages" ref={host} aria-busy={state==='loading'}/>
+ </div>;
+}

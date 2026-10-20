@@ -1,7 +1,7 @@
 import React from 'react';
 const topics=[
  ['Firma einrichten','Beginnen Sie mit Firmenname, Adresse und Land. Prüfen Sie Ihren Steuerstatus, Ihre Steuer-ID und die Zahlungsfrist. Eine IBAN können Sie ergänzen. Speichern Sie die Firmendaten, um Ihren Arbeitsplatz zu öffnen. Nach dem ersten Beleg bleibt das Firmenland fest.'],
- ['Logo, Farbe und Design','Unter Einstellungen wählen Sie Ihre Firmenfarbe, laden Ihr Logo hoch und wählen Vorlage 1, Modern oder Kompakt. Ein anderes Design können Sie auch direkt im Beleg wählen. Bereits gespeicherte Belege behalten ihre Firmendaten.'],
+ ['Logo, Farbe und Design','Unter Einstellungen wählen Sie Ihre Firmenfarbe, laden Ihr Logo hoch und wählen Vorlage 1, Modern oder Kompakt. Das Design für neue Belege legen Sie hier zentral fest. Bereits gespeicherte Belege behalten ihre Firmendaten.'],
  ['Kunden anlegen','Öffnen Sie Kunden → Neuer Kunde und speichern Sie Name und Adresse. Beim Erstellen eines Belegs können Sie im Kundenfeld auch einen neuen Kunden anlegen. Der angefangene Beleg bleibt dabei erhalten. Aktuell werden Inlandsgeschäfte im Firmenland unterstützt.'],
  ['Offerte oder Rechnung erstellen','Wählen Sie Neue Rechnung oder unter Offerten eine neue Offerte. Wählen Sie den Kunden, prüfen Sie Belegdatum, Zahlungsziel und Leistungsdatum. Ergänzen Sie Leistungen, Mengen, Nettopreise und den passenden Steuersatz.'],
  ['Abschnitte, Gesamtpreis und Rabatt','Mit Abschnitt hinzufügen schreiben Sie eigene Überschriften, zum Beispiel Wohnzimmer oder Bad. Nur Gesamtpreis erfasst einen Nettopreis für den ganzen Auftrag. Unter Rabatt wählen Sie Prozent oder einen festen Betrag; der Rabatt wird vor der Steuer abgezogen.'],

@@ -24,7 +24,17 @@ function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
  if(doc.status==='draft')left=block('ENTWURF',10,left,115,9,true);
  const metadata=[visible(d,'payment')?'Zahlungsart: Rechnung':'',visible(d,'reference')?`Unsere Referenz: ${d.title}`:'',visible(d,'uid')&&c.uid?`${countryOf(d)==='DE'?'USt-IdNr.':'Unsere ID-Nr.'}: ${c.uid}`:'',visible(d,'due')?`${doc.kind==='offer'?'Gültig bis':'Zahlbar bis'}: ${dateLabel(d.due)}`:'',visible(d,'number')?`Beleg-Nr.: ${doc.number}`:'',visible(d,'serviceDate')?`Leistungsdatum: ${dateLabel(d.serviceDate)}`:''].filter(Boolean);
  if(countryOf(d)==='DE'&&c.taxNumber)metadata.push(`Steuernummer: ${c.taxNumber}`);
- if(metadata.length)left=block(metadata.join('\n'),10,left+2,115,design==='compact'?10:12,true);
+ if(metadata.length){
+  left+=2;const size=design==='compact'?10:12,step=size*.42;
+  for(const row of metadata){
+   const colon=row.indexOf(':');const label=row.slice(0,colon+1),value=clean(row.slice(colon+1).trim());
+   pdf.setFontSize(size);pdf.setTextColor('#080808');pdf.setFont('helvetica','bold');
+   const labelWidth=pdf.getTextWidth(label+' ');
+   pdf.text(label,10,left);pdf.setFont('helvetica','normal');
+   const lines=pdf.splitTextToSize(value,Math.max(20,115-labelWidth));
+   pdf.text(lines,10+labelWidth,left);left+=Math.max(1,lines.length)*step;
+  }
+ }
  let right=block(customer.name,134,design==='compact'?38:62,66,12,true);
  right=block(`${customer.street} ${customer.house}\n${customer.zip} ${customer.city}${customer.email?'\n'+customer.email:''}`,134,right,66);
  right=block(`${c.city}, ${dateLabel(d.date)}`,134,right+4,66,10);
