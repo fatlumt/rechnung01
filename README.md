@@ -219,3 +219,7 @@ This release does not rename the private `klarrechnung-config.php` file, session
 
 ## PDF preview consistency
 The preview renders the same generated PDF as download, including invoice and QR attachments and page breaks. Printing becomes available after rendering completes. Metadata labels are bold, values regular. Design selection is only in company settings; existing document snapshots retain their design.
+
+
+## Company field defaults
+Field visibility is configured under Einstellungen → Felder auf Belegen anzeigen, not in individual document editors. New documents snapshot these company defaults on the server. Existing documents and converted offers retain their saved options. German required fields stay enabled. No database migration is needed.
