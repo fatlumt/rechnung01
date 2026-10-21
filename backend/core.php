@@ -33,6 +33,7 @@ function draft(mixed $v):array {
  foreach(['date','due','serviceDate'] as $k)$a[$k]=day($v[$k]??'');
  if($a['due']<$a['date'])fail('Zahlungsziel liegt vor dem Belegdatum.');
  $a['templateId']=template_id($v['templateId']??'classic');$a['language']='de';
+ $a['project']=text($v['project']??'',160);$a['depositIds']=$v['depositIds']??[];if(!is_array($a['depositIds'])||count($a['depositIds'])>30||count(array_unique($a['depositIds'],SORT_REGULAR))!==count($a['depositIds']))fail('Ungültige Akonto-Auswahl.');foreach($a['depositIds'] as $depositId)text($depositId,36,true);if($a['kind']!=='invoice'&&count($a['depositIds']))fail('Akonto-Abzug nur für Rechnungen.');
  $a['pricingMode']=$v['pricingMode']??'items';if(!in_array($a['pricingMode'],['items','total'],true))fail('Ungültige Preisart.');
  $a['visibility']=[];$visibility=$v['visibility']??[];if(!is_array($visibility))fail('Ungültige Anzeigeoptionen.');
  foreach(['payment','reference','uid','due','number','serviceDate'] as $key){$value=$visibility[$key]??true;if(!is_bool($value))fail('Ungültige Anzeigeoption.');$a['visibility'][$key]=$value;}
@@ -60,7 +61,7 @@ function document_total(array $d):int{
  $discount=match($d['discountType']??'none'){'percent'=>(int)round($subtotal*($d['discountValue']??0)/10000),'fixed'=>$d['discountValue']??0,default=>0};
  if($discount<0||$discount>=$subtotal)fail('Der Rabatt muss kleiner als die Zwischensumme sein.');
  $cumulative=0;$allocated=0;$adjusted=[];foreach($lines as $l){$n=(int)round($l['price']*$l['quantity']);$cumulative+=$n;$next=(int)round($cumulative/$subtotal*$discount);$adjusted[]=['quantity'=>1,'price'=>$n-($next-$allocated),'rate'=>$l['rate']];$allocated=$next;}
- return total($adjusted);
+ $amount=total($adjusted)-array_sum(array_column($d['depositCredits']??[],'total'));if($amount<0)fail('Akontozahlungen übersteigen den Gesamtbetrag.');return $amount;
 }
 function total(array $lines):int{$sum=0;foreach($lines as $l){if(($l['type']??'item')==='section')continue;$n=(int)round($l['price']*$l['quantity']);$sum+=$n+(int)round($n*$l['rate']/100);}if($sum<=0||$sum>100000000000)fail('Gesamtbetrag muss positiv und kleiner als CHF 1 Milliarde sein.');return $sum;}
 function decode_row(array $r):array{if(isset($r['data']))$r['data']=json_decode($r['data'],true,512,JSON_THROW_ON_ERROR);foreach(['total','paid','version'] as $k)if(isset($r[$k]))$r[$k]=(int)$r[$k];return $r;}

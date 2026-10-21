@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 function data_get(string $owner):array {
+ business_schema();mail_schema();
  $p=one('SELECT * FROM kr_businesses WHERE owner=?',[$owner]);
- return ['company'=>$p?decode_row($p)['data']:null,'companyVersion'=>$p?(int)$p['version']:0,
+ return ['expenses'=>array_map('decode_row',query('SELECT id,data,version,created FROM kr_expenses WHERE owner=? ORDER BY created DESC',[$owner])->fetchAll()),'depositLinks'=>query('SELECT deposit_id,final_id FROM kr_deposit_links WHERE owner=?',[$owner])->fetchAll(),'mailHistory'=>query('SELECT document_id,status,created FROM kr_mail_log WHERE owner=? ORDER BY created DESC LIMIT 500',[$owner])->fetchAll(),'company'=>$p?decode_row($p)['data']:null,'companyVersion'=>$p?(int)$p['version']:0,
  'customers'=>array_map('decode_row',query('SELECT * FROM kr_customers WHERE owner=? ORDER BY created DESC,id',[$owner])->fetchAll()),
  'documents'=>array_map('invoice_values',query('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? ORDER BY d.created DESC,d.number DESC',[$owner])->fetchAll()),
  'payments'=>array_map(fn($r)=>array_merge($r,['amount'=>(int)$r['amount']]),query('SELECT * FROM kr_payments WHERE owner=? ORDER BY date DESC,id',[$owner])->fetchAll())];
@@ -17,6 +18,7 @@ function add_document(string $owner,string $kind,array $data,string $status='dra
  query('INSERT INTO kr_documents(id,owner,number,kind,status,data,total,source_offer,created) VALUES(?,?,?,?,?,?,?,?,?)',[$id,$owner,$number,$kind,$status,encode($data),$sum,$kind==='invoice'?($data['sourceId']??null):null,date('Y-m-d H:i:s')]);return ['id'=>$id];
 }
 function data_post(string $owner,array $b):array {
+ business_schema();
  db()->beginTransaction();
  // Serialise each business's mutations, including numbering and partial payments.
  one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
@@ -25,19 +27,21 @@ function data_post(string $owner,array $b):array {
 }
 function data_change(string $owner,array $b):array {
  $action=$b['action']??'';
+ if($action==='expense')return expense_save($owner,$b);
+ if($action==='receipt'){$r=one('SELECT data,receipt FROM kr_expenses WHERE owner=? AND id=?',[$owner,text($b['expenseId']??'',36,true)]);if(!$r)fail('Beleg nicht gefunden.',404);return ['receipt'=>$r['receipt'],'name'=>decode_row($r)['data']['receiptName']??'Beleg'];}
  if($action==='company'){$v=company($b['data']??null);$p=one('SELECT version,data FROM kr_businesses WHERE owner=?',[$owner]);if($p&&decode_row($p)['data']['country']!==$v['country']&&one('SELECT id FROM kr_documents WHERE owner=? LIMIT 1',[$owner]))fail('Das Firmenland kann nach dem ersten Beleg nicht gewechselt werden. Bitte einen eigenen Firmenbereich verwenden.');if(integer($b['version']??null)!==($p?(int)$p['version']:0))fail('Firmendaten wurden inzwischen geändert. Bitte neu laden.',409);query('INSERT INTO kr_businesses(owner,data,version) VALUES(?,?,1) ON DUPLICATE KEY UPDATE data=VALUES(data),version=version+1',[$owner,encode($v)]);return ['ok'=>true];}
  if($action==='customer'){$v=address($b['data']??null);$id=$b['customerId']??null;if($id){$id=text($id,36,true);if(!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]))fail('Kunde nicht gefunden.',404);query('UPDATE kr_customers SET data=? WHERE owner=? AND id=?',[encode($v),$owner,$id]);}else{$id=id();query('INSERT INTO kr_customers(id,owner,data,created) VALUES(?,?,?,?)',[$id,$owner,encode($v),date('Y-m-d H:i:s')]);}return ['id'=>$id];}
- if($action==='create'){$v=draft($b['data']??null);$p=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$p)fail('Bitte zuerst Firmendaten speichern.');$profile=decode_row($p)['data'];check_vat($v,$profile);$v['company']=$profile;$v['customer']=customer_snapshot($owner,$v['customerId']);$v['templateId']=template_id($b['data']['templateId']??$profile['templateId']??'classic');$v['visibility']=field_visibility($profile['visibility']??[]);document_country($v);return add_document($owner,$v['kind'],$v);}
+ if($action==='create'){$v=draft($b['data']??null);$p=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$p)fail('Bitte zuerst Firmendaten speichern.');$profile=decode_row($p)['data'];check_vat($v,$profile);$v['company']=$profile;$v['customer']=customer_snapshot($owner,$v['customerId']);$v['templateId']=template_id($b['data']['templateId']??$profile['templateId']??'classic');$v['visibility']=field_visibility($profile['visibility']??[]);document_country($v);apply_deposits($owner,$v);$result=add_document($owner,$v['kind'],$v);reserve_deposits($owner,$result['id'],$v);return $result;}
  $id=text($b['id']??'',36,true);$r=one('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND d.id=?',[$owner,$id]);if(!$r)fail('Beleg nicht gefunden.',404);$d=invoice_values($r);if(integer($b['version']??null)!==$d['version'])fail('Beleg wurde inzwischen geändert. Bitte neu laden.',409);
- if($action==='edit'){if($d['status']!=='draft')fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>customer_snapshot($owner,$v['customerId'])]);document_country($v);query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);return ['ok'=>true];}
+ if($action==='edit'){if($d['status']!=='draft')fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>customer_snapshot($owner,$v['customerId'])]);document_country($v);apply_deposits($owner,$v,$id);reserve_deposits($owner,$id,$v);query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);return ['ok'=>true];}
  if($action==='refreshLogo'){
   if($d['status']!=='draft')fail('Nur Entwürfe können ein neues Firmenlogo übernehmen.');
   $profile=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$profile)fail('Bitte zuerst Firmendaten speichern.');
   $v=$d['data'];$v['company']['logoUrl']=decode_row($profile)['data']['logoUrl']??'';
   query('UPDATE kr_documents SET data=?,version=version+1 WHERE owner=? AND id=?',[encode($v),$owner,$id]);return ['ok'=>true];
  }
- if($action==='issue'){if($d['status']!=='draft')fail('Beleg ist bereits ausgestellt.');query("UPDATE kr_documents SET status='issued',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];}
- if($action==='delete'){if($d['status']!=='draft')fail('Nur Entwürfe können gelöscht werden.');query('DELETE FROM kr_documents WHERE owner=? AND id=?',[$owner,$id]);return ['ok'=>true];}
+ if($action==='issue'){if($d['status']!=='draft')fail('Beleg ist bereits ausgestellt.');$checked=$d['data'];apply_deposits($owner,$checked,$id);query("UPDATE kr_documents SET status='issued',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];}
+ if($action==='delete'){if($d['status']!=='draft')fail('Nur Entwürfe können gelöscht werden.');query('DELETE FROM kr_deposit_links WHERE owner=? AND final_id=?',[$owner,$id]);query('DELETE FROM kr_documents WHERE owner=? AND id=?',[$owner,$id]);return ['ok'=>true];}
  if($action==='accept'){if($d['kind']!=='offer'||$d['status']!=='issued')fail('Nur ausgestellte Offerten können angenommen werden.');query("UPDATE kr_documents SET status='accepted',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];}
  if($action==='convert'){
   if($d['kind']!=='offer')fail('Nur Offerten können in Rechnungen umgewandelt werden.');
@@ -47,18 +51,18 @@ function data_change(string $owner,array $b):array {
   $v['company']=$d['data']['company'];check_vat($v,$v['company']);
   $v['customer']=$v['customerId']===$d['data']['customerId']?$d['data']['customer']:customer_snapshot($owner,$v['customerId']);
   document_country($v);$v['sourceId']=$id;$v['sourceNumber']=$d['number'];
-  return add_document($owner,'invoice',$v);
+  apply_deposits($owner,$v);$result=add_document($owner,'invoice',$v);reserve_deposits($owner,$result['id'],$v);return $result;
  }
  if($action==='status'){
   if($d['kind']!=='invoice')fail('Dieser Status ist nur für Rechnungen verfügbar.');
   $target=$b['status']??'';if(!in_array($target,['open','paid'],true))fail('Ungültiger Status.');
   if($d['status']==='draft'){
-   if($target!=='open')fail('Bitte die Rechnung zuerst ausstellen.');
+   if($target!=='open')fail('Bitte die Rechnung zuerst ausstellen.');$checked=$d['data'];apply_deposits($owner,$checked,$id);
    query("UPDATE kr_documents SET status='issued',version=version+1 WHERE owner=? AND id=?",[$owner,$id]);return ['ok'=>true];
   }
   if($target==='paid'){$amount=$d['total']-$d['paid'];if($amount<=0)fail('Rechnung ist bereits bezahlt.',409);}
   else{
-   if($d['paid']===0)return ['ok'=>true];
+   if($d['paid']===0)return ['ok'=>true];if(one('SELECT final_id FROM kr_deposit_links WHERE owner=? AND deposit_id=?',[$owner,$id]))fail('Akonto ist einer Schlussrechnung zugeordnet. Eine Rückbuchung ist gesperrt.');
    if(($b['confirmReversal']??false)!==true)fail('Bitte die Rückbuchung der Zahlungen bestätigen.',409);
    $amount=-$d['paid'];
   }

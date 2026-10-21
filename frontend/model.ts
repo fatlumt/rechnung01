@@ -14,7 +14,8 @@ export function documentTotals(d:any){
  const discount=d.discountType==='percent'?Math.round(subtotal*(d.discountValue||0)/10000):d.discountType==='fixed'?(d.discountValue||0):0;
  let cumulative=0,allocated=0;const adjusted=lines.map((l:any)=>{const n=Math.round(l.quantity*l.price);cumulative+=n;const next=subtotal?Math.round(cumulative/subtotal*discount):0,share=next-allocated;allocated=next;return {...l,quantity:1,price:n-share}});
  const bases:Record<string,number>={};for(const l of adjusted)bases[l.rate]=(bases[l.rate]||0)+l.price;
- return {...totals(adjusted),subtotal,discount,bases};
+ const gross=totals(adjusted),creditTotal=(d.depositCredits||[]).reduce((n:number,c:any)=>n+c.total,0);
+ return {...gross,grossTotal:gross.total,creditTotal,total:gross.total-creditTotal,subtotal,discount,bases};
 }
 export const discountLabel=(d:any)=>d.discountType==='percent'?`Rabatt (${(d.discountValue||0)/100}%)`:'Rabatt';
 export const visible=(d:any,key:string)=>d.visibility?.[key]!==false;
