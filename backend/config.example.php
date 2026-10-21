@@ -8,6 +8,14 @@ return [
   'db_user' => 'YOUR_FULL_HOSTINGER_DATABASE_USER',
   'db_password' => 'YOUR_DATABASE_PASSWORD',
   'app_url' => 'https://digital.krasniqi-plattenleger.ch',
+  // Optional outbound email. Add real credentials ONLY to the private server config.
+  'smtp_host' => 'smtp.hostinger.com',
+  'smtp_port' => 465,
+  'smtp_security' => 'ssl',
+  'smtp_user' => 'YOUR_HOSTINGER_MAILBOX',
+  'smtp_password' => '',
+  'mail_from' => 'YOUR_HOSTINGER_MAILBOX',
+  'mail_from_name' => 'digitalrechnung',
   // Choose a NEW random setup code of at least 32 characters; used only once.
   'setup_key' => 'REPLACE_WITH_YOUR_OWN_RANDOM_SETUP_CODE',
 ];
