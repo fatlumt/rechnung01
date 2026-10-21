@@ -1,3 +1,4 @@
+import {PDFDocument} from 'pdf-lib';
 import {currencyOf,countryOf,taxLabel,exemption,templateOf,documentTitle} from './country';
 import {attachedInvoice,dueAmount} from './document-bundle';
 import {jsPDF} from 'jspdf';
@@ -87,7 +88,7 @@ export function invoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){
  renderDocument(pdf,doc,payments);
  const source=attachedInvoice(doc,documents);if(source){pdf.addPage();renderDocument(pdf,source,[]);}
  const c=doc.data.company;
- if(c.qrUrl&&currencyOf(doc.data)==='CHF'&&doc.kind!=='offer'){
+ if(c.qrUrl&&!c.qrPdf&&currencyOf(doc.data)==='CHF'&&doc.kind!=='offer'){
   pdf.addPage();pdf.setTextColor('#080808');pdf.setFont('helvetica','bold');pdf.setFontSize(22);pdf.text('Zahlungsinformationen',20,30);
   pdf.setFontSize(12);pdf.text(pdf.splitTextToSize(c.name,170),20,44);pdf.setFont('helvetica','normal');
   const reference=source||doc;pdf.text(visible(reference.data,'number')?`Rechnung: ${reference.number}`:`Rechnung vom ${dateLabel(reference.data.date)}`,20,60);
@@ -100,5 +101,18 @@ export function invoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){
  const pages=pdf.getNumberOfPages();for(let i=1;i<=pages;i++){pdf.setPage(i);pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor('#777777');pdf.text(`${visible(doc.data,'number')?doc.number+' · ':''}${i} / ${pages}`,200,291,{align:'right'});}
  return pdf;
 }
-export function downloadInvoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){invoicePdf(doc,payments,documents).save(pdfFilename(doc));}
+export async function invoicePdfBytes(doc:any,payments:any[]=[],documents:any[]=[]){
+ const base=new Uint8Array(invoicePdf(doc,payments,documents).output('arraybuffer'));
+ const original=doc.data.company.qrPdf;
+ if(!original||currencyOf(doc.data)!=='CHF'||doc.kind==='offer')return base;
+ const merged=await PDFDocument.load(base),attachment=await PDFDocument.load(original);
+ const pages=await merged.copyPages(attachment,attachment.getPageIndices());
+ for(const page of pages)merged.addPage(page);
+ return merged.save();
+}
+export async function downloadInvoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){
+ const bytes=await invoicePdfBytes(doc,payments,documents);
+ const url=URL.createObjectURL(new Blob([bytes as BlobPart],{type:'application/pdf'}));
+ const link=document.createElement('a');link.href=url;link.download=pdfFilename(doc);document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
 

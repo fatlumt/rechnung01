@@ -1,5 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {invoicePdf} from './pdf';
+import {invoicePdfBytes} from './pdf';
 // Preview the same generated PDF used by download, including attachments.
 export default function DocumentPreview({doc,payments,documents,onReady}:any){
  const host=useRef<HTMLDivElement>(null);
@@ -14,7 +14,7 @@ export default function DocumentPreview({doc,payments,documents,onReady}:any){
     const pdfjs=await import(/* webpackIgnore: true */ moduleUrl);
     if(cancelled)return;
     pdfjs.GlobalWorkerOptions.workerSrc=new URL('assets/pdf-reader/pdf.worker.min.mjs',document.baseURI).href;
-    const bytes=new Uint8Array(invoicePdf(doc,payments,documents).output('arraybuffer'));
+    const bytes=await invoicePdfBytes(doc,payments,documents);if(cancelled)return;
     task=pdfjs.getDocument({data:bytes,isEvalSupported:false,useWasm:false,useSystemFonts:true});
     const pdf=await task.promise;
     for(let n=1;n<=pdf.numPages;n++){

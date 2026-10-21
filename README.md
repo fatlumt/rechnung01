@@ -223,3 +223,9 @@ The preview renders the same generated PDF as download, including invoice and QR
 
 ## Company field defaults
 Field visibility is configured under Einstellungen → Felder auf Belegen anzeigen, not in individual document editors. New documents snapshot these company defaults on the server. Existing documents and converted offers retain their saved options. German required fields stay enabled. No database migration is needed.
+
+
+## Original bank PDFs and PDF logos
+Swiss bank PDF uploads (up to 5 MB / 10 pages) are stored unchanged in the company snapshot and may be downloaded as originals. Their pages are appended without cropping or added page marks, at their original size and rotation, to new invoice/reminder PDFs. Existing QR image uploads retain the generated payment page. The QR must still be neutral and match the company IBAN. Existing records retain their original snapshots; previously extracted PDFs must be uploaded again. PDF logo uploads render the first page to a compact PNG with empty margins trimmed. The original logo PDF is not retained. The preview and download share the same asynchronous PDF assembly. API JSON limit is 8 MB; database records remain MEDIUMTEXT. No database migration.
+
+Existing drafts can explicitly adopt the current saved company logo with **Aktuelles Firmenlogo übernehmen**. This updates only the logo, checks owner and document version, and rejects issued documents. Settings cannot be saved while logo/QR processing is still running.
