@@ -1,4 +1,5 @@
 import {useEffect,useState} from 'react';
+import EmailFooter from './email-footer';
 import {api} from './api';
 import {invoicePdfBytes,downloadInvoicePdf} from './pdf';
 import {pdfFilename,labels} from './model';
@@ -13,19 +14,21 @@ export default function DocumentSend({doc,payments,documents,user,emailEnabled=t
  async function share(){if(!file)return;setError('');try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:pdfFilename(doc)});setNotice('Teilen-Menü geschlossen. Den Versand bestätigen Sie in der gewählten App.');}else{await downloadInvoicePdf(doc,payments,documents);setNotice('PDF heruntergeladen. Hängen Sie die Datei in WhatsApp oder Ihrer E-Mail-App an.');}}catch(e:any){if(e.name!=='AbortError')setError('Teilen nicht möglich. Bitte PDF herunterladen und in WhatsApp als Dokument anhängen.');}}
  async function send(e:any){e.preventDefault();if(!emailEnabled||!file||busy||sent||!status?.ready)return;setBusy(true);setError('');try{
   const pdf=await new Promise<string>((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=()=>reject(Error('PDF konnte nicht gelesen werden.'));r.readAsDataURL(file);});
-  const r=await api('mail',{documentId:doc.id,version:doc.version,target,to,subject,message,pdf,filename:file.name,requestId});setSent(true);
+  const r=await api('mail',{documentId:doc.id,version:doc.version,companyVersion:status.companyVersion,target,to,subject,message,pdf,filename:file.name,requestId});setSent(true);
   setNotice(r.status==='accepted'?'Vom Mailserver angenommen. Dies bestätigt noch keine Zustellung.':'Ein Versandversuch ist bereits erfasst. Bitte Verlauf und Postfach prüfen.');await load();
  }catch(e:any){setError(e.message);load().catch(()=>{});}finally{setBusy(false);}}
  return <section className="documentSend noPrint" aria-label="Beleg versenden">
   <div className="sendButtons">{emailEnabled&&<><button className="secondary" disabled={busy} onClick={()=>choose('self')}>An mich senden</button><button className="secondary" disabled={busy} onClick={()=>choose('customer')}>An Kunden senden</button></>}<button className="secondary" disabled={!file||busy} onClick={share}>{file?'Teilen / WhatsApp':'PDF wird vorbereitet …'}</button></div>
   {error&&<p className="alert error" role="alert">{error}</p>}{notice&&<p className="alert success" role="status">{notice}</p>}
   {emailEnabled&&target&&<form className="sendReview" onSubmit={send}><h3>E-Mail prüfen</h3>
-   <p className="hint">Absender: {status?.from||'Noch nicht eingerichtet'} · Antworten an: {user.email}</p>
+   <p className="hint">Absender: {status?.company?.name||doc.data.company.name} &lt;{status?.from||'Noch nicht eingerichtet'}&gt; · Antworten an: {user.email}</p>
    {!status?.ready&&<p role="status" className="hint">{status?.unavailable?'Versandstatus konnte nicht geladen werden. Beleg bitte erneut öffnen.':'E-Mail-Versand muss zuerst mit dem Hostinger-Postfach verbunden werden. PDF teilen und herunterladen ist bereits möglich.'}</p>}
    {doc.status==='draft'&&<p className="hint">Dieser Beleg ist ein Entwurf. Er wird als Entwurf versendet und nicht automatisch ausgestellt.</p>}
    <label className="field"><span>Empfänger</span><input type="email" required maxLength={190} disabled={busy||sent||target==='self'} value={target==='self'?user.email:to} onChange={e=>setTo(e.target.value)}/></label>
    <label className="field"><span>Betreff</span><input required maxLength={180} disabled={busy||sent} value={subject} onChange={e=>setSubject(e.target.value)}/></label>
    <label className="field"><span>Nachricht</span><textarea required rows={6} maxLength={6000} disabled={busy||sent} value={message} onChange={e=>setMessage(e.target.value)}/></label>
+   <p className="hint">Dieser Firmenfussbereich wird automatisch angefügt. Logo und Kontaktdaten ändern Sie in den Einstellungen.</p>
+   <EmailFooter company={status?.company}/>
    <p className="sendAttachment">Anhang: {file?.name||'PDF wird vorbereitet …'}{file&&file.size>5000000?' · Zu gross für E-Mail (max. 5 MB). Bitte herunterladen und separat versenden.':''}</p>
    <div className="sendButtons"><button className="primary" type="submit" disabled={busy||sent||!file||file.size>5000000||!status?.ready}>{busy?'Wird gesendet …':sent?'Versand erfasst':'Senden'}</button><button className="secondary" type="button" disabled={busy} onClick={()=>setTarget('')}>Schliessen</button></div>
   </form>}
