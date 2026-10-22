@@ -5,13 +5,16 @@ function mail_schema():void {
 }
 function mail_ready():bool {$c=config();return !empty($c['smtp_host'])&&!empty($c['smtp_user'])&&!empty($c['smtp_password'])&&filter_var($c['mail_from']??'',FILTER_VALIDATE_EMAIL);}
 function mail_get(array $u,string $id):array {
- if(!one('SELECT id FROM kr_documents WHERE owner=? AND id=?',[$u['id'],$id]))fail('Beleg nicht gefunden.',404);
+ require_feature($u['id'],'email');
+ $doc=one('SELECT kind FROM kr_documents WHERE owner=? AND id=?',[$u['id'],$id]);if(!$doc)fail('Beleg nicht gefunden.',404);require_feature($u['id'],feature_kind($doc['kind']));
  mail_schema();return ['ready'=>mail_ready(),'from'=>mail_ready()?config()['mail_from']:'','history'=>query('SELECT recipient,status,created FROM kr_mail_log WHERE owner=? AND document_id=? ORDER BY created DESC LIMIT 20',[$u['id'],$id])->fetchAll()];
 }
 function mail_post(array $u,array $b):array {
+ require_feature($u['id'],'email');
  if(!mail_ready())fail('E-Mail-Versand ist noch nicht eingerichtet. Bitte SMTP-Zugang auf dem Server konfigurieren.',503);
  $owner=$u['id'];$id=text($b['documentId']??'',36,true);
  $doc=one('SELECT * FROM kr_documents WHERE owner=? AND id=?',[$owner,$id]);if(!$doc)fail('Beleg nicht gefunden.',404);
+ require_feature($owner,feature_kind($doc['kind']));
  if(integer($b['version']??null)!==(int)$doc['version'])fail('Beleg wurde geändert. Bitte schliessen und erneut öffnen.',409);
  $to=($b['target']??'')==='self'?$u['email']:text($b['to']??'',190,true);
  if(!filter_var($to,FILTER_VALIDATE_EMAIL)||preg_match('/[\r\n]/',$to))fail('E-Mail-Adresse prüfen.');
@@ -21,6 +24,7 @@ function mail_post(array $u,array $b):array {
  $filename=text($b['filename']??'Beleg.pdf',180,true);$filename=preg_replace('/[^\p{L}\p{N} ._()-]/u','_',$filename);if(!str_ends_with(strtolower($filename),'.pdf'))$filename.='.pdf';
  $request=text($b['requestId']??'',36,true);if(!preg_match('/^[a-f0-9-]{36}$/D',$request))fail('Ungültige Versandkennung.');
  mail_schema();db()->beginTransaction();one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
+ require_feature($owner,'email');require_feature($owner,feature_kind($doc['kind']));
  $old=one('SELECT status FROM kr_mail_log WHERE id=? AND owner=?',[$request,$owner]);
  if($old){db()->commit();return ['status'=>$old['status']];}
  limit_attempts('mail-owner',$owner,10);limit_attempts('mail-global','all',50);

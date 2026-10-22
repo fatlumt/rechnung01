@@ -7,11 +7,13 @@ header('X-Content-Type-Options: nosniff');
 require __DIR__.'/backend/core.php';
 require __DIR__.'/backend/auth.php';
 require __DIR__.'/backend/business.php';
+require __DIR__.'/backend/hours.php';
+require __DIR__.'/backend/features.php';
 require __DIR__.'/backend/data.php';
 require __DIR__.'/backend/admin.php';
 require __DIR__.'/backend/mail.php';
 try {
- begin_session();$method=$_SERVER['REQUEST_METHOD'];
+ features_schema();begin_session();$method=$_SERVER['REQUEST_METHOD'];
  if(!in_array($method,['GET','POST'],true)){header('Allow: GET, POST');fail('Methode nicht erlaubt.',405);}
  $route=$_GET['route']??'';if(!in_array($route,['auth','data','admin','mail'],true))fail('Nicht gefunden.',404);
  $b=[];if($method==='POST'){csrf();if(!str_starts_with($_SERVER['CONTENT_TYPE']??'','application/json'))fail('JSON erforderlich.',415);$raw=file_get_contents('php://input',false,null,0,8000001);if(strlen($raw)>8000000)fail('Anfrage zu gross.',413);try{$b=json_decode($raw,true,64,JSON_THROW_ON_ERROR);}catch(JsonException $e){fail('Ungültiges JSON.');}if(!is_array($b)||array_is_list($b))fail('Ungültige Anfrage.');}
