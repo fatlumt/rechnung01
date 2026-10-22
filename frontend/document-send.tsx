@@ -16,7 +16,7 @@ export default function DocumentSend({doc,payments,documents,user,emailEnabled=t
  async function send(e:any){e.preventDefault();if(!emailEnabled||!file||busy||sent||!status?.ready||subject.length>180||message.length>6000)return;setBusy(true);setError('');try{
   const pdf=await new Promise<string>((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=()=>reject(Error('PDF konnte nicht gelesen werden.'));r.readAsDataURL(file);});
   const r=await api('mail',{documentId:doc.id,version:doc.version,companyVersion:status.companyVersion,target,to,subject,message,pdf,filename:file.name,requestId});setSent(true);
-  setNotice(r.status==='accepted'?'Vom Mailserver angenommen. Dies bestätigt noch keine Zustellung.':'Ein Versandversuch ist bereits erfasst. Bitte Verlauf und Postfach prüfen.');await load();
+  if(r.status==='accepted')setNotice('Vom Mailserver angenommen. Dies bestätigt noch keine Zustellung.');else setError('Ein Versandversuch ist bereits erfasst, aber nicht bestätigt. Bitte Verlauf und Postfach prüfen.');await load();
  }catch(e:any){setError(e.message);load().catch(()=>{});}finally{setBusy(false);}}
  return <section className="documentSend noPrint" aria-label="Beleg versenden">
   <div className="sendButtons">{emailEnabled&&<><button className="secondary" disabled={busy} onClick={()=>choose('self')}>An mich senden</button><button className="secondary" disabled={busy} onClick={()=>choose('customer')}>An Kunden senden</button></>}<button className="secondary" disabled={!file||busy} onClick={share}>{file?'Teilen / WhatsApp':'PDF wird vorbereitet …'}</button></div>

@@ -259,3 +259,6 @@ E-Mail-Logos erhalten bei verfügbarer PHP-GD-Unterstützung einen direkt in die
 ### E-Mail-Vorlagen
 Unter Einstellungen können Firmen für Rechnung, Offerte, Zahlungserinnerung und Mahnung einen eigenen Betreff und Nachrichtentext speichern. Platzhalter: {kunde}, {firma}, {belegart}, {belegnummer}, {belegdatum}, {faelligkeit}. Mit Firmendaten speichern sichern. Beim Öffnen des Versanddialogs werden die aktuellen Vorlagen eingesetzt; vor dem Versand bleibt der Text bearbeitbar. Der Firmenfussbereich wird automatisch ergänzt.
 
+
+### Speicher- und Versandmeldungen
+Erfolgreiche Änderungen erscheinen als grüne Meldung, Fehler als rote Meldung über geöffneten Dialogen. Bei einem unbestätigten SMTP-Versand wird eine kontoabhängige Benachrichtigung gespeichert und einmalig eine Warnung an die Konto-E-Mail versucht. Ist auch dieser Versand nicht möglich, bleibt der Hinweis in der App. SMTP-Annahme ist keine Zustellbestätigung. Spätere Rückläufer werden noch nicht automatisch aus dem Hostinger-Postfach abgerufen. Es werden keine Rechnungen automatisch erneut gesendet.

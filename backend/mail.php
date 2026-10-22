@@ -4,6 +4,31 @@ function mail_schema():void {
  query("CREATE TABLE IF NOT EXISTS kr_mail_log (id CHAR(36) PRIMARY KEY,owner CHAR(36) NOT NULL,document_id CHAR(36) NOT NULL,recipient VARCHAR(190) NOT NULL,status VARCHAR(16) NOT NULL,created DATETIME NOT NULL,INDEX(owner,document_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 function mail_ready():bool {$c=config();return !empty($c['smtp_host'])&&!empty($c['smtp_user'])&&!empty($c['smtp_password'])&&filter_var($c['mail_from']??'',FILTER_VALIDATE_EMAIL);}
+function mail_notifications_schema():void {
+ query("CREATE TABLE IF NOT EXISTS kr_mail_notifications (id CHAR(36) PRIMARY KEY,owner CHAR(36) NOT NULL,message TEXT NOT NULL,email_status VARCHAR(16) NOT NULL DEFAULT 'pending',created DATETIME NOT NULL,read_at DATETIME NULL,INDEX(owner,read_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+function mail_notifications_get(array $u):array {
+ require_feature($u['id'],'email');mail_notifications_schema();
+ return ['items'=>query('SELECT id,message,email_status,created FROM kr_mail_notifications WHERE owner=? AND read_at IS NULL ORDER BY created DESC LIMIT 50',[$u['id']])->fetchAll()];
+}
+function mail_notifications_read(array $u,array $b):array {
+ require_feature($u['id'],'email');mail_notifications_schema();$id=text($b['id']??'',36,true);
+ if(!one('SELECT id FROM kr_mail_notifications WHERE id=? AND owner=?',[$id,$u['id']]))fail('Benachrichtigung nicht gefunden.',404);
+ query('UPDATE kr_mail_notifications SET read_at=? WHERE id=? AND owner=?',[date('Y-m-d H:i:s'),$id,$u['id']]);return ['ok'=>true];
+}
+function mail_failure_notice(array $u,array $doc,string $request,string $to):void {
+ mail_notifications_schema();
+ $message='Der Versand von '.$doc['number'].' an '.$to.' konnte nicht bestätigt werden. Bitte Postfach und Versandverlauf prüfen, bevor Sie erneut senden.';
+ $insert=query('INSERT IGNORE INTO kr_mail_notifications(id,owner,message,created) VALUES(?,?,?,?)',[$request,$u['id'],$message,date('Y-m-d H:i:s')]);if($insert->rowCount()===0)return;
+ // This warning is best effort and never retries the original invoice.
+ try {
+  if(!mail_ready())throw new RuntimeException('Mail transport unavailable');
+  foreach(['Exception','SMTP','PHPMailer'] as $name)require_once __DIR__.'/vendor/phpmailer/'.$name.'.php';
+  $c=config();$warning=new \PHPMailer\PHPMailer\PHPMailer(true);$warning->isSMTP();$warning->Host=$c['smtp_host'];$warning->Port=(int)($c['smtp_port']??465);$warning->SMTPSecure=($c['smtp_security']??'ssl')==='tls'?'tls':'ssl';$warning->SMTPAuth=true;$warning->Username=$c['smtp_user'];$warning->Password=$c['smtp_password'];$warning->Timeout=5;$warning->Timelimit=5;$warning->CharSet='UTF-8';
+  $warning->setFrom($c['mail_from'],'digitalrechnung');$warning->addAddress($u['email']);$warning->Subject='E-Mail-Versand bitte prüfen';$warning->Body=$message."\n\nDieser Hinweis ist auch in digitalrechnung gespeichert. Eine erneute Sendung wurde nicht automatisch gestartet.";$warning->send();
+  query("UPDATE kr_mail_notifications SET email_status='accepted' WHERE id=? AND owner=?",[$request,$u['id']]);
+ }catch(Throwable $ignored){query("UPDATE kr_mail_notifications SET email_status='unknown' WHERE id=? AND owner=?",[$request,$u['id']]);}
+}
 function mail_branding(string $owner,array $doc):array {
  $profile=one('SELECT data,version FROM kr_businesses WHERE owner=?',[$owner]);
  $company=$profile?json_decode($profile['data'],true):(json_decode($doc['data']??'{}',true)['company']??[]);
@@ -88,7 +113,7 @@ function mail_post(array $u,array $b):array {
   query("UPDATE kr_mail_log SET status='accepted' WHERE id=? AND owner=?",[$request,$owner]);return ['status'=>'accepted'];
  }catch(Throwable $e){
   // A connection failure can occur after SMTP acceptance. Never retry automatically.
-  if(!$accepted)query("UPDATE kr_mail_log SET status='unknown' WHERE id=? AND owner=?",[$request,$owner]);
+  if(!$accepted){query("UPDATE kr_mail_log SET status='unknown' WHERE id=? AND owner=?",[$request,$owner]);mail_failure_notice($u,$doc,$request,$to);}
   fail('Versand konnte nicht bestätigt werden. Bitte Postfach und Versandverlauf prüfen, bevor Sie erneut senden.',502);
  }
 }
