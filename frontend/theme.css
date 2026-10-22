@@ -17,3 +17,6 @@
 /* A gentle company-colour tint behind the workspace, never on document pages. */
 .app:not(.modalBackdrop),.app>.workspace{background-color:var(--brand-page,#f2f5fd)}
 @media print{.app:not(.modalBackdrop),.app>.workspace{background:#fff!important}}
+
+.appBrandLogo{display:block;width:100%;height:auto;object-fit:contain}.sidebarBrandRow>a.brand{flex:1;max-width:190px;min-width:0}.authCard .brand,.onboardingHeader .brand{width:min(100%,330px)}
+@media(max-width:760px){.sidebarBrandRow>a.brand{max-width:240px;margin-right:12px}}
