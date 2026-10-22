@@ -1,4 +1,23 @@
 /* Installed web app: leave room for iPhone status bar, notch and home indicator. */
+@media screen {
+  .modalBackdrop, .mobileMenuBackdrop {
+    max-width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+  .modalBackdrop { scrollbar-gutter: stable; }
+  .modal, .modal.wide, .modalHeading > div, .modal .grid > * {
+    min-width: 0;
+  }
+  .modal { flex-shrink: 1; overflow-wrap: anywhere; }
+  .modal input, .modal select, .modal textarea { max-width: 100%; }
+  .mobileMenu { max-height: 100dvh; overflow-y: auto; }
+}
+@media print {
+  /* The on-screen scroll lock must not clip printed invoices. */
+  html { overflow: visible !important; }
+  body { position: static !important; top: auto !important; left: auto !important; width: auto !important; overflow: visible !important; padding-right: 0 !important; }
+}
 @media (display-mode: standalone) {
   .authPage {
     padding-top: max(24px, env(safe-area-inset-top));

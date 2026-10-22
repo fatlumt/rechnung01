@@ -1,4 +1,5 @@
 import {FeatureContext,viewFeature} from './features';
+import {lockPageScroll} from './scroll-lock';
 import Hours from './hours';
 import Overview from './overview';
 import {ProjectFields,Expenses,FollowUp} from './business';
@@ -16,7 +17,7 @@ import {StatusControl,ActionControl} from './row-actions';
 import DocumentOptions from './document-options';
 import {documentTotals,discountLabel} from './model';
 'use client';
-import { useEffect,useState,useRef } from 'react';
+import { useEffect,useLayoutEffect,useState,useRef } from 'react';
 import {createPortal} from 'react-dom';
 import {themeStyle} from './theme';
 import './theme.css';
@@ -40,7 +41,7 @@ async function load(){const d=await api('data');setData(d);return d;}
 useEffect(()=>{load().catch(e=>setError(e.message));const focus=()=>load().catch(()=>{});window.addEventListener('focus',focus);return()=>window.removeEventListener('focus',focus)},[]);
 useEffect(()=>{if(data?.features&&viewFeature[view]&&data.features[viewFeature[view]]===false){setView('overview');setModal(null)}},[data?.features,view]);
 useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!busy)setModal(null)};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[busy]);
-useEffect(()=>{if(!modal&&!mobileMenu)return;const previous=document.body.style.overflow;document.body.style.overflow='hidden';return()=>{document.body.style.overflow=previous}},[!!modal,mobileMenu]);
+useLayoutEffect(()=>{if(!modal&&!mobileMenu)return;return lockPageScroll()},[!!(modal||mobileMenu)]);
 async function act(body:Any,close=true,pdf=false,preview=false){setBusy(true);setError('');setNotice('');try{const result=await api('data',body);const next=await load();setNotice('Änderungen gespeichert.');if(pdf||preview){const doc=next.documents.find((d:Any)=>d.id===(result.id||body.id));setModal({type:'detail',doc});try{if(pdf)await downloadInvoicePdf(doc,next.payments,next.documents)}catch{setError('Beleg gespeichert. PDF konnte nicht erstellt werden. Bitte PDF-Download erneut versuchen.')}}else if(close)setModal(null);else if(modal?.doc)setModal({type:'detail',doc:next.documents.find((d:Any)=>d.id===modal.doc.id)});return result;}catch(e:Any){setError(e.message);return null;}finally{setBusy(false);}}
 const currency=currencyOf(data?.company);const docs=data?.documents||[],customers=data?.customers||[],invoices=docs.filter((d:Any)=>d.kind==='invoice'&&d.status!=='draft'),outstanding=invoices.reduce((s:number,d:Any)=>s+d.total-d.paid,0),overdue=invoices.filter((d:Any)=>d.data.due<today()&&d.total>d.paid),paid=invoices.reduce((s:number,d:Any)=>s+d.paid,0);
 const allowed=(key:string)=>data?.features?.[key]!==false;const visibleNav=nav.filter(n=>!viewFeature[n[0]]||allowed(viewFeature[n[0]]));
