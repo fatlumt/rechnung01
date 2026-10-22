@@ -16,7 +16,7 @@ export default function DocumentSend({doc,payments,documents,user,emailEnabled=t
  async function send(e:any){e.preventDefault();if(!emailEnabled||!file||busy||sent||!status?.ready||subject.length>180||message.length>6000)return;setBusy(true);setError('');try{
   const pdf=await new Promise<string>((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=()=>reject(Error('PDF konnte nicht gelesen werden.'));r.readAsDataURL(file);});
   const r=await api('mail',{documentId:doc.id,version:doc.version,companyVersion:status.companyVersion,target,to,subject,message,pdf,filename:file.name,requestId});setSent(true);
-  if(r.status==='accepted')setNotice('Vom Mailserver angenommen. Dies bestätigt noch keine Zustellung.');else setError('Ein Versandversuch ist bereits erfasst, aber nicht bestätigt. Bitte Verlauf und Postfach prüfen.');await load();
+  if(r.status==='accepted')setNotice('E-Mail gesendet.');else setError('Ein Versandversuch ist bereits erfasst, aber nicht bestätigt. Bitte Verlauf und Postfach prüfen.');await load();
  }catch(e:any){setError(e.message);load().catch(()=>{});}finally{setBusy(false);}}
  return <section className="documentSend noPrint" aria-label="Beleg versenden">
   <div className="sendButtons">{emailEnabled&&<><button className="secondary" disabled={busy} onClick={()=>choose('self')}>An mich senden</button><button className="secondary" disabled={busy} onClick={()=>choose('customer')}>An Kunden senden</button></>}<button className="secondary" disabled={!file||busy} onClick={share}>{file?'Teilen / WhatsApp':'PDF wird vorbereitet …'}</button></div>
@@ -32,7 +32,7 @@ export default function DocumentSend({doc,payments,documents,user,emailEnabled=t
    <EmailFooter company={status?.company}/>
    {(subject.length>180||message.length>6000)&&<p role="alert" className="alert error">Nach dem Ersetzen der Platzhalter ist der Text zu lang. Bitte auf höchstens 180 Zeichen im Betreff und 6000 Zeichen in der Nachricht kürzen.</p>}
    <p className="sendAttachment">Anhang: {file?.name||'PDF wird vorbereitet …'}{file&&file.size>5000000?' · Zu gross für E-Mail (max. 5 MB). Bitte herunterladen und separat versenden.':''}</p>
-   <div className="sendButtons"><button className="primary" type="submit" disabled={busy||sent||!file||file.size>5000000||!status?.ready||subject.length>180||message.length>6000}>{busy?'Wird gesendet …':sent?'Versand erfasst':'Senden'}</button><button className="secondary" type="button" disabled={busy} onClick={()=>setTarget('')}>Schliessen</button></div>
+   <div className="sendButtons"><button className="primary" type="submit" disabled={busy||sent||!file||file.size>5000000||!status?.ready||subject.length>180||message.length>6000}>{busy?'Wird gesendet …':sent?'Versand abgeschlossen':'Senden'}</button><button className="secondary" type="button" disabled={busy} onClick={()=>setTarget('')}>Schliessen</button></div>
   </form>}
   {emailEnabled&&!!status?.history?.length&&<details className="sendHistory"><summary>E-Mail-Versandverlauf</summary>{status.history.map((h:any,i:number)=><p key={i}>{h.created} · {h.recipient}<br/>{h.status==='accepted'?'Vom Mailserver angenommen':h.status==='unknown'?'Versand unbestätigt – vor erneutem Senden Postfach prüfen':'Versand begonnen – Ergebnis noch nicht bestätigt'}</p>)}</details>}
  </section>;
