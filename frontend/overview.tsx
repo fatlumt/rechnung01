@@ -1,3 +1,4 @@
+import RecentActivity from './recent-activity';
 import {FileText,Files,Wallet,BellRing,Plus,ArrowUpRight,Check,ChevronRight} from 'lucide-react';
 import {money,dateLabel,today} from './model';
 import {currencyOf} from './country';
@@ -19,5 +20,6 @@ export default function Overview({data,create,navigate,open}:any){
   {(enabled('invoices')||enabled('expenses'))&&<div className="homeSectionTitle"><h2>Ihre Finanzen</h2><span>Gesamtübersicht · {currency}</span></div>}
   <div className="homeMetrics">{metrics.filter(m=>enabled(m.feature)).map(({label,value,note,Icon,color,go})=><button className={`homeMetric ${color}`} key={label} onClick={go}><div><span>{label}</span><Icon size={18}/></div><strong>{money(value,currency)}</strong><small>{note}</small></button>)}</div>
   {(enabled('invoices')||enabled('offers'))&&<section className={`homePriority ${overdue.length?'needsAttention':''}`} aria-label="Nächste Schritte"><div className="homePriorityHeading"><span className="homePriorityIcon">{overdue.length?<BellRing size={22}/>:<Check size={22}/>}</span><div><h2>{overdue.length?'Diese Zahlungen brauchen Aufmerksamkeit':'Keine überfälligen Rechnungen'}</h2><p>{overdue.length?'Öffnen Sie die Rechnung, um eine Zahlung zu erfassen oder nachzufassen.':unpaid.length?`${unpaid.length} offene Rechnungen liegen noch innerhalb der Zahlungsfrist.`:invoices.length?'Alle ausgestellten Rechnungen sind ausgeglichen.':'Erstellen Sie Ihre erste Rechnung oder Offerte über die Schnellaktionen.'}</p></div></div>{overdue.slice(0,3).map((d:any)=><button className="homeDueRow" key={d.id} onClick={()=>open(d)}><span><strong>{d.data.customer.name}</strong><small>{d.number} · fällig {dateLabel(d.data.due)}</small></span><span><strong>{currency} {money(d.total-d.paid,currency)}</strong><ChevronRight size={18}/></span></button>)}{enabled('reminders')&&overdue.length>0&&<button className="homePriorityLink" onClick={()=>navigate('reminders')}>Zum Mahnwesen <ArrowUpRight size={16}/></button>}{drafts.length>0&&<button className="homeDrafts" onClick={()=>open(drafts[0])}><FileText size={20}/><span><strong>{drafts.length} Entwurf{drafts.length===1?'':'e'} in Arbeit</strong><small>Zuletzt erstellt: {drafts[0].number}</small></span><ChevronRight size={18}/></button>}</section>}
+ <RecentActivity data={data} open={open}/>
  </div>;
 }
