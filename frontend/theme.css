@@ -10,3 +10,6 @@
 .nestedCustomer{z-index:50}.nestedCustomer .modal{margin:30px auto}.saveActions{display:flex;gap:10px;flex-wrap:wrap}
 .reference-invoice .reference-sender h1,.reference-invoice .reference-total-row.final,.reference-invoice .reference-total-row.gross{color:var(--brand,#080808)}
 .reference-invoice .reference-items th,.reference-invoice .reference-items tbody,.reference-invoice .reference-total-row.gross,.reference-invoice .reference-total-row.final{border-color:var(--brand,#363636)}
+
+.documentDateFilters{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:0 24px 20px;border-bottom:1px solid #e5e7eb}.documentDateFilters label{display:flex;align-items:center;gap:8px;font-size:14px;color:#334155}.documentDateFilters input{min-width:0;max-width:100%;min-height:44px;border:1px solid #dce2ec;border-radius:8px;padding:8px 10px;background:#fff;color:#17223b;font:inherit;box-sizing:border-box}.documentDateFilters button{min-height:44px}
+@media(max-width:600px){.documentDateFilters{padding:0 16px 16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.documentDateFilters strong,.documentDateFilters button{grid-column:1/-1}.documentDateFilters label{align-items:stretch;flex-direction:column}.documentDateFilters input{width:100%;font-size:16px}}
