@@ -10,7 +10,11 @@ function mail_branding(string $owner,array $doc):array {
  $out=[];foreach(['name','street','house','zip','city','country','email','phone','uid','legalDetails','logoUrl','brandColor'] as $key)$out[$key]=(string)($company[$key]??'');
  $out['name']=trim(preg_replace('/[\x00-\x1F\x7F]+/u',' ',$out['name']))?:'digitalrechnung';
  if(!preg_match('/^#[0-9a-fA-F]{6}$/D',$out['brandColor']))$out['brandColor']='#2558d7';
- return ['company'=>$out,'companyVersion'=>(int)($profile['version']??0)];
+ $templates=email_templates($company['emailTemplates']??null);$data=json_decode($doc['data']??'{}',true);$kind=$doc['kind']??'invoice';$template=$templates[$kind]??$templates['invoice'];
+ $date=fn($v)=>preg_match('/^\d{4}-\d{2}-\d{2}$/D',(string)$v)?substr($v,8,2).'.'.substr($v,5,2).'.'.substr($v,0,4):'';
+ $variables=['{kunde}'=>$data['customer']['name']??'','{firma}'=>$out['name'],'{belegart}'=>['invoice'=>'Rechnung','offer'=>'Offerte','reminder'=>'Zahlungserinnerung','dunning'=>'Mahnung'][$kind]??'Beleg','{belegnummer}'=>$doc['number']??'','{belegdatum}'=>$date($data['date']??''),'{faelligkeit}'=>$date($data['due']??'')];
+ $defaults=['subject'=>preg_replace('/[\r\n]+/',' ',strtr($template['subject'],$variables)),'message'=>strtr($template['message'],$variables)];
+ return ['company'=>$out,'companyVersion'=>(int)($profile['version']??0),'defaults'=>$defaults];
 }
 function mail_signature_lines(array $c):array {
  return array_values(array_filter([
@@ -51,7 +55,7 @@ function mail_company_body($mail,array $company,string $message):void {
 }
 function mail_get(array $u,string $id):array {
  require_feature($u['id'],'email');
- $doc=one('SELECT kind,data FROM kr_documents WHERE owner=? AND id=?',[$u['id'],$id]);if(!$doc)fail('Beleg nicht gefunden.',404);require_feature($u['id'],feature_kind($doc['kind']));
+ $doc=one('SELECT kind,data,number FROM kr_documents WHERE owner=? AND id=?',[$u['id'],$id]);if(!$doc)fail('Beleg nicht gefunden.',404);require_feature($u['id'],feature_kind($doc['kind']));
  mail_schema();return array_merge(mail_branding($u['id'],$doc),['ready'=>mail_ready(),'from'=>mail_ready()?config()['mail_from']:'','history'=>query('SELECT recipient,status,created FROM kr_mail_log WHERE owner=? AND document_id=? ORDER BY created DESC LIMIT 20',[$u['id'],$id])->fetchAll()]);
 }
 function mail_post(array $u,array $b):array {
