@@ -22,4 +22,4 @@
 .app .sidebar{z-index:24;overflow:visible}.sidebarBrandRow{z-index:1}.sidebarBrandRow .notificationCenter>section{z-index:2}
 @media screen and (max-width:760px){.app .sidebar{position:relative;inset:auto}}
 
-.overviewPage .companyHeading{border:1px solid var(--brand)}
+.overviewPage .companyHeading{border:1px solid var(--brand);border-left-width:4px}
