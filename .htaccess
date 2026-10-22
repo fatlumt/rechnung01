@@ -11,3 +11,4 @@ Require all denied
 </FilesMatch>
 
 AddType application/javascript .mjs
+AddType application/manifest+json .webmanifest
