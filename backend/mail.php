@@ -25,13 +25,22 @@ function mail_company_body($mail,array $company,string $message):void {
  if(preg_match('~^data:image/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$~D',$company['logoUrl']??'',$m)){
   $bytes=base64_decode($m[2],true);$info=$bytes===false?false:@getimagesizefromstring($bytes);
   if($info&&strlen($bytes)<=200000&&$info[0]<=2500&&$info[1]<=2500&&$info['mime']==='image/'.$m[1]){
-   $type=$m[1];
-   if($type==='webp'&&function_exists('imagecreatefromstring')&&function_exists('imagepng')){
-    $image=@imagecreatefromstring($bytes);if($image){imagesavealpha($image,true);ob_start();imagepng($image);$bytes=ob_get_clean();imagedestroy($image);$type='png';}
+   $type=$m[1];$width=max(1,min(150,$info[0],(int)round(75*$info[0]/$info[1])));$height=max(1,(int)round($width*$info[1]/$info[0]));$imageStyle='background:#ffffff;padding:8px;';
+   if(function_exists('imagecreatefromstring')&&function_exists('imagecreatetruecolor')&&function_exists('imagepng')){
+    $image=@imagecreatefromstring($bytes);
+    if($image){
+     // Bake the white background into an email-only PNG: mailbox dark-mode CSS
+     // cannot turn the transparent area behind the black logo dark.
+     $card=imagecreatetruecolor(($width+16)*2,($height+16)*2);
+     imagefill($card,0,0,imagecolorallocate($card,255,255,255));
+     imagealphablending($card,true);
+     imagecopyresampled($card,$image,16,16,0,0,$width*2,$height*2,$info[0],$info[1]);
+     ob_start();imagepng($card);$bytes=ob_get_clean();imagedestroy($card);imagedestroy($image);
+     $type='png';$width+=16;$height+=16;$imageStyle='background:#ffffff;';
+    }
    }
    $mail->addStringEmbeddedImage($bytes,'company-logo','Firmenlogo.'.$type,'base64','image/'.$type);
-   $width=min(150,$info[0],(int)round(75*$info[0]/$info[1]));$height=max(1,(int)round($width*$info[1]/$info[0]));
-   $logo='<tr><td style="padding:0 0 14px"><img src="cid:company-logo" alt="'.$escape($company['name']).'" width="'.$width.'" height="'.$height.'" style="display:block;border:0;max-width:100%;height:auto"></td></tr>';
+   $logo='<tr><td style="padding:0 0 14px"><img src="cid:company-logo" alt="'.$escape($company['name']).'" width="'.$width.'" height="'.$height.'" style="display:block;border:0;max-width:100%;height:auto;'.$imageStyle.'"></td></tr>';
   }
  }
  $lines=mail_signature_lines($company);$details=implode('<br>',array_map(fn($s)=>nl2br($escape($s),false),$lines));
