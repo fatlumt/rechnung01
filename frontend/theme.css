@@ -13,3 +13,7 @@
 
 .documentDateFilters{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:0 24px 20px;border-bottom:1px solid #e5e7eb}.documentDateFilters label{display:flex;align-items:center;gap:8px;font-size:14px;color:#334155}.documentDateFilters input{min-width:0;max-width:100%;min-height:44px;border:1px solid #dce2ec;border-radius:8px;padding:8px 10px;background:#fff;color:#17223b;font:inherit;box-sizing:border-box}.documentDateFilters button{min-height:44px}
 @media(max-width:600px){.documentDateFilters{padding:0 16px 16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.documentDateFilters strong,.documentDateFilters button{grid-column:1/-1}.documentDateFilters label{align-items:stretch;flex-direction:column}.documentDateFilters input{width:100%;font-size:16px}}
+
+/* A gentle company-colour tint behind the workspace, never on document pages. */
+.app:not(.modalBackdrop),.app>.workspace{background-color:var(--brand-page,#f2f5fd)}
+@media print{.app:not(.modalBackdrop),.app>.workspace{background:#fff!important}}
