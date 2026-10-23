@@ -262,3 +262,6 @@ Unter Einstellungen können Firmen für Rechnung, Offerte, Zahlungserinnerung un
 
 ### Speicher- und Versandmeldungen
 Erfolgreiche Änderungen erscheinen als grüne Meldung, Fehler als rote Meldung über geöffneten Dialogen. Bei einem unbestätigten SMTP-Versand wird eine kontoabhängige Benachrichtigung gespeichert und einmalig eine Warnung an die Konto-E-Mail versucht. Ist auch dieser Versand nicht möglich, bleibt der Hinweis in der App. SMTP-Annahme ist keine Zustellbestätigung. Spätere Rückläufer werden noch nicht automatisch aus dem Hostinger-Postfach abgerufen. Es werden keine Rechnungen automatisch erneut gesendet.
+
+### Öffentliche Landingpage
+Die Landingpage liegt unter /site/; Deutsch ist der Standard, Englisch ist unter /site/?lang=en erreichbar. Texte und Kontaktadresse werden in site/index.php gepflegt, die Gestaltung in site/style.css. Die Anmeldung verlinkt auf die bestehende App. Zugangsanfragen öffnen eine E-Mail an info@krasniqi-plattenleger.ch. Die Vorschauen verwenden ausschliesslich Beispieldaten. Beim Domainwechsel App-Link und relative Logo-/Favicon-Pfade prüfen.
