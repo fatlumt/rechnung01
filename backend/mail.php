@@ -98,6 +98,7 @@ function mail_post(array $u,array $b):array {
  $filename=text($b['filename']??'Beleg.pdf',180,true);$filename=preg_replace('/[^\p{L}\p{N} ._()-]/u','_',$filename);if(!str_ends_with(strtolower($filename),'.pdf'))$filename.='.pdf';
  $request=text($b['requestId']??'',36,true);if(!preg_match('/^[a-f0-9-]{36}$/D',$request))fail('Ungültige Versandkennung.');
  mail_schema();db()->beginTransaction();one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
+ $fresh=current_user();if(!$fresh||$fresh['id']!==$owner)fail('Bitte erneut anmelden.',401);
  require_feature($owner,'email');require_feature($owner,feature_kind($doc['kind']));
  $old=one('SELECT status FROM kr_mail_log WHERE id=? AND owner=?',[$request,$owner]);
  if($old){db()->commit();return ['status'=>$old['status']];}

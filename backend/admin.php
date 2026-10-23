@@ -52,7 +52,10 @@ function admin_post(array $user,array $body):array {
 
  one('SELECT complete FROM kr_bootstrap WHERE id=1 FOR UPDATE');
 
- $result=admin_change($user,$body);db()->commit();return $result;
+ one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$user['id']]);
+ $fresh=current_user();if(!$fresh||$fresh['id']!==$user['id'])fail('Bitte erneut anmelden.',401);require_superadmin($fresh);
+
+ $result=admin_change($fresh,$body);db()->commit();security_event('admin_account_changed',$fresh['id']);return $result;
 
 }
 

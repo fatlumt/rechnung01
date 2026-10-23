@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+require_once dirname(__DIR__).'/backend/core.php';
+security_headers();
 $lang=($_GET['lang']??'de')==='en'?'en':'de';
 header('Content-Type: text/html; charset=utf-8');
 header('X-Content-Type-Options: nosniff');

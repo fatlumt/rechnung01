@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__.'/backend/core.php';
+security_headers();
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');

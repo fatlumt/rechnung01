@@ -35,7 +35,7 @@ a.request('data',{'action':'company','version':0,'data':profile})
 a.request('data',{'action':'company','version':0,'data':profile},409)
 customer=a.request('data',{'action':'customer','data':{**address,'name':'Testkunde'}})['id']
 today=datetime.date.today();past=str(today-datetime.timedelta(days=60));due=str(today-datetime.timedelta(days=30))
-draft={'kind':'invoice','documentTitle':'Schlussrechnung','customerId':customer,'title':'Testprojekt','date':past,'due':due,'serviceDate':past,'notes':'','lines':[{'description':'Fliesen','quantity':126,'unit':'m²','price':3500,'rate':8.1},{'description':'Arbeit','quantity':26,'unit':'Std.','price':6000,'rate':8.1},{'description':'Treppen','quantity':12,'unit':'Stk.','price':5000,'rate':8.1}]}
+draft={'kind':'invoice','documentTitle':'Schlussrechnung','customerId':customer,'title':'Testprojekt','project':'Testprojekt','date':past,'due':due,'serviceDate':past,'notes':'','lines':[{'description':'Fliesen','quantity':126,'unit':'m²','price':3500,'rate':8.1},{'description':'Arbeit','quantity':26,'unit':'Std.','price':6000,'rate':8.1},{'description':'Treppen','quantity':12,'unit':'Stk.','price':5000,'rate':8.1}]}
 invoice=a.request('data',{'action':'create','data':draft})['id']
 def getdoc(id):return next(d for d in a.request('data')['documents'] if d['id']==id)
 d=getdoc(invoice);assert d['total']==710217

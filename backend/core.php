@@ -77,12 +77,35 @@ function document_total(array $d):int{
 function total(array $lines):int{$sum=0;foreach($lines as $l){if(($l['type']??'item')==='section')continue;$n=(int)round($l['price']*$l['quantity']);$sum+=$n+(int)round($n*$l['rate']/100);}if($sum<=0||$sum>100000000000)fail('Gesamtbetrag muss positiv und kleiner als CHF 1 Milliarde sein.');return $sum;}
 function decode_row(array $r):array{if(isset($r['data']))$r['data']=json_decode($r['data'],true,512,JSON_THROW_ON_ERROR);foreach(['total','paid','version'] as $k)if(isset($r[$k]))$r[$k]=(int)$r[$k];return $r;}
 function encode(array $v):string{return json_encode($v,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);}
-function begin_session():void{$c=config();$url=parse_url($c['app_url']);$local=in_array($url['host']??'',['127.0.0.1','localhost'],true);if(($url['scheme']??'')!=='https'&&!$local)fail('HTTPS muss konfiguriert sein.',503);session_name('klarrechnung_session');session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!$local,'httponly'=>true,'samesite'=>'Lax']);ini_set('session.use_strict_mode','1');ini_set('session.use_only_cookies','1');if(!session_start())fail('Sitzungsspeicher nicht verfügbar.',503);if(isset($_SESSION['last'])&&time()-$_SESSION['last']>28800){$_SESSION=[];session_regenerate_id(true);}$_SESSION['last']=time();$_SESSION['csrf']??=bin2hex(random_bytes(32));}
+function security_headers():void {
+ header_remove('X-Powered-By');header('X-Content-Type-Options: nosniff');header('X-Frame-Options: DENY');
+ header('Referrer-Policy: no-referrer');header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+ if((!empty($_SERVER['HTTPS'])&&strtolower((string)$_SERVER['HTTPS'])!=='off')||($_SERVER['SERVER_PORT']??'')==='443')header('Strict-Transport-Security: max-age=31536000');
+}
+function security_event(string $event,?string $actor=null):void {
+ // Fixed event names and pseudonymous account IDs only: never passwords, tokens or documents.
+ error_log('DigitalRechnung security '.json_encode(['event'=>$event,'actor'=>$actor===null?null:hash('sha256',$actor),'time'=>gmdate('c')],JSON_UNESCAPED_SLASHES));
+}
+function session_expired(array $session,int $now):bool {
+ return isset($session['uid'])&&(!isset($session['authenticated_at'],$session['last'])||$now-(int)$session['last']>=1800||$now-(int)$session['authenticated_at']>=28800);
+}
+function reset_session():void {$_SESSION=[];if(!session_regenerate_id(true))fail('Sitzung konnte nicht erneuert werden.',503);$_SESSION['csrf']=bin2hex(random_bytes(32));}
+function begin_session():void{
+ $c=config();$url=parse_url($c['app_url']);$local=in_array($url['host']??'',['127.0.0.1','localhost'],true);
+ if(($url['scheme']??'')!=='https'&&!$local)fail('HTTPS muss konfiguriert sein.',503);
+ // The __Host- prefix prevents sibling subdomains from planting an app session cookie.
+ session_name($local?'klarrechnung_session':'__Host-digitalrechnung_session');
+ session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!$local,'httponly'=>true,'samesite'=>'Lax']);
+ ini_set('session.use_strict_mode','1');ini_set('session.use_only_cookies','1');ini_set('session.use_trans_sid','0');
+ if(!session_start())fail('Sitzungsspeicher nicht verfügbar.',503);
+ $now=time();if(session_expired($_SESSION,$now)){security_event('session_expired',$_SESSION['uid']);reset_session();}
+ $_SESSION['last']=$now;$_SESSION['csrf']??=bin2hex(random_bytes(32));
+}
 function current_user():?array {if(empty($_SESSION['uid']))return null;$u=one("SELECT u.id,u.email,u.is_admin,u.auth_version,COALESCE(a.state,'active') AS state FROM kr_users u LEFT JOIN kr_user_access a ON a.user_id=u.id WHERE u.id=?",[$_SESSION['uid']]);if(!$u||$u['state']!=='active'||(int)$u['auth_version']!==($_SESSION['auth_version']??0))return null;return ['id'=>$u['id'],'email'=>$u['email'],'isAdmin'=>(bool)$u['is_admin'],'isSuperadmin'=>(bool)$u['is_admin']];}
-function csrf():void {if(!hash_equals($_SESSION['csrf'],$_SERVER['HTTP_X_CSRF_TOKEN']??''))fail('Sitzung abgelaufen. Bitte neu laden.',403);if(isset($_SERVER['HTTP_ORIGIN'])){$u=parse_url(config()['app_url']);$origin=$u['scheme'].'://'.$u['host'].(isset($u['port'])?':'.$u['port']:'');if($_SERVER['HTTP_ORIGIN']!==$origin)fail('Anfrage nicht erlaubt.',403);}}
+function csrf():void { $expected=$_SESSION['csrf']??null;$provided=$_SERVER['HTTP_X_CSRF_TOKEN']??null;if(!is_string($expected)||$expected===''||!is_string($provided)||!hash_equals($expected,$provided))fail('Sitzung abgelaufen. Bitte neu laden.',403);if(isset($_SERVER['HTTP_ORIGIN'])){$u=parse_url(config()['app_url']);$origin=$u['scheme'].'://'.$u['host'].(isset($u['port'])?':'.$u['port']:'');if($_SERVER['HTTP_ORIGIN']!==$origin)fail('Anfrage nicht erlaubt.',403);}}
 function limit_attempts(string $scope,string $key,int $max):void{$hash=hash('sha256',$scope.'|'.$key);$now=time();query('INSERT INTO kr_rate_limits(bucket,attempts,expires) VALUES(?,1,?) ON DUPLICATE KEY UPDATE attempts=IF(expires<?,1,attempts+1),expires=IF(expires<?,VALUES(expires),expires)',[$hash,$now+900,$now,$now]);$r=one('SELECT attempts FROM kr_rate_limits WHERE bucket=?',[$hash]);if((int)$r['attempts']>$max)fail('Zu viele Versuche. Bitte in 15 Minuten erneut versuchen.',429);query('DELETE FROM kr_rate_limits WHERE expires<? LIMIT 100',[$now]);}
 function password_value(mixed $v):string{if(!is_string($v)||strlen($v)<12||strlen($v)>72)fail('Passwort: mindestens 12, höchstens 72 Bytes.');return $v;}
-function signed_in(array $u):void{session_regenerate_id(true);$_SESSION['uid']=$u['id'];$_SESSION['auth_version']=(int)($u['auth_version']??1);$_SESSION['csrf']=bin2hex(random_bytes(32));}
+function signed_in(array $u):void{reset_session();$_SESSION['uid']=$u['id'];$_SESSION['auth_version']=(int)($u['auth_version']??1);$_SESSION['authenticated_at']=time();$_SESSION['last']=time();}
 
 function field_visibility(mixed $visibility):array {
  if(!is_array($visibility))fail('Ungültige Anzeigeoptionen.');
