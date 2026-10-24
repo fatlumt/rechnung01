@@ -4494,6 +4494,86 @@
       "de": "Diese Übersetzungen gelten für alle Konten. Firmendaten und eigene Texte bleiben unverändert. Aktualisierte Beschriftungen erscheinen beim nächsten Erstellen eines PDFs.",
       "en": "These translations apply to all accounts. Company data and custom text stay unchanged. Updated labels appear the next time a PDF is generated.",
       "sq": "Këto përkthime vlejnë për të gjitha llogaritë. Të dhënat e firmës dhe tekstet tuaja nuk ndryshojnë. Etiketat e përditësuara shfaqen kur krijohet sërish PDF-ja."
+    },
+    "Passwort vergessen?": {
+      "de": "Passwort vergessen?",
+      "en": "Forgot password?",
+      "sq": "Keni harruar fjalëkalimin?"
+    },
+    "Neues Passwort festlegen": {
+      "de": "Neues Passwort festlegen",
+      "en": "Set a new password",
+      "sq": "Vendosni një fjalëkalim të ri"
+    },
+    "Neues Passwort speichern": {
+      "de": "Neues Passwort speichern",
+      "en": "Save new password",
+      "sq": "Ruaj fjalëkalimin e ri"
+    },
+    "Link zum Zurücksetzen anfordern": {
+      "de": "Link zum Zurücksetzen anfordern",
+      "en": "Request reset link",
+      "sq": "Kërko lidhjen e rivendosjes"
+    },
+    "Zurück zur Anmeldung": {
+      "de": "Zurück zur Anmeldung",
+      "en": "Back to login",
+      "sq": "Kthehu te hyrja"
+    },
+    "Ihr Passwort wurde geändert. Melden Sie sich mit dem neuen Passwort an.": {
+      "de": "Ihr Passwort wurde geändert. Melden Sie sich mit dem neuen Passwort an.",
+      "en": "Your password has been changed. Log in with your new password.",
+      "sq": "Fjalëkalimi juaj u ndryshua. Hyni me fjalëkalimin e ri."
+    },
+    "Wenn ein aktives Konto mit dieser E-Mail-Adresse existiert, erhalten Sie einen Link zum Zurücksetzen. Prüfen Sie auch Ihren Spam-Ordner.": {
+      "de": "Wenn ein aktives Konto mit dieser E-Mail-Adresse existiert, erhalten Sie einen Link zum Zurücksetzen. Prüfen Sie auch Ihren Spam-Ordner.",
+      "en": "If an active account exists with this email address, you will receive a reset link. Please also check your spam folder.",
+      "sq": "Nëse ekziston një llogari aktive me këtë adresë emaili, do të merrni një lidhje për rivendosjen. Kontrolloni edhe dosjen e mesazheve të padëshiruara."
+    },
+    "Wählen Sie ein neues Passwort. Nach dem Speichern werden alle bisherigen Sitzungen beendet.": {
+      "de": "Wählen Sie ein neues Passwort. Nach dem Speichern werden alle bisherigen Sitzungen beendet.",
+      "en": "Choose a new password. Saving it will sign you out of all existing sessions.",
+      "sq": "Zgjidhni një fjalëkalim të ri. Pas ruajtjes do të përfundojnë të gjitha seancat ekzistuese."
+    },
+    "Geben Sie Ihre Konto-E-Mail ein. Der Link ist 30 Minuten gültig.": {
+      "de": "Geben Sie Ihre Konto-E-Mail ein. Der Link ist 30 Minuten gültig.",
+      "en": "Enter your account email address. The link is valid for 30 minutes.",
+      "sq": "Shkruani adresën e emailit të llogarisë. Lidhja është e vlefshme për 30 minuta."
+    },
+    "Dieser Link ist ungültig oder abgelaufen. Bitte einen neuen Link anfordern.": {
+      "de": "Dieser Link ist ungültig oder abgelaufen. Bitte einen neuen Link anfordern.",
+      "en": "This link is invalid or has expired. Please request a new link.",
+      "sq": "Kjo lidhje është e pavlefshme ose ka skaduar. Kërkoni një lidhje të re."
+    },
+    "Passwort-Wiederherstellung ist derzeit nicht verfügbar. Bitte später erneut versuchen.": {
+      "de": "Passwort-Wiederherstellung ist derzeit nicht verfügbar. Bitte später erneut versuchen.",
+      "en": "Password recovery is currently unavailable. Please try again later.",
+      "sq": "Rivendosja e fjalëkalimit nuk është e disponueshme për momentin. Provoni përsëri më vonë."
+    },
+    "DigitalRechnung – Passwort zurücksetzen": {
+      "de": "DigitalRechnung – Passwort zurücksetzen",
+      "en": "DigitalRechnung – Reset your password",
+      "sq": "DigitalRechnung – Rivendosni fjalëkalimin"
+    },
+    "DigitalRechnung – Passwort geändert": {
+      "de": "DigitalRechnung – Passwort geändert",
+      "en": "DigitalRechnung – Password changed",
+      "sq": "DigitalRechnung – Fjalëkalimi u ndryshua"
+    },
+    "Öffnen Sie diesen Link, um ein neues Passwort für DigitalRechnung festzulegen. Der Link ist 30 Minuten gültig und kann nur einmal verwendet werden.": {
+      "de": "Öffnen Sie diesen Link, um ein neues Passwort für DigitalRechnung festzulegen. Der Link ist 30 Minuten gültig und kann nur einmal verwendet werden.",
+      "en": "Open this link to set a new password for DigitalRechnung. The link is valid for 30 minutes and can only be used once.",
+      "sq": "Hapni këtë lidhje për të vendosur një fjalëkalim të ri për DigitalRechnung. Lidhja është e vlefshme për 30 minuta dhe mund të përdoret vetëm një herë."
+    },
+    "Wenn Sie diese Änderung nicht angefordert haben, ignorieren Sie diese E-Mail. Ihr Passwort bleibt unverändert.": {
+      "de": "Wenn Sie diese Änderung nicht angefordert haben, ignorieren Sie diese E-Mail. Ihr Passwort bleibt unverändert.",
+      "en": "If you did not request this change, ignore this email. Your password will remain unchanged.",
+      "sq": "Nëse nuk e keni kërkuar këtë ndryshim, injorojeni këtë email. Fjalëkalimi juaj mbetet i pandryshuar."
+    },
+    "Ihr Passwort wurde geändert. Alle bisherigen Sitzungen wurden beendet. Falls Sie diese Änderung nicht vorgenommen haben, setzen Sie Ihr Passwort erneut zurück und kontaktieren Sie den Administrator.": {
+      "de": "Ihr Passwort wurde geändert. Alle bisherigen Sitzungen wurden beendet. Falls Sie diese Änderung nicht vorgenommen haben, setzen Sie Ihr Passwort erneut zurück und kontaktieren Sie den Administrator.",
+      "en": "Your password has been changed. All previous sessions have ended. If you did not make this change, reset your password again and contact the administrator.",
+      "sq": "Fjalëkalimi juaj u ndryshua. Të gjitha seancat e mëparshme u përfunduan. Nëse nuk e keni bërë këtë ndryshim, rivendosni përsëri fjalëkalimin dhe kontaktoni administratorin."
     }
   }
 }

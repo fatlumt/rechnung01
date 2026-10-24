@@ -3,6 +3,8 @@ declare(strict_types=1);
 function auth_get():array{return ['user'=>current_user(),'csrf'=>$_SESSION['csrf'],'setupRequired'=>(int)(one('SELECT complete FROM kr_bootstrap WHERE id=1')['complete']??0)===0];}
 function auth_post(array $b):array {
  $action=$b['action']??'';$u=current_user();
+ if($action==='forgotPassword')return password_reset_request($b);
+ if($action==='resetPassword')return password_reset_complete($b);
  if($action==='logout'){if($u)security_event('logout',$u['id']);reset_session();return ['ok'=>true,'csrf'=>$_SESSION['csrf']];}
  if(in_array($action,['login','register'],true)){
   $email=invitation_email($b['email']??'');
