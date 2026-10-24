@@ -912,5 +912,7 @@
   "DigitalRechnung – Passwort geändert": "DigitalRechnung – Password changed",
   "Öffnen Sie diesen Link, um ein neues Passwort für DigitalRechnung festzulegen. Der Link ist 30 Minuten gültig und kann nur einmal verwendet werden.": "Open this link to set a new password for DigitalRechnung. The link is valid for 30 minutes and can only be used once.",
   "Wenn Sie diese Änderung nicht angefordert haben, ignorieren Sie diese E-Mail. Ihr Passwort bleibt unverändert.": "If you did not request this change, ignore this email. Your password will remain unchanged.",
-  "Ihr Passwort wurde geändert. Alle bisherigen Sitzungen wurden beendet. Falls Sie diese Änderung nicht vorgenommen haben, setzen Sie Ihr Passwort erneut zurück und kontaktieren Sie den Administrator.": "Your password has been changed. All previous sessions have ended. If you did not make this change, reset your password again and contact the administrator."
+  "Ihr Passwort wurde geändert. Alle bisherigen Sitzungen wurden beendet. Falls Sie diese Änderung nicht vorgenommen haben, setzen Sie Ihr Passwort erneut zurück und kontaktieren Sie den Administrator.": "Your password has been changed. All previous sessions have ended. If you did not make this change, reset your password again and contact the administrator.",
+  "Speichern & nächste": "Save & next",
+  "Weitere Aktionen": "More actions"
 }

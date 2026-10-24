@@ -912,5 +912,7 @@
   "DigitalRechnung – Passwort geändert": "DigitalRechnung – Fjalëkalimi u ndryshua",
   "Öffnen Sie diesen Link, um ein neues Passwort für DigitalRechnung festzulegen. Der Link ist 30 Minuten gültig und kann nur einmal verwendet werden.": "Hapni këtë lidhje për të vendosur një fjalëkalim të ri për DigitalRechnung. Lidhja është e vlefshme për 30 minuta dhe mund të përdoret vetëm një herë.",
   "Wenn Sie diese Änderung nicht angefordert haben, ignorieren Sie diese E-Mail. Ihr Passwort bleibt unverändert.": "Nëse nuk e keni kërkuar këtë ndryshim, injorojeni këtë email. Fjalëkalimi juaj mbetet i pandryshuar.",
-  "Ihr Passwort wurde geändert. Alle bisherigen Sitzungen wurden beendet. Falls Sie diese Änderung nicht vorgenommen haben, setzen Sie Ihr Passwort erneut zurück und kontaktieren Sie den Administrator.": "Fjalëkalimi juaj u ndryshua. Të gjitha seancat e mëparshme u përfunduan. Nëse nuk e keni bërë këtë ndryshim, rivendosni përsëri fjalëkalimin dhe kontaktoni administratorin."
+  "Ihr Passwort wurde geändert. Alle bisherigen Sitzungen wurden beendet. Falls Sie diese Änderung nicht vorgenommen haben, setzen Sie Ihr Passwort erneut zurück und kontaktieren Sie den Administrator.": "Fjalëkalimi juaj u ndryshua. Të gjitha seancat e mëparshme u përfunduan. Nëse nuk e keni bërë këtë ndryshim, rivendosni përsëri fjalëkalimin dhe kontaktoni administratorin.",
+  "Speichern & nächste": "Ruaj dhe vazhdo",
+  "Weitere Aktionen": "Veprime të tjera"
 }
