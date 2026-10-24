@@ -265,3 +265,10 @@ Erfolgreiche Änderungen erscheinen als grüne Meldung, Fehler als rote Meldung 
 
 ### Öffentliche Landingpage
 Die Landingpage liegt unter /site/; Deutsch ist der Standard, Englisch ist unter /site/?lang=en erreichbar. Texte und Kontaktadresse werden in site/index.php gepflegt, die Gestaltung in site/style.css. Die Anmeldung verlinkt auf die bestehende App. Zugangsanfragen öffnen eine E-Mail an info@krasniqi-plattenleger.ch. Die Vorschauen verwenden ausschliesslich Beispieldaten. Beim Domainwechsel App-Link und relative Logo-/Favicon-Pfade prüfen.
+
+### Projekte und Kundenordner
+Unter Projekte (auf dem Handy: Mehr → Projekte) ein Projekt mit Kunde, Name, Adresse und Status anlegen. Ein Kunde kann mehrere Projekte haben. Suche nach Kunde, Projektname oder Adresse; Statusfilter enthält auch archivierte Projekte. Der Kunde eines bestehenden Projekts bleibt fest, damit Unterlagen nicht versehentlich einem anderen Kunden zugeordnet werden.
+
+Im Projekt stehen Belege, Notizen sowie Fotos & Dateien bereit. Neue Rechnung/Offerte übernimmt Kunde und Projekt. Bestehende Belege desselben Kunden können zugeordnet oder aus dem Ordner entfernt werden; ihre ausgestellten Inhalte bleiben unverändert. Eine Umbenennung des Projekts ändert die Verknüpfungen nicht. Erinnerung/Mahnung übernimmt den aktuellen Ordner der Originalrechnung. Alte freie Projektnamen werden nicht automatisch zusammengeführt; vorhandene Belege ausdrücklich zuordnen.
+
+Dateien: PDF, JPG, PNG, WebP, UTF-8-TXT/CSV und DOCX/XLSX; maximal 5 MB je Datei und 100 MB je Firma. Originaldateien bleiben als geschützte Datenbankinhalte erhalten. Dateiabruf erfolgt nur über die angemeldete API, nie über öffentliche Upload-URLs. Bildvorschau wird auf Anfrage geladen, andere Formate heruntergeladen. In Backups auch die neuen Tabellen kr_projects, kr_project_documents und kr_project_items sichern. Tabellen werden additiv vor Transaktionen angelegt. Projekte ist zunächst freigeschaltet und über die vorhandene Superadmin-Funktionsverwaltung abschaltbar; Abschalten löscht keine Daten.

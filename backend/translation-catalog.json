@@ -4584,6 +4584,296 @@
       "de": "Weitere Aktionen",
       "en": "More actions",
       "sq": "Veprime të tjera"
+    },
+    "Projekte": {
+      "de": "Projekte",
+      "en": "Projects",
+      "sq": "Projektet"
+    },
+    "Projekte & Dateien": {
+      "de": "Projekte & Dateien",
+      "en": "Projects & files",
+      "sq": "Projektet dhe skedarët"
+    },
+    "Projektordner": {
+      "de": "Projektordner",
+      "en": "Project folder",
+      "sq": "Dosja e projektit"
+    },
+    "Ohne Projektordner": {
+      "de": "Ohne Projektordner",
+      "en": "No project folder",
+      "sq": "Pa dosje projekti"
+    },
+    "Geplant": {
+      "de": "Geplant",
+      "en": "Planned",
+      "sq": "Planifikuar"
+    },
+    "In Arbeit": {
+      "de": "In Arbeit",
+      "en": "In progress",
+      "sq": "Në punë"
+    },
+    "Abgeschlossen": {
+      "de": "Abgeschlossen",
+      "en": "Completed",
+      "sq": "Përfunduar"
+    },
+    "Archiviert": {
+      "de": "Archiviert",
+      "en": "Archived",
+      "sq": "Arkivuar"
+    },
+    "Alles für Ihren Auftrag an einem Ort.": {
+      "de": "Alles für Ihren Auftrag an einem Ort.",
+      "en": "Everything for your job in one place.",
+      "sq": "Gjithçka për punën tuaj në një vend."
+    },
+    "Neues Projekt": {
+      "de": "Neues Projekt",
+      "en": "New project",
+      "sq": "Projekt i ri"
+    },
+    "Projekt bearbeiten": {
+      "de": "Projekt bearbeiten",
+      "en": "Edit project",
+      "sq": "Ndrysho projektin"
+    },
+    "Legen Sie zuerst einen Kunden im Bereich Kunden an.": {
+      "de": "Legen Sie zuerst einen Kunden im Bereich Kunden an.",
+      "en": "First add a customer in the Customers section.",
+      "sq": "Së pari shtoni një klient në seksionin Klientët."
+    },
+    "Projekte suchen": {
+      "de": "Projekte suchen",
+      "en": "Search projects",
+      "sq": "Kërko projekte"
+    },
+    "Kunde, Projekt oder Adresse": {
+      "de": "Kunde, Projekt oder Adresse",
+      "en": "Customer, project or address",
+      "sq": "Klienti, projekti ose adresa"
+    },
+    "Projektname": {
+      "de": "Projektname",
+      "en": "Project name",
+      "sq": "Emri i projektit"
+    },
+    "Projektadresse": {
+      "de": "Projektadresse",
+      "en": "Project address",
+      "sq": "Adresa e projektit"
+    },
+    "Belege": {
+      "de": "Belege",
+      "en": "Documents",
+      "sq": "Dokumentet"
+    },
+    "Noch keine passenden Projekte. Erstellen Sie Ihren ersten Projektordner.": {
+      "de": "Noch keine passenden Projekte. Erstellen Sie Ihren ersten Projektordner.",
+      "en": "No matching projects yet. Create your first project folder.",
+      "sq": "Nuk ka projekte që përputhen. Krijoni dosjen tuaj të parë të projektit."
+    },
+    "Notiz hinzufügen": {
+      "de": "Notiz hinzufügen",
+      "en": "Add note",
+      "sq": "Shto shënim"
+    },
+    "Foto / Datei hinzufügen": {
+      "de": "Foto / Datei hinzufügen",
+      "en": "Add photo / file",
+      "sq": "Shto foto / skedar"
+    },
+    "Projektinhalt": {
+      "de": "Projektinhalt",
+      "en": "Project contents",
+      "sq": "Përmbajtja e projektit"
+    },
+    "Notizen": {
+      "de": "Notizen",
+      "en": "Notes",
+      "sq": "Shënimet"
+    },
+    "Fotos & Dateien": {
+      "de": "Fotos & Dateien",
+      "en": "Photos & files",
+      "sq": "Fotot dhe skedarët"
+    },
+    "Belege im Projekt": {
+      "de": "Belege im Projekt",
+      "en": "Project documents",
+      "sq": "Dokumentet e projektit"
+    },
+    "Bestehenden Beleg zuordnen": {
+      "de": "Bestehenden Beleg zuordnen",
+      "en": "Link existing document",
+      "sq": "Lidh dokument ekzistues"
+    },
+    "Beleg auswählen": {
+      "de": "Beleg auswählen",
+      "en": "Select document",
+      "sq": "Zgjidh dokumentin"
+    },
+    "Zuordnen": {
+      "de": "Zuordnen",
+      "en": "Link",
+      "sq": "Lidh"
+    },
+    "Nur Belege desselben Kunden. Der Originalbeleg bleibt unverändert.": {
+      "de": "Nur Belege desselben Kunden. Der Originalbeleg bleibt unverändert.",
+      "en": "Only documents for the same customer. The original document stays unchanged.",
+      "sq": "Vetëm dokumentet e të njëjtit klient. Dokumenti origjinal mbetet i pandryshuar."
+    },
+    "Zuordnung entfernen? Der Beleg bleibt erhalten.": {
+      "de": "Zuordnung entfernen? Der Beleg bleibt erhalten.",
+      "en": "Remove this link? The document will be kept.",
+      "sq": "Të hiqet lidhja? Dokumenti do të ruhet."
+    },
+    "Zuordnung entfernen": {
+      "de": "Zuordnung entfernen",
+      "en": "Remove link",
+      "sq": "Hiq lidhjen"
+    },
+    "Noch keine Belege in diesem Projekt.": {
+      "de": "Noch keine Belege in diesem Projekt.",
+      "en": "No documents in this project yet.",
+      "sq": "Ende nuk ka dokumente në këtë projekt."
+    },
+    "Titel": {
+      "de": "Titel",
+      "en": "Title",
+      "sq": "Titulli"
+    },
+    "Diesen Eintrag endgültig löschen?": {
+      "de": "Diesen Eintrag endgültig löschen?",
+      "en": "Permanently delete this entry?",
+      "sq": "Të fshihet përgjithmonë ky shënim ose skedar?"
+    },
+    "Platz für Absprachen, Masse und Arbeitsnotizen.": {
+      "de": "Platz für Absprachen, Masse und Arbeitsnotizen.",
+      "en": "Keep agreements, measurements and work notes here.",
+      "sq": "Ruani këtu marrëveshjet, matjet dhe shënimet e punës."
+    },
+    "PDF, JPG, PNG, WebP, TXT, CSV, DOCX, XLSX · 5 MB je Datei · 100 MB pro Firma.": {
+      "de": "PDF, JPG, PNG, WebP, TXT, CSV, DOCX, XLSX · 5 MB je Datei · 100 MB pro Firma.",
+      "en": "PDF, JPG, PNG, WebP, TXT, CSV, DOCX, XLSX · 5 MB per file · 100 MB per company.",
+      "sq": "PDF, JPG, PNG, WebP, TXT, CSV, DOCX, XLSX · 5 MB për skedar · 100 MB për kompani."
+    },
+    "Dateiname / Titel": {
+      "de": "Dateiname / Titel",
+      "en": "File name / title",
+      "sq": "Emri i skedarit / titulli"
+    },
+    "Hochladen": {
+      "de": "Hochladen",
+      "en": "Upload",
+      "sq": "Ngarko"
+    },
+    "Herunterladen": {
+      "de": "Herunterladen",
+      "en": "Download",
+      "sq": "Shkarko"
+    },
+    "Foto ansehen": {
+      "de": "Foto ansehen",
+      "en": "View photo",
+      "sq": "Shiko foton"
+    },
+    "Fotos, Pläne und Dateien für diesen Auftrag hinzufügen.": {
+      "de": "Fotos, Pläne und Dateien für diesen Auftrag hinzufügen.",
+      "en": "Add photos, plans and files for this job.",
+      "sq": "Shtoni foto, plane dhe skedarë për këtë punë."
+    },
+    "Wird geladen …": {
+      "de": "Wird geladen …",
+      "en": "Loading …",
+      "sq": "Duke u ngarkuar …"
+    },
+    "Datei konnte nicht gelesen werden.": {
+      "de": "Datei konnte nicht gelesen werden.",
+      "en": "The file could not be read.",
+      "sq": "Skedari nuk mund të lexohej."
+    },
+    "Projekt nicht gefunden.": {
+      "de": "Projekt nicht gefunden.",
+      "en": "Project not found.",
+      "sq": "Projekti nuk u gjet."
+    },
+    "Projekt und Beleg müssen zum selben Kunden gehören.": {
+      "de": "Projekt und Beleg müssen zum selben Kunden gehören.",
+      "en": "The project and document must belong to the same customer.",
+      "sq": "Projekti dhe dokumenti duhet t’i përkasin të njëjtit klient."
+    },
+    "Datei ungültig oder zu gross (max. 5 MB).": {
+      "de": "Datei ungültig oder zu gross (max. 5 MB).",
+      "en": "Invalid file or file too large (maximum 5 MB).",
+      "sq": "Skedari është i pavlefshëm ose shumë i madh (maksimumi 5 MB)."
+    },
+    "PDF ungültig.": {
+      "de": "PDF ungültig.",
+      "en": "Invalid PDF.",
+      "sq": "PDF i pavlefshëm."
+    },
+    "Textdatei muss UTF-8 verwenden.": {
+      "de": "Textdatei muss UTF-8 verwenden.",
+      "en": "Text files must use UTF-8.",
+      "sq": "Skedarët e tekstit duhet të përdorin UTF-8."
+    },
+    "Office-Datei ungültig.": {
+      "de": "Office-Datei ungültig.",
+      "en": "Invalid Office file.",
+      "sq": "Skedar Office i pavlefshëm."
+    },
+    "Erlaubt: PDF, JPG, PNG, WebP, TXT, CSV, DOCX und XLSX.": {
+      "de": "Erlaubt: PDF, JPG, PNG, WebP, TXT, CSV, DOCX und XLSX.",
+      "en": "Allowed: PDF, JPG, PNG, WebP, TXT, CSV, DOCX and XLSX.",
+      "sq": "Lejohen: PDF, JPG, PNG, WebP, TXT, CSV, DOCX dhe XLSX."
+    },
+    "Projekt wurde geändert. Bitte neu laden.": {
+      "de": "Projekt wurde geändert. Bitte neu laden.",
+      "en": "The project has changed. Please reload.",
+      "sq": "Projekti është ndryshuar. Ju lutemi ringarkoni."
+    },
+    "Der Kunde eines bestehenden Projekts kann nicht geändert werden.": {
+      "de": "Der Kunde eines bestehenden Projekts kann nicht geändert werden.",
+      "en": "The customer of an existing project cannot be changed.",
+      "sq": "Klienti i një projekti ekzistues nuk mund të ndryshohet."
+    },
+    "Zuordnung wurde geändert. Bitte neu laden.": {
+      "de": "Zuordnung wurde geändert. Bitte neu laden.",
+      "en": "The link has changed. Please reload.",
+      "sq": "Lidhja është ndryshuar. Ju lutemi ringarkoni."
+    },
+    "Beleg ist bereits einem anderen Projekt zugeordnet.": {
+      "de": "Beleg ist bereits einem anderen Projekt zugeordnet.",
+      "en": "The document is already linked to another project.",
+      "sq": "Dokumenti është tashmë i lidhur me një projekt tjetër."
+    },
+    "Ungültiger Dateityp.": {
+      "de": "Ungültiger Dateityp.",
+      "en": "Invalid file type.",
+      "sq": "Lloj skedari i pavlefshëm."
+    },
+    "Dateien können nicht überschrieben werden.": {
+      "de": "Dateien können nicht überschrieben werden.",
+      "en": "Files cannot be overwritten.",
+      "sq": "Skedarët nuk mund të mbishkruhen."
+    },
+    "Bitte eine Notiz eingeben.": {
+      "de": "Bitte eine Notiz eingeben.",
+      "en": "Please enter a note.",
+      "sq": "Ju lutemi shkruani një shënim."
+    },
+    "Projektspeicher voll (100 MB pro Firma).": {
+      "de": "Projektspeicher voll (100 MB pro Firma).",
+      "en": "Project storage full (100 MB per company).",
+      "sq": "Hapësira e projekteve është plot (100 MB për kompani)."
+    },
+    "Datei nicht gefunden.": {
+      "de": "Datei nicht gefunden.",
+      "en": "File not found.",
+      "sq": "Skedari nuk u gjet."
     }
   }
 }

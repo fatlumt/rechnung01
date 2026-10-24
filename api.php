@@ -10,6 +10,7 @@ header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'; bas
 require __DIR__.'/backend/auth.php';
 require __DIR__.'/backend/business.php';
 require __DIR__.'/backend/hours.php';
+require __DIR__.'/backend/projects.php';
 require __DIR__.'/backend/features.php';
 require __DIR__.'/backend/data.php';
 require __DIR__.'/backend/admin.php';

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-function feature_catalog():array{return ['invoices'=>'Rechnungen & Zahlungen','offers'=>'Offerten','reminders'=>'Zahlungserinnerungen & Mahnungen','deposits'=>'Akonto- & Schlussrechnungen','expenses'=>'Ausgaben & Belege','hours'=>'Mitarbeiter & Arbeitszeiten','email'=>'Belege per E-Mail versenden'];}
+function feature_catalog():array{return ['projects'=>'Projekte & Dateien','invoices'=>'Rechnungen & Zahlungen','offers'=>'Offerten','reminders'=>'Zahlungserinnerungen & Mahnungen','deposits'=>'Akonto- & Schlussrechnungen','expenses'=>'Ausgaben & Belege','hours'=>'Mitarbeiter & Arbeitszeiten','email'=>'Belege per E-Mail versenden'];}
 function features_schema():void {
  query('CREATE TABLE IF NOT EXISTS kr_features (owner CHAR(36) PRIMARY KEY,data TEXT NOT NULL,version INT NOT NULL DEFAULT 1) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
  query('CREATE TABLE IF NOT EXISTS kr_feature_audit (id CHAR(36) PRIMARY KEY,owner CHAR(36) NOT NULL,actor CHAR(36) NOT NULL,data TEXT NOT NULL,created DATETIME NOT NULL,INDEX(owner)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
@@ -8,7 +8,7 @@ function features_schema():void {
 function features_for(string $owner):array {
  $r=one('SELECT data FROM kr_features WHERE owner=?',[$owner]);$saved=$r?json_decode($r['data'],true):[];
  // These initial modules stay enabled for existing accounts. Future paid modules must opt in.
- $legacy=['invoices','offers','reminders','deposits','expenses','hours','email'];$out=[];
+ $legacy=['projects','invoices','offers','reminders','deposits','expenses','hours','email'];$out=[];
  foreach(feature_catalog() as $key=>$label)$out[$key]=array_key_exists($key,$saved)?$saved[$key]===true:in_array($key,$legacy,true);
  if(one('SELECT is_admin FROM kr_users WHERE id=?',[$owner])['is_admin']??false)$out=array_fill_keys(array_keys(feature_catalog()),true);
  if(!$out['invoices']){$out['reminders']=false;$out['deposits']=false;}return $out;
@@ -17,6 +17,8 @@ function require_feature(string $owner,string $key):void {if(empty(features_for(
 function feature_kind(string $kind):string{return ['invoice'=>'invoices','offer'=>'offers','reminder'=>'reminders','dunning'=>'reminders'][$kind]??'invoices';}
 function feature_guard(string $owner,array $b):void {
  $action=$b['action']??'';
+ if(str_starts_with($action,'project')){require_feature($owner,'projects');return;}
+ if(!empty($b['data']['projectId'])&&in_array($action,['create','edit','convert'],true))require_feature($owner,'projects');
  if(in_array($action,['employee','hoursSave','hoursDelete','hoursTimer'],true)){require_feature($owner,'hours');return;}
  if(in_array($action,['expense','receipt'],true)){require_feature($owner,'expenses');return;}
  if(in_array($action,['company','customer'],true))return;

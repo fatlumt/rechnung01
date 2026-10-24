@@ -55,7 +55,7 @@ function draft(mixed $v):array {
  foreach(['date','due','serviceDate'] as $k)$a[$k]=day($v[$k]??'');
  if($a['due']<$a['date'])fail('Zahlungsziel liegt vor dem Belegdatum.');
  $a['templateId']=template_id($v['templateId']??'classic');$a['language']=document_language($v['language']??'de');
- $a['project']=text($v['project']??'',160);$a['depositIds']=$v['depositIds']??[];if(!is_array($a['depositIds'])||count($a['depositIds'])>30||count(array_unique($a['depositIds'],SORT_REGULAR))!==count($a['depositIds']))fail('Ungültige Akonto-Auswahl.');foreach($a['depositIds'] as $depositId)text($depositId,36,true);if($a['kind']!=='invoice'&&count($a['depositIds']))fail('Akonto-Abzug nur für Rechnungen.');
+ $a['projectId']=text($v['projectId']??'',36);$a['project']=text($v['project']??'',160);$a['depositIds']=$v['depositIds']??[];if(!is_array($a['depositIds'])||count($a['depositIds'])>30||count(array_unique($a['depositIds'],SORT_REGULAR))!==count($a['depositIds']))fail('Ungültige Akonto-Auswahl.');foreach($a['depositIds'] as $depositId)text($depositId,36,true);if($a['kind']!=='invoice'&&count($a['depositIds']))fail('Akonto-Abzug nur für Rechnungen.');
  $a['pricingMode']=$v['pricingMode']??'items';if(!in_array($a['pricingMode'],['items','total'],true))fail('Ungültige Preisart.');
  $a['visibility']=[];$visibility=$v['visibility']??[];if(!is_array($visibility))fail('Ungültige Anzeigeoptionen.');
  foreach(['payment','reference','uid','due','number','serviceDate'] as $key){$value=$visibility[$key]??true;if(!is_bool($value))fail('Ungültige Anzeigeoption.');$a['visibility'][$key]=$value;}
