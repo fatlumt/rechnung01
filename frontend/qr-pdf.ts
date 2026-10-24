@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import jsQR from 'jsqr';
 // Loaded only when a PDF is selected. All assets are served by this installation.
 export async function readPdfQr(file:File,validate:(raw:string)=>unknown,progress:(message:string)=>void){
@@ -10,7 +11,7 @@ export async function readPdfQr(file:File,validate:(raw:string)=>unknown,progres
   if(pdf.numPages>10)throw Error('Bitte eine PDF mit höchstens 10 Seiten auswählen.');
   let invalid='';
   for(let n=1;n<=pdf.numPages;n++){
-   progress(`PDF wird geprüft: Seite ${n} von ${pdf.numPages} …`);
+   progress(t('PDF wird geprüft: Seite {page} von {pages} …',{page:n,pages:pdf.numPages}));
    const page=await pdf.getPage(n),base=page.getViewport({scale:1}),viewport=page.getViewport({scale:Math.min(3,2200/Math.max(base.width,base.height))});
    const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
    try{const ctx=canvas.getContext('2d',{willReadFrequently:true})!;await page.render({canvas,canvasContext:ctx,viewport}).promise;

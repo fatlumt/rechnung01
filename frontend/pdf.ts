@@ -1,14 +1,14 @@
 import {PDFDocument} from 'pdf-lib';
-import {currencyOf,countryOf,taxLabel,exemption,templateOf,documentTitle} from './country';
+import {currencyOf,countryOf,taxLabel,exemption,templateOf,documentTitle,documentText,documentDate,documentMoney} from './country';
 import {attachedInvoice,dueAmount} from './document-bundle';
 import {jsPDF} from 'jspdf';
 import {autoTable,__createTable} from 'jspdf-autotable';
-import {money,dateLabel,labels,documentTotals,visible,pdfFilename,discountLabel} from './model';
+import {documentTotals,visible,pdfFilename} from './model';
 import {inkColor} from './theme';
 
 // Generate text and tables directly, with page breaks rather than a screenshot.
 function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
- const d=doc.data,c=d.company,customer=d.customer;const currency=currencyOf(d),tax=taxLabel(d),design=templateOf(d);
+ const d=doc.data,c=d.company,customer=d.customer;const dt=(source:string,variables:Record<string,string|number>={})=>documentText(d,source,variables),money=(n:number,currency=currencyOf(d))=>documentMoney(d,n,currency),dateLabel=(s:string)=>documentDate(d,s);const currency=currencyOf(d),tax=dt(taxLabel(d)),design=templateOf(d);
  const accent=c.brandColor?inkColor(c.brandColor):'#363636';
  const reminder=['reminder','dunning'].includes(doc.kind);
  const title=documentTitle(doc);
@@ -22,31 +22,38 @@ function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
  left=block(`${c.street} ${c.house}\n${c.zip} ${c.city}${c.phone?'\nTel: '+c.phone:''}${c.email?'\n'+c.email:''}`,12,left,112);
  pdf.setFont('helvetica',design==='classic'?'bolditalic':'bold');pdf.setTextColor(accent);pdf.setFontSize(19);
  const titleLines=pdf.splitTextToSize(clean(title),115);pdf.text(titleLines,10,left+6);left+=6+titleLines.length*8;
- if(doc.status==='draft')left=block('ENTWURF',10,left,115,9,true);
- const metadata=[visible(d,'payment')?'Zahlungsart: Rechnung':'',visible(d,'reference')?`Unsere Referenz: ${d.title}`:'',visible(d,'uid')&&c.uid?`${countryOf(d)==='DE'?'USt-IdNr.':'Unsere ID-Nr.'}: ${c.uid}`:'',visible(d,'due')?`${doc.kind==='offer'?'Gültig bis':'Zahlbar bis'}: ${dateLabel(d.due)}`:'',visible(d,'number')?`Beleg-Nr.: ${doc.number}`:'',visible(d,'serviceDate')?`Leistungsdatum: ${dateLabel(d.serviceDate)}`:''].filter(Boolean);
- if(countryOf(d)==='DE'&&c.taxNumber)metadata.push(`Steuernummer: ${c.taxNumber}`);
+ if(doc.status==='draft')left=block(dt('ENTWURF'),10,left,115,9,true);
+ const metadata:Array<[string,string]>=[];
+ if(visible(d,'payment'))metadata.push([dt('Zahlungsart'),dt('Rechnung')]);
+ if(visible(d,'reference'))metadata.push([dt('Unsere Referenz'),d.title]);
+ if(visible(d,'uid')&&c.uid)metadata.push([dt(countryOf(d)==='DE'?'USt-IdNr.':'Unsere ID-Nr.'),c.uid]);
+ if(visible(d,'due'))metadata.push([dt(doc.kind==='offer'?'Gültig bis':'Zahlbar bis'),dateLabel(d.due)]);
+ if(visible(d,'number'))metadata.push([dt('Beleg-Nr.'),doc.number]);
+ if(visible(d,'serviceDate'))metadata.push([dt('Leistungsdatum'),dateLabel(d.serviceDate)]);
+ if(countryOf(d)==='DE'&&c.taxNumber)metadata.push([dt('Steuernummer'),c.taxNumber]);
  if(metadata.length){
   left+=2;const size=design==='compact'?10:12,step=size*.42;
-  for(const row of metadata){
-   const colon=row.indexOf(':');const label=row.slice(0,colon+1),value=clean(row.slice(colon+1).trim());
+  for(const [caption,rawValue] of metadata){
+   const label=clean(caption)+':',value=clean(rawValue);
    pdf.setFontSize(size);pdf.setTextColor('#080808');pdf.setFont('helvetica','bold');
-   const labelWidth=pdf.getTextWidth(label+' ');
-   pdf.text(label,10,left);pdf.setFont('helvetica','normal');
+   const labelWidth=Math.min(75,pdf.getTextWidth(label+' '));
+   const labelLines=pdf.splitTextToSize(label,labelWidth);
+   pdf.text(labelLines,10,left);pdf.setFont('helvetica','normal');
    const lines=pdf.splitTextToSize(value,Math.max(20,115-labelWidth));
-   pdf.text(lines,10+labelWidth,left);left+=Math.max(1,lines.length)*step;
+   pdf.text(lines,10+labelWidth,left);left+=Math.max(1,labelLines.length,lines.length)*step;
   }
  }
  let right=block(customer.name,134,design==='compact'?38:62,66,12,true);
  right=block(`${customer.street} ${customer.house}\n${customer.zip} ${customer.city}${customer.email?'\n'+customer.email:''}`,134,right,66);
  right=block(`${c.city}, ${dateLabel(d.date)}`,134,right+4,66,10);
  let y=Math.max(left,right)+5;
- if(d.project)y=block('Projekt / Baustelle: '+d.project,10,y,190,10)+3;
+ if(d.project)y=block(dt('Projekt / Baustelle')+': '+d.project,10,y,190,10)+3;
  const table=(options:any)=>{autoTable(pdf,{margin:{left:10,right:10,top:18,bottom:18},styles:{font:'helvetica',fontSize:design==='compact'?9.5:11,textColor:'#080808',cellPadding:1.5,overflow:'linebreak'},theme:'plain',...options});y=(pdf as any).lastAutoTable.finalY+4};
- if(reminder){table({startY:y,body:[[clean(d.notes)],[`Rechnung: ${d.sourceNumber}`]]});}
+ if(reminder){table({startY:y,body:[[clean(d.notes)],[dt('Rechnung')+': '+d.sourceNumber]]});}
  else {
   const totalOnly=d.pricingMode==='total';let position=0;
   const body=d.lines.map((l:any)=>l.type==='section'?[{content:clean(l.description),colSpan:totalOnly?2:5,styles:{fontStyle:'bold',textColor:accent,cellPadding:{top:4,right:1.5,bottom:2,left:1.5}}}]:totalOnly?[++position,clean(l.description)]:[++position,clean(l.description),`${l.quantity} ${l.unit||''}`,`${money(l.price,currency)} ${currency}`,`${money(Math.round(l.price*l.quantity),currency)} ${currency}`]);
-  const itemOptions:any={head:[totalOnly?['Pos.','Beschreibung']:['Pos.','Beschreibung','Menge','Preis','Total']],headStyles:{fillColor:design==='modern'?'#f3f4f6':false,textColor:'#000000',fontStyle:'bold',lineColor:accent,lineWidth:{bottom:.5}},columnStyles:totalOnly?{0:{cellWidth:17},1:{cellWidth:173}}:{0:{cellWidth:17},1:{cellWidth:54},2:{cellWidth:36},3:{cellWidth:37},4:{cellWidth:46,halign:'right'}},rowPageBreak:'avoid'};
+  const itemOptions:any={head:[(totalOnly?['Pos.','Beschreibung']:['Pos.','Beschreibung','Menge','Preis','Total']).map(source=>dt(source))],headStyles:{fillColor:design==='modern'?'#f3f4f6':false,textColor:'#000000',fontStyle:'bold',lineColor:accent,lineWidth:{bottom:.5}},columnStyles:totalOnly?{0:{cellWidth:17},1:{cellWidth:173}}:{0:{cellWidth:17},1:{cellWidth:54},2:{cellWidth:36},3:{cellWidth:37},4:{cellWidth:46,halign:'right'}},rowPageBreak:'avoid'};
   // Measure wrapped rows before paging so a section title stays with its first item.
   const measured=__createTable(pdf,{...itemOptions,body,margin:{left:10,right:10,top:18,bottom:18},theme:'plain',styles:{font:'helvetica',fontSize:design==='compact'?9.5:11,textColor:'#080808',cellPadding:1.5,overflow:'linebreak'}});
   const headHeight=measured.head.reduce((n:any,r:any)=>n+r.height,0);
@@ -65,8 +72,8 @@ function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
  const entries=payments.filter(p=>p.document_id===doc.id),sum=documentTotals(d);
  const paid=entries.length?entries.reduce((n,p)=>n+p.amount,0):doc.paid||0;
  const rows:any[]=[];
- if(reminder){rows.push(['Offener Rechnungsbetrag',`${money(d.outstanding,currency)} ${currency}`]);if(d.feeOutstanding)rows.push(['Mahngebühr (einmalig)',`${money(d.feeOutstanding,currency)} ${currency}`]);rows.push(['Zahlbetrag',`${money(d.amountDue??d.outstanding,currency)} ${currency}`]);}
- else {if(sum.discount){rows.push(['Zwischensumme',`${money(sum.subtotal,currency)} ${currency}`]);rows.push([discountLabel(d),`- ${money(sum.discount,currency)} ${currency}`]);}if(c.vat)rows.push([`Total exkl. ${tax}`,`${money(sum.net,currency)} ${currency}`]);if(c.vat&&countryOf(d)==='DE')for(const [rate,base] of Object.entries(sum.bases))rows.push([`Netto zu ${rate}%`,`${money(base,currency)} ${currency}`]);if(c.vat)for(const [rate,value] of Object.entries(sum.groups))rows.push([`${tax} ${rate}%`,`${money(value,currency)} ${currency}`]);rows.push([c.vat?`Total inkl. ${tax}`:'Total',`${money(sum.grossTotal,currency)} ${currency}`]);for(const credit of d.depositCredits||[]){rows.push([`Abzug Akonto ${credit.number} (${dateLabel(credit.date)})`, `- ${money(credit.total,currency)} ${currency}`]);if(c.vat){rows.push(['Darin enthalten: Netto',`${money(credit.net,currency)} ${currency}`]);for(const [rate,value] of Object.entries(credit.groups||{}))rows.push([`Darin enthalten: ${tax} ${rate}%`,`${money(Number(value),currency)} ${currency}`]);}}if(sum.creditTotal)rows.push(['Restforderung nach Akonto',`${money(sum.total,currency)} ${currency}`]);if(doc.fee){rows.push(['Mahngebühr (einmalig)',`${money(doc.fee,currency)} ${currency}`]);rows.push(['Gesamtforderung',`${money(sum.total+doc.fee,currency)} ${currency}`]);}for(const p of entries)rows.push([`${p.amount<0?'Zahlungskorrektur':'Akontozahlung'} (${dateLabel(p.date)})`,`${p.amount<0?'+':'-'} ${money(Math.abs(p.amount),currency)} ${currency}`]);if(!entries.length&&paid)rows.push(['Bereits bezahlt',`- ${money(paid,currency)} ${currency}`]);if(paid)rows.push([c.vat?`Restbetrag inkl. ${tax}`:'Restbetrag',`${money(Math.max(0,sum.total+(doc.fee||0)-paid),currency)} ${currency}`]);}
+ if(reminder){rows.push([dt('Offener Rechnungsbetrag'),`${money(d.outstanding,currency)} ${currency}`]);if(d.feeOutstanding)rows.push([dt('Mahngebühr (einmalig)'),`${money(d.feeOutstanding,currency)} ${currency}`]);rows.push([dt('Zahlbetrag'),`${money(d.amountDue??d.outstanding,currency)} ${currency}`]);}
+ else {if(sum.discount){rows.push([dt('Zwischensumme'),`${money(sum.subtotal,currency)} ${currency}`]);rows.push([d.discountType==='percent'?dt('Rabatt ({percent}%)',{percent:(d.discountValue||0)/100}):dt('Rabatt'),`- ${money(sum.discount,currency)} ${currency}`]);}if(c.vat)rows.push([dt('Total exkl. {tax}',{tax}),`${money(sum.net,currency)} ${currency}`]);if(c.vat&&countryOf(d)==='DE')for(const [rate,base] of Object.entries(sum.bases))rows.push([dt('Netto zu {rate}%',{rate}),`${money(base,currency)} ${currency}`]);if(c.vat)for(const [rate,value] of Object.entries(sum.groups))rows.push([`${tax} ${rate}%`,`${money(value,currency)} ${currency}`]);rows.push([c.vat?dt('Total inkl. {tax}',{tax}):dt('Total'),`${money(sum.grossTotal,currency)} ${currency}`]);for(const credit of d.depositCredits||[]){rows.push([dt('Abzug Akonto {number} ({date})',{number:credit.number,date:dateLabel(credit.date)}), `- ${money(credit.total,currency)} ${currency}`]);if(c.vat){rows.push([dt('Darin enthalten: Netto'),`${money(credit.net,currency)} ${currency}`]);for(const [rate,value] of Object.entries(credit.groups||{}))rows.push([dt('Darin enthalten: {tax} {rate}%',{tax,rate}),`${money(Number(value),currency)} ${currency}`]);}}if(sum.creditTotal)rows.push([dt('Restforderung nach Akonto'),`${money(sum.total,currency)} ${currency}`]);if(doc.fee){rows.push([dt('Mahngebühr (einmalig)'),`${money(doc.fee,currency)} ${currency}`]);rows.push([dt('Gesamtforderung'),`${money(sum.total+doc.fee,currency)} ${currency}`]);}for(const p of entries)rows.push([dt(p.amount<0?'Zahlungskorrektur':'Akontozahlung')+` (${dateLabel(p.date)})`,`${p.amount<0?'+':'-'} ${money(Math.abs(p.amount),currency)} ${currency}`]);if(!entries.length&&paid)rows.push([dt('Bereits bezahlt'),`- ${money(paid,currency)} ${currency}`]);if(paid)rows.push([c.vat?dt('Restbetrag inkl. {tax}',{tax}):dt('Restbetrag'),`${money(Math.max(0,sum.total+(doc.fee||0)-paid),currency)} ${currency}`]);}
  if(y+rows.length*8+12>282){pdf.addPage();y=18}
  if(!reminder){pdf.setDrawColor(accent);pdf.setLineWidth(.4);pdf.line(10,y-2,200,y-2);}
  table({startY:y,pageBreak:'avoid',margin:{left:55,right:10,top:18,bottom:18},body:rows,styles:{font:'helvetica',fontSize:12,textColor:'#000000',cellPadding:1.2,halign:'right',overflow:'linebreak'},columnStyles:{0:{cellWidth:99},1:{cellWidth:46}},didParseCell:(hook:any)=>{if(hook.row.index===rows.length-1){hook.cell.styles.fontStyle='bold';hook.cell.styles.textColor='#000000';hook.cell.styles.lineWidth={top:.6};hook.cell.styles.lineColor=accent}}});
@@ -74,7 +81,7 @@ function renderDocument(pdf:jsPDF,doc:any,payments:any[]=[]){
  if(!reminder&&!c.vat)table({startY:y,body:[[exemption(d)]],styles:{font:'helvetica',fontSize:10,cellPadding:0}});
  if(c.legalDetails)table({startY:y,body:[[clean(c.legalDetails)]],styles:{font:'helvetica',fontSize:9,cellPadding:0}});
  // Keep the footer together. Reserve enough room for long bank/signatory fields.
- pdf.setFontSize(9);const bank=c.iban?`Den Rechnungsbetrag überweisen Sie bitte auf folgendes Konto:\n${c.bank?'Bank: '+c.bank+'\n':''}IBAN: ${c.iban}`:'';
+ pdf.setFontSize(9);const bank=c.iban?`${dt('Den Rechnungsbetrag überweisen Sie bitte auf folgendes Konto:')}\n${c.bank?dt('Bank')+': '+c.bank+'\n':''}IBAN: ${c.iban}`:'';
  const footerHeight=Math.max(35,pdf.splitTextToSize(clean(bank),110).length*4+4,(c.stampUrl?23:0)+pdf.splitTextToSize(clean((c.signatory||'')+'\n'+(c.signatoryRole||'')),70).length*4+4);
  if(y+15+footerHeight>282){pdf.addPage();y=18}
  const fy=Math.max(y+15,282-footerHeight);
@@ -89,16 +96,16 @@ export function invoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){
  pdf.setProperties({title:visible(doc.data,'number')?`${title} ${doc.number}`:title,author:doc.data.company.name,creator:'digitalrechnung'});
  renderDocument(pdf,doc,payments);
  const source=attachedInvoice(doc,documents);if(source){pdf.addPage();renderDocument(pdf,source,[]);}
- const c=doc.data.company;
+ const c=doc.data.company,dt=(source:string,variables:Record<string,string|number>={})=>documentText(doc.data,source,variables),dateLabel=(s:string)=>documentDate(doc.data,s),money=(n:number)=>documentMoney(doc.data,n);
  if(c.qrUrl&&!c.qrPdf&&currencyOf(doc.data)==='CHF'&&doc.kind!=='offer'){
-  pdf.addPage();pdf.setTextColor('#080808');pdf.setFont('helvetica','bold');pdf.setFontSize(22);pdf.text('Zahlungsinformationen',20,30);
+  pdf.addPage();pdf.setTextColor('#080808');pdf.setFont('helvetica','bold');pdf.setFontSize(22);pdf.text(pdf.splitTextToSize(dt('Zahlungsinformationen'),170),20,30);
   pdf.setFontSize(12);pdf.text(pdf.splitTextToSize(c.name,170),20,44);pdf.setFont('helvetica','normal');
-  const reference=source||doc;pdf.text(visible(reference.data,'number')?`Rechnung: ${reference.number}`:`Rechnung vom ${dateLabel(reference.data.date)}`,20,60);
-  pdf.text(`Zahlbetrag: CHF ${money(dueAmount(doc))}`,20,72);
+  const reference=source||doc;pdf.text(visible(reference.data,'number')?dt('Rechnung')+': '+reference.number:dt('Rechnung vom {date}',{date:dateLabel(reference.data.date)}),20,60);
+  pdf.text(dt('Zahlbetrag')+`: CHF ${money(dueAmount(doc))}`,20,72);
   pdf.text(pdf.splitTextToSize(`IBAN: ${c.iban}`,170),20,84);
   const props=pdf.getImageProperties(c.qrUrl);pdf.addImage(c.qrUrl,props.fileType,20,100,54,54);
-  pdf.setFontSize(11);pdf.text(pdf.splitTextToSize('Mit der Banking-App scannen. Den oben angegebenen Betrag eingeben und Empfänger sowie IBAN vor der Zahlung prüfen.',165),20,170);
-  pdf.setFontSize(9);pdf.text('Zahlungsinformation mit hochgeladenem Bank-QR-Code.',20,195);
+  pdf.setFontSize(11);pdf.text(pdf.splitTextToSize(dt('Mit der Banking-App scannen. Den oben angegebenen Betrag eingeben und Empfänger sowie IBAN vor der Zahlung prüfen.'),165),20,170);
+  pdf.setFontSize(9);pdf.text(pdf.splitTextToSize(dt('Zahlungsinformation mit hochgeladenem Bank-QR-Code.'),170),20,195);
  }
  const pages=pdf.getNumberOfPages();for(let i=1;i<=pages;i++){pdf.setPage(i);pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor('#777777');pdf.text(`${visible(doc.data,'number')?doc.number+' · ':''}${i} / ${pages}`,200,291,{align:'right'});}
  return pdf;

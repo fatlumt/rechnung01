@@ -36,16 +36,19 @@ function mail_branding(string $owner,array $doc):array {
  $out['name']=trim(preg_replace('/[\x00-\x1F\x7F]+/u',' ',$out['name']))?:'digitalrechnung';
  if(!preg_match('/^#[0-9a-fA-F]{6}$/D',$out['brandColor']))$out['brandColor']='#2558d7';
  $templates=email_templates($company['emailTemplates']??null);$data=json_decode($doc['data']??'{}',true);$kind=$doc['kind']??'invoice';$template=$templates[$kind]??$templates['invoice'];
+ $language=document_language($data['language']??'de');$out['language']=$language;
+ if($template['isDefault']??false){foreach(default_email_template() as $key=>$text)$template[$key]=translate_message($language,$text);}
  $date=fn($v)=>preg_match('/^\d{4}-\d{2}-\d{2}$/D',(string)$v)?substr($v,8,2).'.'.substr($v,5,2).'.'.substr($v,0,4):'';
  $variables=['{kunde}'=>$data['customer']['name']??'','{firma}'=>$out['name'],'{belegart}'=>['invoice'=>'Rechnung','offer'=>'Offerte','reminder'=>'Zahlungserinnerung','dunning'=>'Mahnung'][$kind]??'Beleg','{belegnummer}'=>$doc['number']??'','{belegdatum}'=>$date($data['date']??''),'{faelligkeit}'=>$date($data['due']??'')];
+ $variables['{belegart}']=translate_message($language,$kind==='invoice'?($data['documentTitle']??'Rechnung'):($kind==='offer'&&($data['company']['country']??'CH')==='DE'?'Angebot':$variables['{belegart}']));
  $defaults=['subject'=>preg_replace('/[\r\n]+/',' ',strtr($template['subject'],$variables)),'message'=>strtr($template['message'],$variables)];
  return ['company'=>$out,'companyVersion'=>(int)($profile['version']??0),'defaults'=>$defaults];
 }
 function mail_signature_lines(array $c):array {
  return array_values(array_filter([
   trim(($c['street']??'').' '.($c['house']??'')),trim(($c['zip']??'').' '.($c['city']??'')),
-  ['CH'=>'Schweiz','DE'=>'Deutschland'][$c['country']??'']??'',
-  !empty($c['phone'])?'Tel. '.$c['phone']:'',$c['email']??'',!empty($c['uid'])?'UID / USt-IdNr.: '.$c['uid']:'',$c['legalDetails']??''
+  translate_message($c['language']??'de',['CH'=>'Schweiz','DE'=>'Deutschland'][$c['country']??'']??''),
+  !empty($c['phone'])?'Tel. '.$c['phone']:'',$c['email']??'',!empty($c['uid'])?translate_message($c['language']??'de','UID / USt-IdNr.').': '.$c['uid']:'',$c['legalDetails']??''
  ],fn($line)=>$line!==''));
 }
 function mail_company_body($mail,array $company,string $message):void {
@@ -75,7 +78,7 @@ function mail_company_body($mail,array $company,string $message):void {
  $lines=mail_signature_lines($company);$details=implode('<br>',array_map(fn($s)=>nl2br($escape($s),false),$lines));
  $color=preg_match('/^#[0-9a-fA-F]{6}$/D',$company['brandColor']??'')?$company['brandColor']:'#2558d7';
  $mail->isHTML(true);
- $mail->Body='<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:24px 16px;background:#ffffff;color:#202936;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px"><tr><td style="padding-bottom:26px;overflow-wrap:anywhere">'.nl2br($escape($message),false).'</td></tr><tr><td style="border-top:2px solid '.$color.';padding-top:20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'.$logo.'<tr><td style="font-size:17px;font-weight:bold;padding-bottom:5px;overflow-wrap:anywhere">'.$escape($company['name']).'</td></tr><tr><td style="font-size:13px;color:#4b5563;overflow-wrap:anywhere">'.$details.'</td></tr></table></td></tr></table></body></html>';
+ $mail->Body='<!doctype html><html lang="'.document_language($company['language']??'de').'"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:24px 16px;background:#ffffff;color:#202936;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px"><tr><td style="padding-bottom:26px;overflow-wrap:anywhere">'.nl2br($escape($message),false).'</td></tr><tr><td style="border-top:2px solid '.$color.';padding-top:20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">'.$logo.'<tr><td style="font-size:17px;font-weight:bold;padding-bottom:5px;overflow-wrap:anywhere">'.$escape($company['name']).'</td></tr><tr><td style="font-size:13px;color:#4b5563;overflow-wrap:anywhere">'.$details.'</td></tr></table></td></tr></table></body></html>';
  $mail->AltBody=$message."\n\n—\n".$company['name']."\n".implode("\n",$lines);
 }
 function mail_get(array $u,string $id):array {

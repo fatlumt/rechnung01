@@ -1,3 +1,4 @@
+import {t} from './i18n';
 import React,{useEffect,useRef,useState} from 'react';
 import {invoicePdfBytes} from './pdf';
 // Preview the same generated PDF used by download, including attachments.
@@ -23,7 +24,7 @@ export default function DocumentPreview({doc,payments,documents,onReady}:any){
      if(cancelled)return;
      const canvas=document.createElement('canvas');
      canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
-     canvas.setAttribute('role','img');canvas.setAttribute('aria-label',`Belegvorschau – Seite ${n} von ${pdf.numPages}`);
+     canvas.setAttribute('role','img');canvas.setAttribute('aria-label',t('Belegvorschau – Seite {page} von {pages}',{page:n,pages:pdf.numPages}));
      await page.render({canvas,canvasContext:canvas.getContext('2d')!,viewport}).promise;
      page.cleanup();
      if(cancelled)return;
@@ -36,8 +37,8 @@ export default function DocumentPreview({doc,payments,documents,onReady}:any){
   return()=>{cancelled=true;if(task)void task.destroy().catch(()=>{});container.replaceChildren()};
  },[doc,payments,documents,retry,onReady]);
  return <div className="pdfPreview">
-  {state==='loading'&&<p className="hint noPrint" role="status">PDF-Vorschau wird erstellt …</p>}
-  {state==='error'&&<div className="alert error noPrint" role="alert">Die PDF-Vorschau konnte nicht geladen werden. Sie können den Beleg weiterhin als PDF herunterladen.<button type="button" onClick={()=>setRetry(n=>n+1)}>Erneut versuchen</button></div>}
+  {state==='loading'&&<p className="hint noPrint" role="status">{t("PDF-Vorschau wird erstellt …")}</p>}
+  {state==='error'&&<div className="alert error noPrint" role="alert">{t("Die PDF-Vorschau konnte nicht geladen werden. Sie können den Beleg weiterhin als PDF herunterladen.")}<button type="button" onClick={()=>setRetry(n=>n+1)}>{t("Erneut versuchen")}</button></div>}
   <div className="pdfPreviewPages" ref={host} aria-busy={state==='loading'}/>
  </div>;
 }
