@@ -1869,3 +1869,8 @@ THE SOFTWARE.
 
 ## PHPMailer
 Source: https://github.com/PHPMailer/PHPMailer at c0b5268a626d6ddbe71333cc1c60c5ae37e44e0d. LGPL-2.1, bundled unchanged in backend/vendor/phpmailer with LICENSE. Used for SMTP and MIME attachment handling.
+
+
+## Web Push server dependencies
+
+minishlink/web-push v10.0.0 (MIT), with dependencies pinned in composer.lock. Original copyright and license files are included in backend/vendor/webpush.phar (the original vendor tree). This library supplies VAPID authentication and Web Push payload encryption.
