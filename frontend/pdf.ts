@@ -1,3 +1,4 @@
+import {renderSwissPaymentPage} from './swiss-payment-page';
 import {PDFDocument} from 'pdf-lib';
 import {currencyOf,countryOf,taxLabel,exemption,templateOf,documentTitle,documentText,documentDate,documentMoney} from './country';
 import {attachedInvoice,dueAmount} from './document-bundle';
@@ -96,18 +97,10 @@ export function invoicePdf(doc:any,payments:any[]=[],documents:any[]=[]){
  pdf.setProperties({title:visible(doc.data,'number')?`${title} ${doc.number}`:title,author:doc.data.company.name,creator:'digitalrechnung'});
  renderDocument(pdf,doc,payments);
  const source=attachedInvoice(doc,documents);if(source){pdf.addPage();renderDocument(pdf,source,[]);}
- const c=doc.data.company,dt=(source:string,variables:Record<string,string|number>={})=>documentText(doc.data,source,variables),dateLabel=(s:string)=>documentDate(doc.data,s),money=(n:number)=>documentMoney(doc.data,n);
- if(c.qrUrl&&!c.qrPdf&&currencyOf(doc.data)==='CHF'&&doc.kind!=='offer'){
-  pdf.addPage();pdf.setTextColor('#080808');pdf.setFont('helvetica','bold');pdf.setFontSize(22);pdf.text(pdf.splitTextToSize(dt('Zahlungsinformationen'),170),20,30);
-  pdf.setFontSize(12);pdf.text(pdf.splitTextToSize(c.name,170),20,44);pdf.setFont('helvetica','normal');
-  const reference=source||doc;pdf.text(visible(reference.data,'number')?dt('Rechnung')+': '+reference.number:dt('Rechnung vom {date}',{date:dateLabel(reference.data.date)}),20,60);
-  pdf.text(dt('Zahlbetrag')+`: CHF ${money(dueAmount(doc))}`,20,72);
-  pdf.text(pdf.splitTextToSize(`IBAN: ${c.iban}`,170),20,84);
-  const props=pdf.getImageProperties(c.qrUrl);pdf.addImage(c.qrUrl,props.fileType,20,100,54,54);
-  pdf.setFontSize(11);pdf.text(pdf.splitTextToSize(dt('Mit der Banking-App scannen. Den oben angegebenen Betrag eingeben und Empfänger sowie IBAN vor der Zahlung prüfen.'),165),20,170);
-  pdf.setFontSize(9);pdf.text(pdf.splitTextToSize(dt('Zahlungsinformation mit hochgeladenem Bank-QR-Code.'),170),20,195);
- }
- const pages=pdf.getNumberOfPages();for(let i=1;i<=pages;i++){pdf.setPage(i);pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor('#777777');pdf.text(`${visible(doc.data,'number')?doc.number+' · ':''}${i} / ${pages}`,200,291,{align:'right'});}
+ const c=doc.data.company;
+ const generatedQr=!!(c.qrUrl&&!c.qrPdf&&currencyOf(doc.data)==='CHF'&&doc.kind!=='offer');
+ if(generatedQr)renderSwissPaymentPage(pdf,c,doc.data.language||'de');
+ const pages=pdf.getNumberOfPages();for(let i=1;i<=pages;i++){if(generatedQr&&i===pages)continue;pdf.setPage(i);pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor('#777777');pdf.text(`${visible(doc.data,'number')?doc.number+' · ':''}${i} / ${pages}`,200,291,{align:'right'});}
  return pdf;
 }
 export async function invoicePdfBytes(doc:any,payments:any[]=[],documents:any[]=[]){
