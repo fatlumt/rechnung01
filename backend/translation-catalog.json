@@ -4874,6 +4874,156 @@
       "de": "Datei nicht gefunden.",
       "en": "File not found.",
       "sq": "Skedari nuk u gjet."
+    },
+    "Handy-Benachrichtigungen": {
+      "de": "Handy-Benachrichtigungen",
+      "en": "Phone notifications",
+      "sq": "Njoftimet në telefon"
+    },
+    "Benachrichtigungen & Anmeldung": {
+      "de": "Benachrichtigungen & Anmeldung",
+      "en": "Notifications & sign-in",
+      "sq": "Njoftimet dhe hyrja"
+    },
+    "Push-Mitteilungen und angemeldet bleiben": {
+      "de": "Push-Mitteilungen und angemeldet bleiben",
+      "en": "Push notifications and staying signed in",
+      "sq": "Njoftimet push dhe qëndrimi i kyçur"
+    },
+    "Hinweise bei überfälligen Rechnungen und nicht bestätigtem E-Mail-Versand – auch wenn die App geschlossen ist.": {
+      "de": "Hinweise bei überfälligen Rechnungen und nicht bestätigtem E-Mail-Versand – auch wenn die App geschlossen ist.",
+      "en": "Alerts for overdue invoices and unconfirmed email sends, even when the app is closed.",
+      "sq": "Njoftime për faturat e vonuara dhe dërgimet e pakonfirmuara të emailit, edhe kur aplikacioni është i mbyllur."
+    },
+    "Auf dem iPhone: DigitalRechnung zum Home-Bildschirm hinzufügen und von dort öffnen. Dann hier Benachrichtigungen erlauben.": {
+      "de": "Auf dem iPhone: DigitalRechnung zum Home-Bildschirm hinzufügen und von dort öffnen. Dann hier Benachrichtigungen erlauben.",
+      "en": "On iPhone: add DigitalRechnung to your Home Screen and open it there. Then allow notifications here.",
+      "sq": "Në iPhone: shtoni DigitalRechnung në ekranin kryesor dhe hapeni prej aty. Pastaj lejoni njoftimet këtu."
+    },
+    "Dieser Browser unterstützt Push hier nicht. Öffnen Sie die installierte App oder einen unterstützten Browser.": {
+      "de": "Dieser Browser unterstützt Push hier nicht. Öffnen Sie die installierte App oder einen unterstützten Browser.",
+      "en": "This browser does not support push here. Open the installed app or a supported browser.",
+      "sq": "Ky shfletues nuk mbështet push këtu. Hapni aplikacionin e instaluar ose një shfletues të mbështetur."
+    },
+    "Bitte Benachrichtigungen in den Geräteeinstellungen erlauben.": {
+      "de": "Bitte Benachrichtigungen in den Geräteeinstellungen erlauben.",
+      "en": "Please allow notifications in device settings.",
+      "sq": "Ju lutemi lejoni njoftimet në cilësimet e pajisjes."
+    },
+    "Benachrichtigungen sind auf diesem Gerät aktiviert. Senden Sie jetzt einen Test.": {
+      "de": "Benachrichtigungen sind auf diesem Gerät aktiviert. Senden Sie jetzt einen Test.",
+      "en": "Notifications are enabled on this device. Send a test now.",
+      "sq": "Njoftimet janë aktivizuar në këtë pajisje. Dërgoni një test tani."
+    },
+    "Auf diesem Gerät aktiviert": {
+      "de": "Auf diesem Gerät aktiviert",
+      "en": "Enabled on this device",
+      "sq": "Aktivizuar në këtë pajisje"
+    },
+    "Auf diesem Gerät deaktiviert": {
+      "de": "Auf diesem Gerät deaktiviert",
+      "en": "Disabled on this device",
+      "sq": "Çaktivizuar në këtë pajisje"
+    },
+    "Benachrichtigungen aktivieren": {
+      "de": "Benachrichtigungen aktivieren",
+      "en": "Enable notifications",
+      "sq": "Aktivizo njoftimet"
+    },
+    "Benachrichtigungen deaktivieren": {
+      "de": "Benachrichtigungen deaktivieren",
+      "en": "Disable notifications",
+      "sq": "Çaktivizo njoftimet"
+    },
+    "Test senden": {
+      "de": "Test senden",
+      "en": "Send test",
+      "sq": "Dërgo test"
+    },
+    "Test an den Push-Dienst übergeben. Prüfen Sie den Sperrbildschirm oder die Mitteilungszentrale.": {
+      "de": "Test an den Push-Dienst übergeben. Prüfen Sie den Sperrbildschirm oder die Mitteilungszentrale.",
+      "en": "Test accepted by the push service. Check your lock screen or notification centre.",
+      "sq": "Testi iu dorëzua shërbimit push. Kontrolloni ekranin e kyçjes ose qendrën e njoftimeve."
+    },
+    "Auf diesem privaten Gerät 30 Tage angemeldet bleiben": {
+      "de": "Auf diesem privaten Gerät 30 Tage angemeldet bleiben",
+      "en": "Stay signed in on this private device for 30 days",
+      "sq": "Qëndro i kyçur në këtë pajisje private për 30 ditë"
+    },
+    "Nur auf Ihrem eigenen Gerät aktivieren. Abmelden, Passwort ändern oder Geräte widerrufen beendet den gespeicherten Zugang.": {
+      "de": "Nur auf Ihrem eigenen Gerät aktivieren. Abmelden, Passwort ändern oder Geräte widerrufen beendet den gespeicherten Zugang.",
+      "en": "Enable only on your own device. Signing out, changing your password or revoking devices ends the saved access.",
+      "sq": "Aktivizojeni vetëm në pajisjen tuaj. Dalja, ndryshimi i fjalëkalimit ose revokimi i pajisjeve përfundon qasjen e ruajtur."
+    },
+    "Tippen Sie auf eine Mitteilung: Die Rechnung oder die Hinweise öffnen sich in der App. Falls eine Anmeldung nötig ist, bleibt das Ziel erhalten.": {
+      "de": "Tippen Sie auf eine Mitteilung: Die Rechnung oder die Hinweise öffnen sich in der App. Falls eine Anmeldung nötig ist, bleibt das Ziel erhalten.",
+      "en": "Tap a notification to open the invoice or alerts in the app. If sign-in is needed, the destination is preserved.",
+      "sq": "Prekni një njoftim për të hapur faturën ose njoftimet në aplikacion. Nëse duhet të hyni, destinacioni ruhet."
+    },
+    "Automatische Prüfung benötigt einen Hostinger-Cronjob. Alle 15 Minuten tools/push-cron.php mit PHP ausführen. Noch kein aktueller Lauf erkannt.": {
+      "de": "Automatische Prüfung benötigt einen Hostinger-Cronjob. Alle 15 Minuten tools/push-cron.php mit PHP ausführen. Noch kein aktueller Lauf erkannt.",
+      "en": "Automatic checks require a Hostinger cron job. Run tools/push-cron.php with PHP every 15 minutes. No recent run detected yet.",
+      "sq": "Kontrolli automatik kërkon një cron job në Hostinger. Ekzekutoni tools/push-cron.php me PHP çdo 15 minuta. Ende nuk është zbuluar një ekzekutim i fundit."
+    },
+    "Eine Rechnung ist überfällig. Tippen zum Öffnen.": {
+      "de": "Eine Rechnung ist überfällig. Tippen zum Öffnen.",
+      "en": "An invoice is overdue. Tap to open.",
+      "sq": "Një faturë është vonuar. Prekni për ta hapur."
+    },
+    "Ein E-Mail-Versand konnte nicht bestätigt werden. Tippen zum Prüfen.": {
+      "de": "Ein E-Mail-Versand konnte nicht bestätigt werden. Tippen zum Prüfen.",
+      "en": "An email send could not be confirmed. Tap to check.",
+      "sq": "Dërgimi i një emaili nuk u konfirmua. Prekni për ta kontrolluar."
+    },
+    "Test erfolgreich. Tippen, um DigitalRechnung zu öffnen.": {
+      "de": "Test erfolgreich. Tippen, um DigitalRechnung zu öffnen.",
+      "en": "Test successful. Tap to open DigitalRechnung.",
+      "sq": "Testi u krye me sukses. Prekni për të hapur DigitalRechnung."
+    },
+    "Bitte zuerst Benachrichtigungen auf diesem Gerät aktivieren.": {
+      "de": "Bitte zuerst Benachrichtigungen auf diesem Gerät aktivieren.",
+      "en": "Please enable notifications on this device first.",
+      "sq": "Ju lutemi aktivizoni fillimisht njoftimet në këtë pajisje."
+    },
+    "Test konnte nicht bestätigt werden. Bitte erneut versuchen.": {
+      "de": "Test konnte nicht bestätigt werden. Bitte erneut versuchen.",
+      "en": "The test could not be confirmed. Please try again.",
+      "sq": "Testi nuk u konfirmua. Ju lutemi provoni përsëri."
+    },
+    "Ohne gespeicherten Gerätezugang enden Anmeldungen nach 30 Minuten ohne Serveranfrage oder spätestens nach 8 Stunden. Unter Benachrichtigungen & Anmeldung können Sie Ihr privates Gerät für 30 Tage merken.": {
+      "de": "Ohne gespeicherten Gerätezugang enden Anmeldungen nach 30 Minuten ohne Serveranfrage oder spätestens nach 8 Stunden. Unter Benachrichtigungen & Anmeldung können Sie Ihr privates Gerät für 30 Tage merken.",
+      "en": "Without saved device access, sessions end after 30 minutes without a server request or after 8 hours. Under Notifications & sign-in you can remember your private device for 30 days.",
+      "sq": "Pa qasje të ruajtur, sesionet përfundojnë pas 30 minutash pa kërkesë në server ose pas 8 orësh. Te Njoftimet dhe hyrja mund ta ruani pajisjen tuaj private për 30 ditë."
+    },
+    "Ungültige Push-Anmeldung.": {
+      "de": "Ungültige Push-Anmeldung.",
+      "en": "Invalid push subscription.",
+      "sq": "Abonim push i pavlefshëm."
+    },
+    "Ungültiger Push-Dienst.": {
+      "de": "Ungültiger Push-Dienst.",
+      "en": "Invalid push service.",
+      "sq": "Shërbim push i pavlefshëm."
+    },
+    "Ungültiger Push-Schlüssel.": {
+      "de": "Ungültiger Push-Schlüssel.",
+      "en": "Invalid push key.",
+      "sq": "Çelës push i pavlefshëm."
+    },
+    "Maximal zehn Geräte. Bitte alte Geräte abmelden.": {
+      "de": "Maximal zehn Geräte. Bitte alte Geräte abmelden.",
+      "en": "Maximum ten devices. Please sign out old devices.",
+      "sq": "Maksimumi dhjetë pajisje. Ju lutemi dilni nga pajisjet e vjetra."
+    },
+    "Dieses Gerät ist bereits mit einem anderen Konto verbunden. Bitte dort zuerst Benachrichtigungen deaktivieren.": {
+      "de": "Dieses Gerät ist bereits mit einem anderen Konto verbunden. Bitte dort zuerst Benachrichtigungen deaktivieren.",
+      "en": "This device is already connected to another account. Disable notifications there first.",
+      "sq": "Kjo pajisje është lidhur me një llogari tjetër. Çaktivizoni fillimisht njoftimet atje."
+    },
+    "Beleg nicht verfügbar.": {
+      "de": "Beleg nicht verfügbar.",
+      "en": "Document unavailable.",
+      "sq": "Dokumenti nuk është i disponueshëm."
     }
   }
 }

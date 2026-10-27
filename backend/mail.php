@@ -20,6 +20,7 @@ function mail_failure_notice(array $u,array $doc,string $request,string $to):voi
  mail_notifications_schema();
  $message='Der Versand von '.$doc['number'].' an '.$to.' konnte nicht bestätigt werden. Bitte Postfach und Versandverlauf prüfen, bevor Sie erneut senden.';
  $insert=query('INSERT IGNORE INTO kr_mail_notifications(id,owner,message,created) VALUES(?,?,?,?)',[$request,$u['id'],$message,date('Y-m-d H:i:s')]);if($insert->rowCount()===0)return;
+ try{$GLOBALS['push_after_response']=push_enqueue($u['id'],'mail',$request,$request);}catch(Throwable $e){error_log('Push queue deferred');}
  // This warning is best effort and never retries the original invoice.
  try {
   if(!mail_ready())throw new RuntimeException('Mail transport unavailable');

@@ -5,7 +5,7 @@ function auth_post(array $b):array {
  $action=$b['action']??'';$u=current_user();
  if($action==='forgotPassword')return password_reset_request($b);
  if($action==='resetPassword')return password_reset_complete($b);
- if($action==='logout'){if($u)security_event('logout',$u['id']);reset_session();return ['ok'=>true,'csrf'=>$_SESSION['csrf']];}
+ if($action==='logout'){trusted_forget();push_schema();if($u)query('DELETE FROM kr_push_devices WHERE owner=? AND device=?',[$u['id'],push_device()]);if($u)security_event('logout',$u['id']);reset_session();return ['ok'=>true,'csrf'=>$_SESSION['csrf']];}
  if(in_array($action,['login','register'],true)){
   $email=invitation_email($b['email']??'');
   limit_attempts('auth-ip',$_SERVER['REMOTE_ADDR']??'unknown',40);limit_attempts('auth-email',$email,12);
@@ -16,7 +16,7 @@ function auth_post(array $b):array {
    $access=one('SELECT state FROM kr_user_access WHERE user_id=?',[$r['id']]);
    if($access&&$access['state']!=='active')fail('Dieses Konto ist nicht aktiv. Bitte den Superadmin kontaktieren.',403);
    if(password_needs_rehash($r['password_hash'],PASSWORD_DEFAULT))query('UPDATE kr_users SET password_hash=? WHERE id=? AND password_hash=?',[password_hash($password,PASSWORD_DEFAULT),$r['id'],$r['password_hash']]);
-   signed_in($r);security_event('login_success',$r['id']);return auth_get();
+   signed_in($r);trusted_forget();push_schema();query('DELETE FROM kr_push_devices WHERE device=? AND owner<>?',[push_device(),$r['id']]);if(($b['remember']??false)===true)trusted_enable($r);security_event('login_success',$r['id']);return auth_get();
   }
   $token=text($b['token']??'',128,true);db()->beginTransaction();$guard=one('SELECT complete FROM kr_bootstrap WHERE id=1 FOR UPDATE');$admin=(int)$guard['complete']===0;
   if($admin){
