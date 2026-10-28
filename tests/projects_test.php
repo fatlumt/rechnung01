@@ -7,6 +7,7 @@ function query(string $sql,array $args=[]):PDOStatement{$sql=str_replace([' FOR 
 function one(string $sql,array $args=[]):?array{return query($sql,$args)->fetch()?:null;}
 $core=file_get_contents(__DIR__.'/../backend/core.php');$a=strpos($core,'function config()');$z=strpos($core,'function id()');$core=substr($core,0,$a).substr($core,$z);eval(substr($core,5));
 $enabled=true;function require_feature(string $owner,string $feature):void{global $enabled;if(!$enabled)fail('Feature disabled',403);}
+function features_for(string $owner):array{global $enabled;return ['projects'=>$enabled];}
 function feature_kind(string $kind):string{return $kind;}
 require __DIR__.'/../backend/hours.php';require __DIR__.'/../backend/projects.php';
 projects_schema();projects_schema();query('CREATE TABLE kr_customers(id TEXT PRIMARY KEY,owner TEXT,data TEXT)');query('CREATE TABLE kr_documents(id TEXT PRIMARY KEY,owner TEXT,kind TEXT,data TEXT,version INT DEFAULT 1)');
@@ -37,5 +38,12 @@ rejects(fn()=>project_file('data:text/plain;base64,'.base64_encode('x'),'bad.exe
 check(project_file('data:text/plain;base64,'.base64_encode('hello'),'notes.txt')['mime']==='text/plain','Text download supported');
 query('UPDATE kr_project_items SET bytes=100000000 WHERE id=?',[$file]);rejects(fn()=>projects_change('a',['action'=>'projectItemSave','projectId'=>$p,'name'=>'plan.pdf','file'=>$payload,'data'=>['kind'=>'file','title'=>'Too much']]));
 rejects(fn()=>projects_change('a',['action'=>'projectItemDelete','projectId'=>$p,'id'=>$note,'version'=>1]),409);projects_change('a',['action'=>'projectItemDelete','projectId'=>$p,'id'=>$note,'version'=>2]);check(!one('SELECT id FROM kr_project_items WHERE id=?',[$note]),'Versioned delete');
+check(project_work_fields('a',['projectId'=>$p])===['projectId'=>$p,'project'=>'Renamed'],'Work link uses current project name');
+rejects(fn()=>project_work_fields('b',['projectId'=>$p]),404);
+check(project_work_fields('a',['projectId'=>''])===['projectId'=>''],'Clear explicit work link');
+$enabled=false;
+rejects(fn()=>project_work_fields('a',['projectId'=>$p]),403);
+check(project_work_fields('a',['projectId'=>$p],['projectId'=>$p,'project'=>'Saved name'])['project']==='Saved name','Disabled feature preserves existing link');
+rejects(fn()=>project_work_fields('a',['projectId'=>$p2],['projectId'=>$p,'project'=>'Saved name']),403);
 $enabled=false;rejects(fn()=>projects_change('a',['action'=>'projectGet','projectId'=>$p]),403);
 echo "PASS: $checks project checks: isolation, links, snapshots, conflicts, uploads, quotas, exact downloads and feature gate.\n";
