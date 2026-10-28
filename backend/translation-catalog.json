@@ -5024,6 +5024,101 @@
       "de": "Beleg nicht verfügbar.",
       "en": "Document unavailable.",
       "sq": "Dokumenti nuk është i disponueshëm."
+    },
+    "Beleg erstellen": {
+      "de": "Beleg erstellen",
+      "en": "Create document",
+      "sq": "Krijo dokument"
+    },
+    "Positionen": {
+      "de": "Positionen",
+      "en": "Items",
+      "sq": "Pozicionet"
+    },
+    "Prüfen": {
+      "de": "Prüfen",
+      "en": "Review",
+      "sq": "Kontrollo"
+    },
+    "Weitere Angaben": {
+      "de": "Weitere Angaben",
+      "en": "More details",
+      "sq": "Të dhëna të tjera"
+    },
+    "Angaben prüfen": {
+      "de": "Angaben prüfen",
+      "en": "Review details",
+      "sq": "Kontrollo të dhënat"
+    },
+    "Positionen bearbeiten": {
+      "de": "Positionen bearbeiten",
+      "en": "Edit items",
+      "sq": "Ndrysho pozicionet"
+    },
+    "Zurück": {
+      "de": "Zurück",
+      "en": "Back",
+      "sq": "Prapa"
+    },
+    "Weiter": {
+      "de": "Weiter",
+      "en": "Continue",
+      "sq": "Vazhdo"
+    },
+    "Bisherige Leistung übernehmen": {
+      "de": "Bisherige Leistung übernehmen",
+      "en": "Reuse a previous service",
+      "sq": "Përdor një shërbim të mëparshëm"
+    },
+    "Leistung auswählen": {
+      "de": "Leistung auswählen",
+      "en": "Choose a service",
+      "sq": "Zgjidh një shërbim"
+    },
+    "Preis und Steuersatz vor dem Speichern prüfen.": {
+      "de": "Preis und Steuersatz vor dem Speichern prüfen.",
+      "en": "Check the price and tax rate before saving.",
+      "sq": "Kontrolloni çmimin dhe normën tatimore para ruajtjes."
+    },
+    "Position entfernt.": {
+      "de": "Position entfernt.",
+      "en": "Item removed.",
+      "sq": "Pozicioni u hoq."
+    },
+    "Rückgängig": {
+      "de": "Rückgängig",
+      "en": "Undo",
+      "sq": "Zhbëj"
+    },
+    "Neuer Abschnitt": {
+      "de": "Neuer Abschnitt",
+      "en": "New section",
+      "sq": "Seksion i ri"
+    },
+    "Neue Position": {
+      "de": "Neue Position",
+      "en": "New item",
+      "sq": "Pozicion i ri"
+    },
+    "Fertig": {
+      "de": "Fertig",
+      "en": "Done",
+      "sq": "U krye"
+    },
+    "{count} offene Hinweise": {
+      "de": "{count} offene Hinweise",
+      "en": "{count} pending alerts",
+      "sq": "{count} njoftime në pritje"
+    },
+    "Nur ausdrücklich diesem Projektordner zugeordnete Einträge. Ältere Einträge können beim Bearbeiten zugeordnet werden.": {
+      "de": "Nur ausdrücklich diesem Projektordner zugeordnete Einträge. Ältere Einträge können beim Bearbeiten zugeordnet werden.",
+      "en": "Only entries explicitly linked to this project folder. Link older entries by editing them.",
+      "sq": "Vetëm shënimet e lidhura me këtë dosje projekti. Shënimet e vjetra mund të lidhen duke i ndryshuar."
+    },
+    "{count} offener Hinweis": {
+      "de": "{count} offener Hinweis",
+      "en": "{count} unread notice",
+      "sq": "{count} njoftim i palexuar"
     }
   }
 }

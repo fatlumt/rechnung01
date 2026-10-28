@@ -1,0 +1,51 @@
+/* Workspace controls only: PDF layouts and document list structure are unchanged. */
+.overviewPage .companyHeading{padding:14px 18px;margin-bottom:14px;border-left-width:5px}
+.overviewPage .companyHeadingLogo{width:52px;height:52px;flex:0 0 52px;padding:5px}
+.overviewPage .companyHeadingText h2{font-size:20px;margin:3px 0}
+.overviewPage .companyHeadingText p{margin:0;font-size:12px}
+.overviewPage .companyWelcomeNote{display:none}
+.overviewPage .pageHeading{margin-bottom:16px}
+.homePriority{margin-bottom:24px;background:#fff;border-color:#dce3ee}
+.homeMailAlert{width:100%;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;border-radius:10px;padding:14px;margin-bottom:16px;text-align:left;gap:12px}
+.homeMailAlert span{flex:1;display:flex;flex-direction:column;gap:4px}
+.homeMailAlert small{font-size:13px}
+.app .alert.success,.app .undoNotice{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.app .alert.error{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3}
+.app .badge.open{background:#eff6ff;color:#1e40af}
+.app .badge.paid{background:#ecfdf5;color:#065f46}
+.app .badge.overdue{background:#fff1f2;color:#9f1239}
+.app .textButton{min-height:44px}
+.app button:focus-visible,.app summary:focus-visible,.app a:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+.workflowOptional{margin:12px 0 20px;border:1px solid #dce3ee;border-radius:12px;padding:12px 16px}
+.workflowOptional>summary{font-weight:650;cursor:pointer;min-height:44px;display:flex;align-items:center}
+.workflowOptional[open]>summary{margin-bottom:12px}
+.wizardSteps{display:flex;gap:8px;margin-bottom:16px}
+.wizardSteps button{flex:1;min-height:48px;border:1px solid #dce3ee;background:#f8fafc;color:#475569;border-radius:10px;gap:8px;font-weight:600}
+.wizardSteps button[aria-current=step]{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.wizardSteps button span{font-size:12px;border:1px solid currentColor;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center}
+.documentWizard [hidden]{display:none!important}
+.documentWizard .draftRecovery{display:flex;gap:8px;align-items:center;color:#475569;font-size:13px;background:#f8fafc;padding:10px 12px;border-radius:8px}
+.documentWizard .draftRecovery svg{flex-shrink:0}
+.documentWizard .documentLine{padding:0;background:#f3f5f8;border:1px solid #dce3ee;border-radius:12px;overflow:hidden}
+.lineSummary{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border:0;background:transparent;color:#17243b;text-align:left;min-height:70px}
+.lineSummary>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;overflow-wrap:anywhere}
+.lineSummary small{font-size:13px;color:#475569}
+.lineSummary b{font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lineSummary svg{flex-shrink:0}
+.lineEditor{padding:0 16px 16px;border-top:1px solid #dce3ee}
+.lineEditor .lineTools{padding-top:8px}
+.lineDone{margin-top:8px;min-height:44px}
+.undoNotice{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:10px;margin:12px 0}
+.undoNotice button{gap:6px}
+.reviewSummary{padding:16px;border:1px solid #dce3ee;border-radius:12px;background:#f8fafc}
+.reviewLine{display:flex;justify-content:space-between;gap:16px;border-top:1px solid #dce3ee;padding:12px 0;overflow-wrap:anywhere}
+.reviewLine strong{white-space:nowrap}
+.wizardTotal{display:flex;flex-direction:column;gap:4px;min-width:0}
+.wizardTotal>span{font-size:12px;color:#475569}.wizardTotal>strong{font-size:21px;font-variant-numeric:tabular-nums}.wizardTotal>small{font-size:12px;color:#475569}
+.documentWizard .wizardFooter{position:sticky;bottom:0;z-index:2;background:#fff;border-top:1px solid #dce3ee;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;margin-top:20px}
+.projectOverview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.projectOverview>div{display:flex;flex-direction:column;gap:8px;border:1px solid #dce3ee;border-radius:12px;padding:16px;background:#fff;min-width:0}
+.projectOverview span{font-size:13px;color:#475569}.projectOverview strong{font-size:20px;overflow-wrap:anywhere}
+.projectTabs{overflow-x:auto;flex-wrap:nowrap}.projectTabs button{flex-shrink:0;min-height:48px}
+@media(max-width:600px){.wizardSteps{gap:5px}.wizardSteps button{font-size:12px;padding:8px 4px;gap:5px}.documentWizard .wizardFooter{flex-wrap:wrap;padding:12px 0 max(12px,env(safe-area-inset-bottom))}.wizardTotal{flex:1}.wizardTotal>small{max-width:180px}.documentWizard .wizardFooter>.saveActions:last-child:not([hidden]){width:100%;display:grid;grid-template-columns:1fr 1fr}.lineSummary{padding:12px;gap:8px}.lineSummary b{font-size:12px}.lineEditor{padding:0 12px 12px}.projectOverview{grid-template-columns:1fr}.projectOverview>div{flex-direction:row;align-items:center;justify-content:space-between;padding:12px}.projectOverview strong{font-size:17px}.app input,.app select,.app textarea{font-size:16px}.app .iconButton{min-width:44px;min-height:44px}.homePriorityHeading p{font-size:13px}.homeMetric>small{font-size:12px}.homeDueRow small,.homeDrafts small{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.app *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}

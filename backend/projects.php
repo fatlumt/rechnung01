@@ -71,3 +71,11 @@ function projects_change(string $owner,array $b):array {
  if($action==='projectItemDelete'){$r=one('SELECT version FROM kr_project_items WHERE owner=? AND project_id=? AND id=?',[$owner,$projectId,text($b['id']??'',36,true)]);if(!$r)fail('Eintrag nicht gefunden.',404);if(integer($b['version']??null)!==(int)$r['version'])fail('Eintrag wurde geändert. Bitte neu laden.',409);query('DELETE FROM kr_project_items WHERE owner=? AND project_id=? AND id=?',[$owner,$projectId,$b['id']]);return ['ok'=>true];}
  fail('Aktion nicht verfügbar.');
 }
+
+function project_work_fields(string $owner,array $raw,?array $old=null):array {
+ $projectId=text($raw['projectId']??'',36);
+ if($projectId==='')return ['projectId'=>''];
+ if(!features_for($owner)['projects']){if(($old['projectId']??'')===$projectId)return ['projectId'=>$projectId,'project'=>$old['project']];fail('Diese Funktion ist für Ihr Konto nicht freigeschaltet.',403);}
+ $p=project_record($owner,$projectId);
+ return ['projectId'=>$projectId,'project'=>$p['data']['name']];
+}
