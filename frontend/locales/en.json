@@ -1021,5 +1021,8 @@
   "Fertig": "Done",
   "{count} offene Hinweise": "{count} pending alerts",
   "Nur ausdrücklich diesem Projektordner zugeordnete Einträge. Ältere Einträge können beim Bearbeiten zugeordnet werden.": "Only entries explicitly linked to this project folder. Link older entries by editing them.",
-  "{count} offener Hinweis": "{count} unread notice"
+  "{count} offener Hinweis": "{count} unread notice",
+  "Zahlungsübersicht": "Payment overview",
+  "Zahlungen ansehen": "View payments",
+  "Zahlungsfortschritt": "Payment progress"
 }
