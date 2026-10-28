@@ -41,5 +41,6 @@ function expense_save(string $owner,array $b):array {
   }else $name='';
  }
  $d['receiptName']=$name;$d['hasReceipt']=$receipt!=='';
+ $d=array_replace($d,project_work_fields($owner,$v,$old?json_decode($old['data'],true):null));
  if($old)query('UPDATE kr_expenses SET data=?,receipt=?,version=version+1 WHERE owner=? AND id=?',[encode($d),$receipt,$owner,$id]);else query('INSERT INTO kr_expenses(id,owner,data,receipt,created) VALUES(?,?,?,?,?)',[$id,$owner,encode($d),$receipt,date('Y-m-d H:i:s')]);return ['expenseId'=>$id];
 }

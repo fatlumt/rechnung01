@@ -32,6 +32,7 @@ function hours_change(string $owner,array $b):array {
  if(!in_array($action,['hoursSave','hoursTimer'],true))fail('Aktion ungültig.');
  $raw=$b['data']??[];$employee=hours_record($owner,'kr_employees',text($raw['employeeId']??'',36,true));if(!$employee['data']['active']&&(!$old||$old['data']['employeeId']!==$employee['id']))fail('Mitarbeiter ist archiviert.');
  $v=['employeeId'=>$employee['id'],'project'=>text($raw['project']??'',200,true),'notes'=>text($raw['notes']??'',2000),'hourlyCost'=>$old&&$old['data']['employeeId']===$employee['id']?$old['data']['hourlyCost']:$employee['data']['hourlyCost']];
+ $v=array_replace($v,project_work_fields($owner,$raw,$old['data']??null));
  if($action==='hoursTimer'){if(($b['op']??'')!=='start')fail('Timer-Aktion ungültig.');$v+=['start'=>time(),'end'=>null,'seconds'=>0,'breakSeconds'=>0,'since'=>time(),'state'=>'running'];hours_no_overlap($owner,$employee['id'],$v['start'],PHP_INT_MAX);}
  else {if($old&&$old['data']['state']!=='done')fail('Bitte zuerst den Timer stoppen.');$start=hours_clock(text($raw['start']??'',16,true));$end=hours_clock(text($raw['end']??'',16,true));$break=integer($raw['breakMinutes']??0,0,1440)*60;if($end<=$start||$end-$start>86400||$break>=$end-$start||$end>time())fail('Zeitraum prüfen: maximal 24 Stunden, keine Zukunft und Pause kürzer als Arbeitszeit.');hours_no_overlap($owner,$employee['id'],$start,$end,$old['id']??'');$v+=['start'=>$start,'end'=>$end,'seconds'=>$end-$start-$break,'breakSeconds'=>$break,'since'=>null,'state'=>'done'];}
  return hours_write($owner,$table,$v,$old);
