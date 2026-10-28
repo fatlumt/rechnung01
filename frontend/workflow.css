@@ -101,3 +101,17 @@
 .overviewPage .homeCollection .collectionProgress,
 .overviewPage .homeCollection .collectionFoot{font-weight:500}
 }
+
+/* Body-mounted dock avoids transformed/scrolling app ancestors on iOS. */
+.phoneDockRoot{display:none}
+@media screen and (max-width:760px){
+.phoneDockRoot{display:block;font-family:inherit;color:#19243a}
+.phoneDock{position:fixed;inset:auto 0 0;z-index:24;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;background:#fff;border-top:1px solid #e7ebe7;border-radius:24px 24px 0 0;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -5px 24px #17243b0c;isolation:isolate;overflow:visible;transform:none}
+.phoneDock>button{appearance:none;border:0;background:none;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;min-height:54px;padding:4px 2px;font:inherit;color:#66716d;font-size:11px;cursor:pointer;min-width:0}
+.phoneDock>button.selected{color:var(--brand);font-weight:700}.phoneDock>button.selected svg{stroke-width:2.7}.phoneDock>button.phoneDockAdd{width:66px;height:66px;min-height:66px;justify-self:center;align-self:start;margin-top:-27px;border:5px solid #f5f6f5;border-radius:50%;background:var(--brand);color:#fff;box-shadow:0 3px 9px #17243b14}.phoneDockAdd:disabled{opacity:.45}
+.phoneDockRoot button:focus-visible{outline:3px solid var(--brand);outline-offset:3px}.phoneDockScrim{position:fixed;inset:0;border:0;background:#14243a32;z-index:23;width:100%;height:100%;padding:0}
+.phoneCreateChoices{position:fixed;left:16px;right:16px;bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:24;background:white;border:1px solid #e2e7ef;border-radius:20px;padding:8px;box-shadow:0 10px 35px #17243b25;display:grid;gap:4px}
+.phoneCreateChoices button{display:flex;gap:12px;align-items:center;min-height:58px;padding:14px 16px;border:0;border-radius:14px;background:#f6f8fa;color:#19243a;font:inherit;font-weight:650;text-align:left;cursor:pointer}.phoneCreateChoices svg{color:var(--brand)}
+.app .workspace main{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+}
+@media print{.phoneDockRoot{display:none!important}}
