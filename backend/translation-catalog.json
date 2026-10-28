@@ -4118,7 +4118,7 @@
     "Bereits bezahlt": {
       "de": "Bereits bezahlt",
       "en": "Already paid",
-      "sq": "E paguar tashmë"
+      "sq": "Tashmë e paguar"
     },
     "Restbetrag inkl. {tax}": {
       "de": "Restbetrag inkl. {tax}",
@@ -5119,6 +5119,21 @@
       "de": "{count} offener Hinweis",
       "en": "{count} unread notice",
       "sq": "{count} njoftim i palexuar"
+    },
+    "Zahlungsübersicht": {
+      "de": "Zahlungsübersicht",
+      "en": "Payment overview",
+      "sq": "Përmbledhja e pagesave"
+    },
+    "Zahlungen ansehen": {
+      "de": "Zahlungen ansehen",
+      "en": "View payments",
+      "sq": "Shiko pagesat"
+    },
+    "Zahlungsfortschritt": {
+      "de": "Zahlungsfortschritt",
+      "en": "Payment progress",
+      "sq": "Ecuria e pagesave"
     }
   }
 }
