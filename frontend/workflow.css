@@ -86,3 +86,18 @@
 .mobileHeroMetrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:18px}.mobileHeroMetrics button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;min-width:0;border:0;border-radius:18px;background:#faf7f3;padding:12px 9px;color:#222d38;text-align:left;min-height:100px}.mobileHeroMetrics button:first-child svg{color:#426cac}.mobileHeroMetrics button:nth-child(2) svg{color:#ac6b1a}.mobileHeroMetrics button:last-child svg{color:#26745a}.mobileHeroMetrics strong{font-size:clamp(13px,3.6vw,18px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;max-width:100%;letter-spacing:-.4px}.mobileHeroMetrics span{font-size:11px;color:#53606a}
 .overviewPage:has(.homeCollection) .homeMetrics .homeMetric:not(.purple){display:none}.overviewPage:has(.homeCollection) .homeSectionTitle{display:none}.overviewPage:has(.homeCollection) .homeMetrics{order:5;grid-template-columns:1fr;margin-top:16px;margin-bottom:0}.overviewPage:has(.homeCollection) .homeMetrics:empty{display:none}.overviewPage:has(.homeCollection) .homeMetric.purple{min-height:90px}.overviewPage .homePriority{order:3}.overviewPage .recentActivity{order:6}.overviewPage .homePriorityHeading p{display:none}.overviewPage .homeDueRow{min-height:64px}.overviewPage .homeActions{margin-bottom:16px}
 }
+
+/* Improve small-text contrast on the phone's dark summary panel. */
+@media(max-width:760px){
+.overviewPage .mobileHeroCompany .companyHeadingText p,
+.overviewPage .homeCollection .collectionHeading>span:first-child,
+.overviewPage .homeCollection .collectionHeading svg,
+.overviewPage .homeCollection .collectionPeriod,
+.overviewPage .homeCollection .collectionAmount>div>span,
+.overviewPage .homeCollection .collectionAmount strong small,
+.overviewPage .homeCollection .collectionProgress,
+.overviewPage .homeCollection .collectionFoot{color:#f4f6fa}
+.overviewPage .homeCollection .collectionPeriod,
+.overviewPage .homeCollection .collectionProgress,
+.overviewPage .homeCollection .collectionFoot{font-weight:500}
+}
