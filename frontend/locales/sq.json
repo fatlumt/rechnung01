@@ -821,7 +821,7 @@
   "Restforderung nach Akonto": "Shuma e mbetur pas parapagimeve",
   "Gesamtforderung": "Shuma totale për pagesë",
   "Akontozahlung": "Parapagim",
-  "Bereits bezahlt": "E paguar tashmë",
+  "Bereits bezahlt": "Tashmë e paguar",
   "Restbetrag inkl. {tax}": "Shuma e mbetur me {tax}",
   "Restbetrag": "Shuma e mbetur",
   "Steuerbefreiung für Kleinunternehmer gemäß § 19 UStG.": "Përjashtim nga TVSH-ja për bizneset e vogla sipas nenit 19 të ligjit gjerman për TVSH-në (UStG).",
@@ -1021,5 +1021,8 @@
   "Fertig": "U krye",
   "{count} offene Hinweise": "{count} njoftime në pritje",
   "Nur ausdrücklich diesem Projektordner zugeordnete Einträge. Ältere Einträge können beim Bearbeiten zugeordnet werden.": "Vetëm shënimet e lidhura me këtë dosje projekti. Shënimet e vjetra mund të lidhen duke i ndryshuar.",
-  "{count} offener Hinweis": "{count} njoftim i palexuar"
+  "{count} offener Hinweis": "{count} njoftim i palexuar",
+  "Zahlungsübersicht": "Përmbledhja e pagesave",
+  "Zahlungen ansehen": "Shiko pagesat",
+  "Zahlungsfortschritt": "Ecuria e pagesave"
 }
