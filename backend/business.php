@@ -16,6 +16,7 @@ function apply_deposits(string $owner,array &$v,?string $finalId=null):void {
  if(($v['documentTitle']??'')!=='Schlussrechnung'&&count($ids))fail('Akonto-Abzug nur auf einer Schlussrechnung.');
  if(in_array($v['documentTitle']??'',['Akontorechnung','Schlussrechnung'],true)&&($v['project']??'')==='')fail('Bitte eine Projekt-/Baustellenreferenz eingeben.');
  foreach($ids as $id){
+  document_require_active($owner,$id);
   $r=one('SELECT * FROM kr_documents WHERE owner=? AND id=?',[$owner,$id]);if(!$r)fail('Akontorechnung nicht gefunden.');$d=decode_row($r);
   if($d['kind']!=='invoice'||$d['status']==='draft'||($d['data']['documentTitle']??'')!=='Akontorechnung'||$d['paid']<$d['total'])fail('Nur vollständig bezahlte, ausgestellte Akontorechnungen können abgezogen werden.');
   if($d['data']['customerId']!==$v['customerId']||($d['data']['project']??'')!==($v['project']??'')||($d['data']['currency']??'CHF')!==($v['currency']??'CHF')||$d['data']['company']['vat']!==$v['company']['vat'])fail('Akonto muss zu Kunde, Projekt, Währung und Steuerprofil passen.');

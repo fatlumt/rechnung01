@@ -5169,6 +5169,26 @@
       "de": "Nur ausgestellte Belege können archiviert werden.",
       "en": "Only issued documents can be archived.",
       "sq": "Vetëm dokumentet e lëshuara mund të arkivohen."
+    },
+    "Papierkorb": {
+      "de": "Papierkorb",
+      "en": "Trash",
+      "sq": "Koshi"
+    },
+    "In den Papierkorb verschieben? Sie können den Beleg wiederherstellen. Zahlungen und Finanzzahlen bleiben unverändert.": {
+      "de": "In den Papierkorb verschieben? Sie können den Beleg wiederherstellen. Zahlungen und Finanzzahlen bleiben unverändert.",
+      "en": "Move to trash? You can restore the document. Payments and financial totals remain unchanged.",
+      "sq": "Të zhvendoset në kosh? Mund ta riktheni dokumentin. Pagesat dhe shifrat financiare mbeten të pandryshuara."
+    },
+    "Gelöschte Belege können wiederhergestellt werden. Zahlungen und Finanzzahlen bleiben unverändert.": {
+      "de": "Gelöschte Belege können wiederhergestellt werden. Zahlungen und Finanzzahlen bleiben unverändert.",
+      "en": "Deleted documents can be restored. Payments and financial totals remain unchanged.",
+      "sq": "Dokumentet e fshira mund të rikthehen. Pagesat dhe shifrat financiare mbeten të pandryshuara."
+    },
+    "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.": {
+      "de": "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.",
+      "en": "This document is in the trash. Please restore it first.",
+      "sq": "Ky dokument është në kosh. Ju lutemi rikthejeni fillimisht."
     }
   }
 }

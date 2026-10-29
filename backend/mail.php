@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/document-trash.php';
 function mail_schema():void {
  query("CREATE TABLE IF NOT EXISTS kr_mail_log (id CHAR(36) PRIMARY KEY,owner CHAR(36) NOT NULL,document_id CHAR(36) NOT NULL,recipient VARCHAR(190) NOT NULL,status VARCHAR(16) NOT NULL,created DATETIME NOT NULL,INDEX(owner,document_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
@@ -88,6 +89,7 @@ function mail_get(array $u,string $id):array {
  mail_schema();return array_merge(mail_branding($u['id'],$doc),['ready'=>mail_ready(),'from'=>mail_ready()?config()['mail_from']:'','history'=>query('SELECT recipient,status,created FROM kr_mail_log WHERE owner=? AND document_id=? ORDER BY created DESC LIMIT 20',[$u['id'],$id])->fetchAll()]);
 }
 function mail_post(array $u,array $b):array {
+ document_trash_schema();
  require_feature($u['id'],'email');
  if(!mail_ready())fail('E-Mail-Versand ist noch nicht eingerichtet. Bitte SMTP-Zugang auf dem Server konfigurieren.',503);
  $owner=$u['id'];$id=text($b['documentId']??'',36,true);
@@ -103,6 +105,7 @@ function mail_post(array $u,array $b):array {
  $request=text($b['requestId']??'',36,true);if(!preg_match('/^[a-f0-9-]{36}$/D',$request))fail('Ungültige Versandkennung.');
  mail_schema();db()->beginTransaction();one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
  $fresh=current_user();if(!$fresh||$fresh['id']!==$owner)fail('Bitte erneut anmelden.',401);
+ document_require_active($owner,$id);
  require_feature($owner,'email');require_feature($owner,feature_kind($doc['kind']));
  $old=one('SELECT status FROM kr_mail_log WHERE id=? AND owner=?',[$request,$owner]);
  if($old){db()->commit();return ['status'=>$old['status']];}

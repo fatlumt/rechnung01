@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/document-trash.php';
 function push_schema():void {
+ document_trash_schema();
  static $done=false;if($done)return;
  query('CREATE TABLE IF NOT EXISTS kr_push_config (id TINYINT PRIMARY KEY,data TEXT NOT NULL,last_worker BIGINT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
  query('CREATE TABLE IF NOT EXISTS kr_push_devices (id CHAR(36) PRIMARY KEY,owner CHAR(36) NOT NULL,device CHAR(64) NOT NULL,endpoint_hash CHAR(64) NOT NULL UNIQUE,subscription TEXT NOT NULL,language VARCHAR(2) NOT NULL,auth_version INT NOT NULL,created BIGINT NOT NULL,INDEX(owner)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
@@ -48,7 +50,7 @@ function push_enqueue(string $owner,string $kind,string $target,string $unique,?
 }
 function push_event_active(array $r):bool {
  $f=features_for($r['owner']);if($r['kind']==='mail')return $f['email']&&(bool)one('SELECT id FROM kr_mail_notifications WHERE owner=? AND id=? AND read_at IS NULL',[$r['owner'],$r['target']]);
- if($r['kind']==='overdue'){if(!$f['invoices'])return false;$d=one("SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND d.id=?",[$r['owner'],$r['target']]);$v=$d?json_decode($d['data'],true):[];return $d&&$d['kind']==='invoice'&&$d['status']!=='draft'&&(int)$d['total']+(int)$d['fee']>(int)$d['paid']&&($v['due']??'9999')<date('Y-m-d');}return $r['kind']==='test';
+ if($r['kind']==='overdue'){if(!$f['invoices']||document_is_trashed($r['owner'],$r['target']))return false;$d=one("SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND d.id=?",[$r['owner'],$r['target']]);$v=$d?json_decode($d['data'],true):[];return $d&&$d['kind']==='invoice'&&$d['status']!=='draft'&&(int)$d['total']+(int)$d['fee']>(int)$d['paid']&&($v['due']??'9999')<date('Y-m-d');}return $r['kind']==='test';
 }
 function push_payload(array $r):string {
  $text=match($r['kind']){'overdue'=>'Eine Rechnung ist überfällig. Tippen zum Öffnen.','mail'=>'Ein E-Mail-Versand konnte nicht bestätigt werden. Tippen zum Prüfen.',default=>'Test erfolgreich. Tippen, um DigitalRechnung zu öffnen.'};
@@ -69,7 +71,7 @@ function push_scan():void {
  foreach(query('SELECT DISTINCT owner FROM kr_push_devices')->fetchAll() as $r){$owner=$r['owner'];$f=features_for($owner);
   if($f['email'])foreach(query('SELECT id FROM kr_mail_notifications WHERE owner=? AND read_at IS NULL AND created>=? ORDER BY created DESC LIMIT 100',[$owner,date('Y-m-d H:i:s',time()-86400)])->fetchAll() as $n)push_enqueue($owner,'mail',$n['id'],$n['id']);
   // One notification per overdue invoice per day, during daytime in Switzerland.
-  if($f['invoices']&&(int)date('G')>=9&&(int)date('G')<18)foreach(query("SELECT d.id,d.data FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND d.kind='invoice' AND d.status<>'draft' AND d.total+COALESCE(f.amount,0)>d.paid",[$owner])->fetchAll() as $d){$v=json_decode($d['data'],true);if(($v['due']??'9999')<date('Y-m-d'))push_enqueue($owner,'overdue',$d['id'],$d['id'].'|'.date('Y-m-d'));}
+  if($f['invoices']&&(int)date('G')>=9&&(int)date('G')<18)foreach(query("SELECT d.id,d.data FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND NOT EXISTS (SELECT 1 FROM kr_document_trash t WHERE t.owner=d.owner AND t.document_id=d.id) AND d.kind='invoice' AND d.status<>'draft' AND d.total+COALESCE(f.amount,0)>d.paid",[$owner])->fetchAll() as $d){$v=json_decode($d['data'],true);if(($v['due']??'9999')<date('Y-m-d'))push_enqueue($owner,'overdue',$d['id'],$d['id'].'|'.date('Y-m-d'));}
  }
  push_dispatch();query('UPDATE kr_push_config SET last_worker=? WHERE id=1',[time()]);query('DELETE FROM kr_push_deliveries WHERE event_key IN (SELECT event_key FROM kr_push_events WHERE created<?)',[time()-30*86400]);query('DELETE FROM kr_push_events WHERE created<?',[time()-30*86400]);
 }
