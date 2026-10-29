@@ -1035,5 +1035,11 @@
   "Papierkorb": "Trash",
   "In den Papierkorb verschieben? Sie können den Beleg wiederherstellen. Zahlungen und Finanzzahlen bleiben unverändert.": "Move to trash? You can restore the document. Payments and financial totals remain unchanged.",
   "Gelöschte Belege können wiederhergestellt werden. Zahlungen und Finanzzahlen bleiben unverändert.": "Deleted documents can be restored. Payments and financial totals remain unchanged.",
-  "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.": "This document is in the trash. Please restore it first."
+  "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.": "This document is in the trash. Please restore it first.",
+  "Wird verarbeitet …": "Processing …",
+  "Bitte kurz warten.": "Please wait a moment.",
+  "Es dauert etwas länger. Bitte nicht erneut speichern.": "This is taking a little longer. Please do not save again.",
+  "Die Anfrage dauert zu lange. Der Vorgang könnte gespeichert sein. Bitte den gespeicherten Stand prüfen, bevor Sie erneut speichern.": "The request timed out. The change may have been saved. Please check the saved state before saving again.",
+  "Das Laden dauert zu lange. Bitte erneut laden.": "Loading timed out. Please reload.",
+  "Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern.": "Saved. The view could not be refreshed. Please reload instead of saving again."
 }

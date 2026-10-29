@@ -1035,5 +1035,11 @@
   "Papierkorb": "Koshi",
   "In den Papierkorb verschieben? Sie können den Beleg wiederherstellen. Zahlungen und Finanzzahlen bleiben unverändert.": "Të zhvendoset në kosh? Mund ta riktheni dokumentin. Pagesat dhe shifrat financiare mbeten të pandryshuara.",
   "Gelöschte Belege können wiederhergestellt werden. Zahlungen und Finanzzahlen bleiben unverändert.": "Dokumentet e fshira mund të rikthehen. Pagesat dhe shifrat financiare mbeten të pandryshuara.",
-  "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.": "Ky dokument është në kosh. Ju lutemi rikthejeni fillimisht."
+  "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.": "Ky dokument është në kosh. Ju lutemi rikthejeni fillimisht.",
+  "Wird verarbeitet …": "Duke përpunuar …",
+  "Bitte kurz warten.": "Ju lutemi prisni pak.",
+  "Es dauert etwas länger. Bitte nicht erneut speichern.": "Po zgjat pak më shumë. Ju lutemi mos ruani përsëri.",
+  "Die Anfrage dauert zu lange. Der Vorgang könnte gespeichert sein. Bitte den gespeicherten Stand prüfen, bevor Sie erneut speichern.": "Kërkesa zgjati shumë. Ndryshimi mund të jetë ruajtur. Kontrolloni gjendjen e ruajtur përpara se të ruani përsëri.",
+  "Das Laden dauert zu lange. Bitte erneut laden.": "Ngarkimi zgjati shumë. Ju lutemi ngarkoni përsëri.",
+  "Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern.": "U ruajt. Pamja nuk mund të përditësohej. Ju lutemi ngarkoni përsëri, mos ruani sërish."
 }
