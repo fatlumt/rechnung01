@@ -5134,6 +5134,41 @@
       "de": "Zahlungsfortschritt",
       "en": "Payment progress",
       "sq": "Ecuria e pagesave"
+    },
+    "Aktive Belege": {
+      "de": "Aktive Belege",
+      "en": "Active documents",
+      "sq": "Dokumentet aktive"
+    },
+    "Archiv": {
+      "de": "Archiv",
+      "en": "Archive",
+      "sq": "Arkivi"
+    },
+    "Archivieren": {
+      "de": "Archivieren",
+      "en": "Archive",
+      "sq": "Arkivo"
+    },
+    "Wiederherstellen": {
+      "de": "Wiederherstellen",
+      "en": "Restore",
+      "sq": "Rikthe"
+    },
+    "Beleg archivieren? Zahlungen und Finanzzahlen bleiben unverändert.": {
+      "de": "Beleg archivieren? Zahlungen und Finanzzahlen bleiben unverändert.",
+      "en": "Archive this document? Payments and financial totals remain unchanged.",
+      "sq": "Të arkivohet dokumenti? Pagesat dhe shifrat financiare mbeten të pandryshuara."
+    },
+    "Archivierte Belege bleiben in den Finanzzahlen enthalten. Sie können sie jederzeit wiederherstellen.": {
+      "de": "Archivierte Belege bleiben in den Finanzzahlen enthalten. Sie können sie jederzeit wiederherstellen.",
+      "en": "Archived documents remain included in financial totals. You can restore them at any time.",
+      "sq": "Dokumentet e arkivuara mbeten të përfshira në shifrat financiare. Mund t’i riktheni në çdo kohë."
+    },
+    "Nur ausgestellte Belege können archiviert werden.": {
+      "de": "Nur ausgestellte Belege können archiviert werden.",
+      "en": "Only issued documents can be archived.",
+      "sq": "Vetëm dokumentet e lëshuara mund të arkivohen."
     }
   }
 }
