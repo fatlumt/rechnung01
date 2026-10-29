@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__.'/document-trash.php';
 function document_archive_schema():void {
  document_trash_schema();
+ query('CREATE TABLE IF NOT EXISTS kr_customer_trash (owner CHAR(36) NOT NULL,customer_id CHAR(36) NOT NULL,created DATETIME NOT NULL,PRIMARY KEY(owner,customer_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
  query('CREATE TABLE IF NOT EXISTS kr_document_archive (owner CHAR(36) NOT NULL,document_id CHAR(36) NOT NULL,created DATETIME NOT NULL,PRIMARY KEY(owner,document_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
 function data_get(string $owner):array {
@@ -11,7 +12,8 @@ function data_get(string $owner):array {
  $features=features_for($owner);
  $p=one('SELECT * FROM kr_businesses WHERE owner=?',[$owner]);
  return ['trashedDocumentIds'=>array_column(query('SELECT document_id FROM kr_document_trash WHERE owner=?',[$owner])->fetchAll(),'document_id'),'archivedDocumentIds'=>array_column(query('SELECT document_id FROM kr_document_archive WHERE owner=?',[$owner])->fetchAll(),'document_id'),'projects'=>$features['projects']?projects_list($owner):[],'projectLinks'=>$features['projects']?query('SELECT document_id,project_id FROM kr_project_documents WHERE owner=?',[$owner])->fetchAll():[],'features'=>$features,'employees'=>$features['hours']?hours_list($owner,'kr_employees'):[],'hours'=>$features['hours']?hours_list($owner,'kr_hours'):[],'serverTime'=>time(),'expenses'=>$features['expenses']?array_map('decode_row',query('SELECT id,data,version,created FROM kr_expenses WHERE owner=? ORDER BY created DESC',[$owner])->fetchAll()):[],'depositLinks'=>$features['deposits']?query('SELECT deposit_id,final_id FROM kr_deposit_links WHERE owner=?',[$owner])->fetchAll():[],'mailHistory'=>$features['email']?query('SELECT document_id,status,created FROM kr_mail_log WHERE owner=? ORDER BY created DESC LIMIT 500',[$owner])->fetchAll():[],'company'=>$p?decode_row($p)['data']:null,'companyVersion'=>$p?(int)$p['version']:0,
- 'customers'=>array_map('decode_row',query('SELECT * FROM kr_customers WHERE owner=? ORDER BY created DESC,id',[$owner])->fetchAll()),
+ 'customers'=>array_map('decode_row',query('SELECT c.* FROM kr_customers c WHERE c.owner=? AND NOT EXISTS (SELECT 1 FROM kr_customer_trash t WHERE t.owner=c.owner AND t.customer_id=c.id) ORDER BY c.created DESC,c.id',[$owner])->fetchAll()),
+ 'trashedCustomers'=>array_map('decode_row',query('SELECT c.* FROM kr_customers c INNER JOIN kr_customer_trash t ON t.owner=c.owner AND t.customer_id=c.id WHERE c.owner=? ORDER BY t.created DESC,c.id',[$owner])->fetchAll()),
  'documents'=>array_values(array_filter(array_map('invoice_values',query('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? ORDER BY d.created DESC,d.number DESC',[$owner])->fetchAll()),fn($d)=>$features[feature_kind($d['kind'])])),
  'payments'=>$features['invoices']?array_map(fn($r)=>array_merge($r,['amount'=>(int)$r['amount']]),query('SELECT * FROM kr_payments WHERE owner=? ORDER BY date DESC,id',[$owner])->fetchAll()):[]];
 }
@@ -47,6 +49,13 @@ function data_change(string $owner,array $b):array {
  if($action==='expense')return expense_save($owner,$b);
  if($action==='receipt'){$r=one('SELECT data,receipt FROM kr_expenses WHERE owner=? AND id=?',[$owner,text($b['expenseId']??'',36,true)]);if(!$r)fail('Beleg nicht gefunden.',404);return ['receipt'=>$r['receipt'],'name'=>decode_row($r)['data']['receiptName']??'Beleg'];}
  if($action==='company'){$v=company($b['data']??null);$p=one('SELECT version,data FROM kr_businesses WHERE owner=?',[$owner]);if($p&&decode_row($p)['data']['country']!==$v['country']&&one('SELECT id FROM kr_documents WHERE owner=? LIMIT 1',[$owner]))fail('Das Firmenland kann nach dem ersten Beleg nicht gewechselt werden. Bitte einen eigenen Firmenbereich verwenden.');if(integer($b['version']??null)!==($p?(int)$p['version']:0))fail('Firmendaten wurden inzwischen geändert. Bitte neu laden.',409);query('INSERT INTO kr_businesses(owner,data,version) VALUES(?,?,1) ON DUPLICATE KEY UPDATE data=VALUES(data),version=version+1',[$owner,encode($v)]);return ['ok'=>true];}
+ if(in_array($action,['customerDelete','customerRestore'],true)){
+  $id=text($b['customerId']??'',36,true);
+  if(!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]))fail('Kunde nicht gefunden.',404);
+  if($action==='customerDelete')query('INSERT INTO kr_customer_trash(owner,customer_id,created) VALUES(?,?,?) ON DUPLICATE KEY UPDATE created=VALUES(created)',[$owner,$id,date('Y-m-d H:i:s')]);
+  else query('DELETE FROM kr_customer_trash WHERE owner=? AND customer_id=?',[$owner,$id]);
+  return ['ok'=>true];
+ }
  if($action==='customer'){$v=address($b['data']??null);$id=$b['customerId']??null;if($id){$id=text($id,36,true);if(!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]))fail('Kunde nicht gefunden.',404);query('UPDATE kr_customers SET data=? WHERE owner=? AND id=?',[encode($v),$owner,$id]);}else{$id=id();query('INSERT INTO kr_customers(id,owner,data,created) VALUES(?,?,?,?)',[$id,$owner,encode($v),date('Y-m-d H:i:s')]);}return ['id'=>$id];}
  if($action==='create'){$v=draft($b['data']??null);$p=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$p)fail('Bitte zuerst Firmendaten speichern.');$profile=decode_row($p)['data'];$v['language']=document_language($b['data']['language']??$profile['language']??'de');check_vat($v,$profile);$v['company']=$profile;$v['customer']=customer_snapshot($owner,$v['customerId']);$v['templateId']=template_id($b['data']['templateId']??$profile['templateId']??'classic');$v['visibility']=field_visibility($profile['visibility']??[]);document_country($v);apply_deposits($owner,$v);$result=add_document($owner,$v['kind'],$v);reserve_deposits($owner,$result['id'],$v);return $result;}
  $id=text($b['id']??'',36,true);$r=one('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND d.id=?',[$owner,$id]);if(!$r)fail('Beleg nicht gefunden.',404);$d=invoice_values($r);if(integer($b['version']??null)!==$d['version'])fail('Beleg wurde inzwischen geändert. Bitte neu laden.',409);

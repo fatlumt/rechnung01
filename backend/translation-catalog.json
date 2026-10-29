@@ -5219,6 +5219,16 @@
       "de": "Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern.",
       "en": "Saved. The view could not be refreshed. Please reload instead of saving again.",
       "sq": "U ruajt. Pamja nuk mund të përditësohej. Ju lutemi ngarkoni përsëri, mos ruani sërish."
+    },
+    "Kunde in den Papierkorb verschieben? Bestehende Belege und Projekte bleiben erhalten.": {
+      "de": "Kunde in den Papierkorb verschieben? Bestehende Belege und Projekte bleiben erhalten.",
+      "en": "Move this client to trash? Existing documents and projects will be kept.",
+      "sq": "Ta zhvendosni klientin në kosh? Dokumentet dhe projektet ekzistuese ruhen."
+    },
+    "Papierkorb ist leer.": {
+      "de": "Papierkorb ist leer.",
+      "en": "Trash is empty.",
+      "sq": "Koshi është bosh."
     }
   }
 }
