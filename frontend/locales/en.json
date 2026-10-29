@@ -1031,5 +1031,9 @@
   "Wiederherstellen": "Restore",
   "Beleg archivieren? Zahlungen und Finanzzahlen bleiben unverändert.": "Archive this document? Payments and financial totals remain unchanged.",
   "Archivierte Belege bleiben in den Finanzzahlen enthalten. Sie können sie jederzeit wiederherstellen.": "Archived documents remain included in financial totals. You can restore them at any time.",
-  "Nur ausgestellte Belege können archiviert werden.": "Only issued documents can be archived."
+  "Nur ausgestellte Belege können archiviert werden.": "Only issued documents can be archived.",
+  "Papierkorb": "Trash",
+  "In den Papierkorb verschieben? Sie können den Beleg wiederherstellen. Zahlungen und Finanzzahlen bleiben unverändert.": "Move to trash? You can restore the document. Payments and financial totals remain unchanged.",
+  "Gelöschte Belege können wiederhergestellt werden. Zahlungen und Finanzzahlen bleiben unverändert.": "Deleted documents can be restored. Payments and financial totals remain unchanged.",
+  "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.": "This document is in the trash. Please restore it first."
 }

@@ -1031,5 +1031,9 @@
   "Wiederherstellen": "Rikthe",
   "Beleg archivieren? Zahlungen und Finanzzahlen bleiben unverändert.": "Të arkivohet dokumenti? Pagesat dhe shifrat financiare mbeten të pandryshuara.",
   "Archivierte Belege bleiben in den Finanzzahlen enthalten. Sie können sie jederzeit wiederherstellen.": "Dokumentet e arkivuara mbeten të përfshira në shifrat financiare. Mund t’i riktheni në çdo kohë.",
-  "Nur ausgestellte Belege können archiviert werden.": "Vetëm dokumentet e lëshuara mund të arkivohen."
+  "Nur ausgestellte Belege können archiviert werden.": "Vetëm dokumentet e lëshuara mund të arkivohen.",
+  "Papierkorb": "Koshi",
+  "In den Papierkorb verschieben? Sie können den Beleg wiederherstellen. Zahlungen und Finanzzahlen bleiben unverändert.": "Të zhvendoset në kosh? Mund ta riktheni dokumentin. Pagesat dhe shifrat financiare mbeten të pandryshuara.",
+  "Gelöschte Belege können wiederhergestellt werden. Zahlungen und Finanzzahlen bleiben unverändert.": "Dokumentet e fshira mund të rikthehen. Pagesat dhe shifrat financiare mbeten të pandryshuara.",
+  "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.": "Ky dokument është në kosh. Ju lutemi rikthejeni fillimisht."
 }
