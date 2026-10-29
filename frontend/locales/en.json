@@ -1041,5 +1041,7 @@
   "Es dauert etwas länger. Bitte nicht erneut speichern.": "This is taking a little longer. Please do not save again.",
   "Die Anfrage dauert zu lange. Der Vorgang könnte gespeichert sein. Bitte den gespeicherten Stand prüfen, bevor Sie erneut speichern.": "The request timed out. The change may have been saved. Please check the saved state before saving again.",
   "Das Laden dauert zu lange. Bitte erneut laden.": "Loading timed out. Please reload.",
-  "Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern.": "Saved. The view could not be refreshed. Please reload instead of saving again."
+  "Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern.": "Saved. The view could not be refreshed. Please reload instead of saving again.",
+  "Kunde in den Papierkorb verschieben? Bestehende Belege und Projekte bleiben erhalten.": "Move this client to trash? Existing documents and projects will be kept.",
+  "Papierkorb ist leer.": "Trash is empty."
 }
