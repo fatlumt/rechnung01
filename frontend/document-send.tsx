@@ -1,3 +1,4 @@
+import {Mail,Send,Share2} from 'lucide-react';
 import {t} from './i18n';
 import {documentText,documentTitle} from './country';
 import {defaultEmailTemplateFor} from './email-templates';
@@ -22,7 +23,8 @@ export default function DocumentSend({doc,payments,documents,user,emailEnabled=t
   if(r.status==='accepted')setNotice('E-Mail gesendet.');else setError('Ein Versandversuch ist bereits erfasst, aber nicht bestätigt. Bitte Verlauf und Postfach prüfen.');await load();
  }catch(e:any){setError(e.message);load().catch(()=>{});}finally{setBusy(false);}}
  return <section className="documentSend noPrint" aria-label={t("Beleg versenden")}>
-  <div className="sendButtons">{emailEnabled&&<><button className="secondary" disabled={busy} onClick={()=>choose('self')}>{t("An mich senden")}</button><button className="secondary" disabled={busy} onClick={()=>choose('customer')}>{t("An Kunden senden")}</button></>}<button className="secondary" disabled={!file||busy} onClick={share}>{file?t("Teilen / WhatsApp"):t("PDF wird vorbereitet …")}</button></div>
+  <h3 className="documentSendTitle">{t("Beleg versenden")}</h3>
+  <div className="documentSendChoices">{emailEnabled&&<button className="secondary sendCustomer" aria-expanded={target==='customer'} disabled={busy} onClick={()=>choose(target==='customer'?'':'customer')}><Send size={19}/>{t("An Kunden senden")}</button>}<button className="secondary" disabled={!file||busy} onClick={share}><Share2 size={19}/>{file?t("Teilen / WhatsApp"):t("PDF wird vorbereitet …")}</button>{emailEnabled&&<button className="secondary" aria-expanded={target==='self'} disabled={busy} onClick={()=>choose(target==='self'?'':'self')}><Mail size={19}/>{t("An mich senden")}</button>}</div>
   {error&&<p className="alert error" role="alert">{t(error)}</p>}{notice&&<p className="alert success" role="status">{t(notice)}</p>}
   {emailEnabled&&target&&<form className="sendReview" onSubmit={send}><h3>{t("E-Mail prüfen")}</h3>
    <p className="hint">{t("Absender:")} {status?.company?.name||doc.data.company.name} &lt;{status?.from||t("Noch nicht eingerichtet")}&gt; · {t('Antworten an:')} {user.email}</p>
