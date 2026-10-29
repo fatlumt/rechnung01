@@ -52,3 +52,5 @@
  .sectionPage .workspace main .settingsSection>summary{padding:18px 15px;min-height:82px}.sectionPage .workspace main .settingsSectionBody{padding:18px 15px}.sectionPage .workspace main .settingsSectionLabel strong{font-size:15px}
  .sectionPage .workspace main .projectRow{padding:16px 14px}.sectionPage .workspace main .hoursSummary>div{padding:14px}
 }
+
+.customerTabs{display:flex;gap:8px;padding:0 20px 18px;flex-wrap:wrap}.customerTabs button{min-height:42px;display:flex;align-items:center;gap:7px}.customerActions{display:flex;justify-content:space-between;gap:12px;margin-top:16px}.customerActions button{display:flex;align-items:center;gap:6px;min-height:44px}.customerActions .customerDelete{color:#b42318}
