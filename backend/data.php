@@ -1,17 +1,19 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__.'/document-trash.php';
+require_once __DIR__.'/trash-retention.php';
 function document_archive_schema():void {
- document_trash_schema();
+ document_trash_schema();trash_retention_schema();
  query('CREATE TABLE IF NOT EXISTS kr_customer_trash (owner CHAR(36) NOT NULL,customer_id CHAR(36) NOT NULL,created DATETIME NOT NULL,PRIMARY KEY(owner,customer_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
  query('CREATE TABLE IF NOT EXISTS kr_document_archive (owner CHAR(36) NOT NULL,document_id CHAR(36) NOT NULL,created DATETIME NOT NULL,PRIMARY KEY(owner,document_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
 function data_get(string $owner):array {
  document_archive_schema();
  features_schema();hours_schema();business_schema();projects_schema();mail_schema();
+ trash_cleanup_owner($owner);
  $features=features_for($owner);
  $p=one('SELECT * FROM kr_businesses WHERE owner=?',[$owner]);
- return ['trashedDocumentIds'=>array_column(query('SELECT document_id FROM kr_document_trash WHERE owner=?',[$owner])->fetchAll(),'document_id'),'archivedDocumentIds'=>array_column(query('SELECT document_id FROM kr_document_archive WHERE owner=?',[$owner])->fetchAll(),'document_id'),'projects'=>$features['projects']?projects_list($owner):[],'projectLinks'=>$features['projects']?query('SELECT document_id,project_id FROM kr_project_documents WHERE owner=?',[$owner])->fetchAll():[],'features'=>$features,'employees'=>$features['hours']?hours_list($owner,'kr_employees'):[],'hours'=>$features['hours']?hours_list($owner,'kr_hours'):[],'serverTime'=>time(),'expenses'=>$features['expenses']?array_map('decode_row',query('SELECT id,data,version,created FROM kr_expenses WHERE owner=? ORDER BY created DESC',[$owner])->fetchAll()):[],'depositLinks'=>$features['deposits']?query('SELECT deposit_id,final_id FROM kr_deposit_links WHERE owner=?',[$owner])->fetchAll():[],'mailHistory'=>$features['email']?query('SELECT document_id,status,created FROM kr_mail_log WHERE owner=? ORDER BY created DESC LIMIT 500',[$owner])->fetchAll():[],'company'=>$p?decode_row($p)['data']:null,'companyVersion'=>$p?(int)$p['version']:0,
+ return ['trashDeadlines'=>query('SELECT kind,item_id,expires FROM kr_trash_deadlines WHERE owner=?',[$owner])->fetchAll(),'trashedDocumentIds'=>array_column(query('SELECT document_id FROM kr_document_trash WHERE owner=?',[$owner])->fetchAll(),'document_id'),'archivedDocumentIds'=>array_column(query('SELECT document_id FROM kr_document_archive WHERE owner=?',[$owner])->fetchAll(),'document_id'),'projects'=>$features['projects']?projects_list($owner):[],'projectLinks'=>$features['projects']?query('SELECT document_id,project_id FROM kr_project_documents WHERE owner=?',[$owner])->fetchAll():[],'features'=>$features,'employees'=>$features['hours']?hours_list($owner,'kr_employees'):[],'hours'=>$features['hours']?hours_list($owner,'kr_hours'):[],'serverTime'=>time(),'expenses'=>$features['expenses']?array_map('decode_row',query('SELECT id,data,version,created FROM kr_expenses WHERE owner=? ORDER BY created DESC',[$owner])->fetchAll()):[],'depositLinks'=>$features['deposits']?query('SELECT deposit_id,final_id FROM kr_deposit_links WHERE owner=?',[$owner])->fetchAll():[],'mailHistory'=>$features['email']?query('SELECT document_id,status,created FROM kr_mail_log WHERE owner=? ORDER BY created DESC LIMIT 500',[$owner])->fetchAll():[],'company'=>$p?decode_row($p)['data']:null,'companyVersion'=>$p?(int)$p['version']:0,
  'customers'=>array_map('decode_row',query('SELECT c.* FROM kr_customers c WHERE c.owner=? AND NOT EXISTS (SELECT 1 FROM kr_customer_trash t WHERE t.owner=c.owner AND t.customer_id=c.id) ORDER BY c.created DESC,c.id',[$owner])->fetchAll()),
  'trashedCustomers'=>array_map('decode_row',query('SELECT c.* FROM kr_customers c INNER JOIN kr_customer_trash t ON t.owner=c.owner AND t.customer_id=c.id WHERE c.owner=? ORDER BY t.created DESC,c.id',[$owner])->fetchAll()),
  'documents'=>array_values(array_filter(array_map('invoice_values',query('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? ORDER BY d.created DESC,d.number DESC',[$owner])->fetchAll()),fn($d)=>$features[feature_kind($d['kind'])])),
@@ -28,7 +30,7 @@ function add_document(string $owner,string $kind,array $data,string $status='dra
 }
 function data_post(string $owner,array $b):array {
  document_archive_schema();
- features_schema();hours_schema();business_schema();projects_schema();
+ features_schema();hours_schema();business_schema();projects_schema();mail_schema();
  db()->beginTransaction();
  // Serialise each business's mutations, including numbering and partial payments.
  one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
@@ -44,6 +46,7 @@ function data_post(string $owner,array $b):array {
 }
 function data_change(string $owner,array $b):array {
  $action=$b['action']??'';
+ if(in_array($action,['trashPurge','trashEmpty'],true))return trash_action($owner,$b);
  if(str_starts_with($action,'project'))return projects_change($owner,$b);
  if(in_array($action,['employee','hoursSave','hoursDelete','hoursTimer'],true))return hours_change($owner,$b);
  if($action==='expense')return expense_save($owner,$b);
@@ -54,6 +57,7 @@ function data_change(string $owner,array $b):array {
   if(!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]))fail('Kunde nicht gefunden.',404);
   if($action==='customerDelete')query('INSERT INTO kr_customer_trash(owner,customer_id,created) VALUES(?,?,?) ON DUPLICATE KEY UPDATE created=VALUES(created)',[$owner,$id,date('Y-m-d H:i:s')]);
   else query('DELETE FROM kr_customer_trash WHERE owner=? AND customer_id=?',[$owner,$id]);
+  if($action==='customerDelete')trash_schedule($owner,'customer',$id);else trash_forget_deadline($owner,'customer',$id);
   return ['ok'=>true];
  }
  if($action==='customer'){$v=address($b['data']??null);$id=$b['customerId']??null;if($id){$id=text($id,36,true);if(!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$id]))fail('Kunde nicht gefunden.',404);query('UPDATE kr_customers SET data=? WHERE owner=? AND id=?',[encode($v),$owner,$id]);}else{$id=id();query('INSERT INTO kr_customers(id,owner,data,created) VALUES(?,?,?,?)',[$id,$owner,encode($v),date('Y-m-d H:i:s')]);}return ['id'=>$id];}
@@ -64,10 +68,11 @@ function data_change(string $owner,array $b):array {
   else query('DELETE FROM kr_document_trash WHERE owner=? AND document_id=?',[$owner,$id]);
   query('DELETE FROM kr_document_archive WHERE owner=? AND document_id=?',[$owner,$id]);
   query('UPDATE kr_documents SET version=version+1 WHERE owner=? AND id=?',[$owner,$id]);
+  if($action==='delete')trash_schedule($owner,'document',$id);else trash_forget_deadline($owner,'document',$id);
   return ['ok'=>true];
  }
  document_require_active($owner,$id);
- if($action==='edit'){if($d['status']!=='draft')fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);$v['language']=document_language($b['data']['language']??$d['data']['language']??'de');$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>customer_snapshot($owner,$v['customerId'])]);document_country($v);apply_deposits($owner,$v,$id);reserve_deposits($owner,$id,$v);query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);if(features_for($owner)['projects'])project_document_link($owner,$id,$v['projectId']??'',$v['customerId']);return ['ok'=>true];}
+ if($action==='edit'){if($d['status']!=='draft')fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);$v['language']=document_language($b['data']['language']??$d['data']['language']??'de');$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>$v['customerId']===$d['data']['customerId']&&!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$v['customerId']])?$d['data']['customer']:customer_snapshot($owner,$v['customerId'])]);document_country($v);apply_deposits($owner,$v,$id);reserve_deposits($owner,$id,$v);query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);if(features_for($owner)['projects'])project_document_link($owner,$id,$v['projectId']??'',$v['customerId']);return ['ok'=>true];}
  if($action==='refreshLogo'){
   if($d['status']!=='draft')fail('Nur Entwürfe können ein neues Firmenlogo übernehmen.');
   $profile=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$profile)fail('Bitte zuerst Firmendaten speichern.');

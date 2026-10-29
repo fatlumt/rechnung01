@@ -21,7 +21,7 @@ function feature_guard(string $owner,array $b):void {
  if(!empty($b['data']['projectId'])&&in_array($action,['create','edit','convert'],true))require_feature($owner,'projects');
  if(in_array($action,['employee','hoursSave','hoursDelete','hoursTimer'],true)){require_feature($owner,'hours');return;}
  if(in_array($action,['expense','receipt'],true)){require_feature($owner,'expenses');return;}
- if(in_array($action,['company','customer','customerDelete','customerRestore'],true))return;
+ if(in_array($action,['company','customer','customerDelete','customerRestore','trashPurge','trashEmpty'],true))return;
  if($action==='create')require_feature($owner,feature_kind($b['data']['kind']??''));
  else {$r=one('SELECT kind,data FROM kr_documents WHERE owner=? AND id=?',[$owner,text($b['id']??'',36,true)]);if($r){require_feature($owner,feature_kind($r['kind']));$v=json_decode($r['data'],true);if(in_array($v['documentTitle']??'',['Akontorechnung','Schlussrechnung'],true))require_feature($owner,'deposits');}}
  if($action==='convert')require_feature($owner,'invoices');

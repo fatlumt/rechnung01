@@ -39,7 +39,7 @@ function projects_change(string $owner,array $b):array {
   $v=$b['data']??[];if(!is_array($v))fail('Ungültige Anfrage.');$old=!empty($b['id'])?project_record($owner,text($b['id'],36,true)):null;
   if($old&&integer($b['version']??null)!==$old['version'])fail('Projekt wurde geändert. Bitte neu laden.',409);
   $v=['name'=>text($v['name']??'',160,true),'customerId'=>text($v['customerId']??'',36,true),'address'=>text($v['address']??'',500),'description'=>text($v['description']??'',4000),'status'=>text($v['status']??'active',20,true)];
-  if(!in_array($v['status'],['planned','active','completed','archived'],true))fail('Ungültiger Status.');project_customer($owner,$v['customerId']);
+  if(!in_array($v['status'],['planned','active','completed','archived'],true))fail('Ungültiger Status.');if(!$old)project_customer($owner,$v['customerId']);if($old&&isset($old['data']['customerSnapshot']))$v['customerSnapshot']=$old['data']['customerSnapshot'];
   // Never move an existing client's files and notes to another client by accident.
   if($old&&$old['data']['customerId']!==$v['customerId'])fail('Der Kunde eines bestehenden Projekts kann nicht geändert werden.');
   return hours_write($owner,'kr_projects',$v,$old);

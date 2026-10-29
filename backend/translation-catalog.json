@@ -4747,8 +4747,8 @@
     },
     "Diesen Eintrag endgültig löschen?": {
       "de": "Diesen Eintrag endgültig löschen?",
-      "en": "Permanently delete this entry?",
-      "sq": "Të fshihet përgjithmonë ky shënim ose skedar?"
+      "en": "Permanently delete this item?",
+      "sq": "Të fshihet përgjithmonë ky artikull?"
     },
     "Platz für Absprachen, Masse und Arbeitsnotizen.": {
       "de": "Platz für Absprachen, Masse und Arbeitsnotizen.",
@@ -5229,6 +5229,81 @@
       "de": "Papierkorb ist leer.",
       "en": "Trash is empty.",
       "sq": "Koshi është bosh."
+    },
+    "Endgültig löschen": {
+      "de": "Endgültig löschen",
+      "en": "Delete permanently",
+      "sq": "Fshi përgjithmonë"
+    },
+    "Alle endgültig löschen": {
+      "de": "Alle endgültig löschen",
+      "en": "Delete all permanently",
+      "sq": "Fshiji të gjitha përgjithmonë"
+    },
+    "Einträge bleiben 14 Tage im Papierkorb und werden danach automatisch endgültig gelöscht.": {
+      "de": "Einträge bleiben 14 Tage im Papierkorb und werden danach automatisch endgültig gelöscht.",
+      "en": "Items stay in trash for 14 days, then are automatically deleted permanently.",
+      "sq": "Artikujt qëndrojnë në kosh për 14 ditë dhe pastaj fshihen automatikisht përgjithmonë."
+    },
+    "Verknüpfte Akontobelege bleiben geschützt, solange die Schlussrechnung vorhanden ist.": {
+      "de": "Verknüpfte Akontobelege bleiben geschützt, solange die Schlussrechnung vorhanden ist.",
+      "en": "Linked advance-payment invoices remain protected while the final invoice exists.",
+      "sq": "Faturat e lidhura të parapagimit mbeten të mbrojtura për sa kohë ekziston fatura përfundimtare."
+    },
+    "Belege und zugehörige Zahlungen werden endgültig gelöscht. Finanzzahlen ändern sich. Kopien in anderen Belegen bleiben erhalten.": {
+      "de": "Belege und zugehörige Zahlungen werden endgültig gelöscht. Finanzzahlen ändern sich. Kopien in anderen Belegen bleiben erhalten.",
+      "en": "Documents and their payments will be permanently deleted. Financial totals will change. Copies within other documents will be kept.",
+      "sq": "Dokumentet dhe pagesat e tyre do të fshihen përgjithmonë. Totalet financiare do të ndryshojnë. Kopjet brenda dokumenteve të tjera ruhen."
+    },
+    "Kunden werden endgültig aus dem Verzeichnis gelöscht. Bestehende Belege und Projektkopien bleiben erhalten.": {
+      "de": "Kunden werden endgültig aus dem Verzeichnis gelöscht. Bestehende Belege und Projektkopien bleiben erhalten.",
+      "en": "Clients will be permanently deleted from the directory. Existing documents and project copies will be kept.",
+      "sq": "Klientët do të fshihen përgjithmonë nga lista. Dokumentet ekzistuese dhe kopjet në projekte ruhen."
+    },
+    "Alle {count} Einträge in diesem Papierkorb endgültig löschen?": {
+      "de": "Alle {count} Einträge in diesem Papierkorb endgültig löschen?",
+      "en": "Permanently delete all {count} items in this trash?",
+      "sq": "Të fshihen përgjithmonë të gjithë {count} artikujt në këtë kosh?"
+    },
+    "Dies kann nicht rückgängig gemacht werden.": {
+      "de": "Dies kann nicht rückgängig gemacht werden.",
+      "en": "This cannot be undone.",
+      "sq": "Ky veprim nuk mund të zhbëhet."
+    },
+    "Einige verknüpfte Akontobelege bleiben im Papierkorb. Bitte zuerst die Schlussrechnung entfernen oder die Verknüpfung lösen.": {
+      "de": "Einige verknüpfte Akontobelege bleiben im Papierkorb. Bitte zuerst die Schlussrechnung entfernen oder die Verknüpfung lösen.",
+      "en": "Some linked advance-payment invoices remain in trash. Remove the final invoice or unlink them first.",
+      "sq": "Disa fatura të lidhura të parapagimit mbeten në kosh. Hiqni fillimisht faturën përfundimtare ose lidhjen."
+    },
+    "Eintrag ist nicht im Papierkorb.": {
+      "de": "Eintrag ist nicht im Papierkorb.",
+      "en": "Item is not in trash.",
+      "sq": "Artikulli nuk është në kosh."
+    },
+    "Akontobeleg ist mit einer Schlussrechnung verknüpft. Bitte zuerst die Schlussrechnung entfernen oder die Verknüpfung lösen.": {
+      "de": "Akontobeleg ist mit einer Schlussrechnung verknüpft. Bitte zuerst die Schlussrechnung entfernen oder die Verknüpfung lösen.",
+      "en": "The advance-payment invoice is linked to a final invoice. Remove the final invoice or unlink it first.",
+      "sq": "Fatura e parapagimit është e lidhur me një faturë përfundimtare. Hiqni fillimisht faturën përfundimtare ose lidhjen."
+    },
+    "Endgültiges Löschen muss bestätigt werden.": {
+      "de": "Endgültiges Löschen muss bestätigt werden.",
+      "en": "Permanent deletion must be confirmed.",
+      "sq": "Fshirja e përhershme duhet të konfirmohet."
+    },
+    "Ungültiger Papierkorb.": {
+      "de": "Ungültiger Papierkorb.",
+      "en": "Invalid trash category.",
+      "sq": "Kategori koshi e pavlefshme."
+    },
+    "Ungültige Auswahl.": {
+      "de": "Ungültige Auswahl.",
+      "en": "Invalid selection.",
+      "sq": "Përzgjedhje e pavlefshme."
+    },
+    "Papierkorb wurde geändert. Bitte neu laden.": {
+      "de": "Papierkorb wurde geändert. Bitte neu laden.",
+      "en": "Trash has changed. Please reload.",
+      "sq": "Koshi ka ndryshuar. Ju lutemi rifreskoni."
     }
   }
 }
