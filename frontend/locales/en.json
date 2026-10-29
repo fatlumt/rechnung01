@@ -1024,5 +1024,12 @@
   "{count} offener Hinweis": "{count} unread notice",
   "Zahlungsübersicht": "Payment overview",
   "Zahlungen ansehen": "View payments",
-  "Zahlungsfortschritt": "Payment progress"
+  "Zahlungsfortschritt": "Payment progress",
+  "Aktive Belege": "Active documents",
+  "Archiv": "Archive",
+  "Archivieren": "Archive",
+  "Wiederherstellen": "Restore",
+  "Beleg archivieren? Zahlungen und Finanzzahlen bleiben unverändert.": "Archive this document? Payments and financial totals remain unchanged.",
+  "Archivierte Belege bleiben in den Finanzzahlen enthalten. Sie können sie jederzeit wiederherstellen.": "Archived documents remain included in financial totals. You can restore them at any time.",
+  "Nur ausgestellte Belege können archiviert werden.": "Only issued documents can be archived."
 }

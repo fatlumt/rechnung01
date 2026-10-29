@@ -1024,5 +1024,12 @@
   "{count} offener Hinweis": "{count} njoftim i palexuar",
   "Zahlungsübersicht": "Përmbledhja e pagesave",
   "Zahlungen ansehen": "Shiko pagesat",
-  "Zahlungsfortschritt": "Ecuria e pagesave"
+  "Zahlungsfortschritt": "Ecuria e pagesave",
+  "Aktive Belege": "Dokumentet aktive",
+  "Archiv": "Arkivi",
+  "Archivieren": "Arkivo",
+  "Wiederherstellen": "Rikthe",
+  "Beleg archivieren? Zahlungen und Finanzzahlen bleiben unverändert.": "Të arkivohet dokumenti? Pagesat dhe shifrat financiare mbeten të pandryshuara.",
+  "Archivierte Belege bleiben in den Finanzzahlen enthalten. Sie können sie jederzeit wiederherstellen.": "Dokumentet e arkivuara mbeten të përfshira në shifrat financiare. Mund t’i riktheni në çdo kohë.",
+  "Nur ausgestellte Belege können archiviert werden.": "Vetëm dokumentet e lëshuara mund të arkivohen."
 }
