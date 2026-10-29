@@ -9,7 +9,7 @@ export default function DocumentMenu({doc,busy,choose,converted}:any){
  const features=useFeatures(),trigger=useRef<HTMLButtonElement>(null),panel=useRef<HTMLDivElement>(null);
  const [position,setPosition]=useState<{top?:number,bottom?:number,left:number}|null>(null);
  const actions:any[]=[];
- if(doc.trashed)actions.push(['restore','Wiederherstellen',ArchiveRestore]);
+ if(doc.trashed)actions.push(['restore','Wiederherstellen',ArchiveRestore],['purge','Endgültig löschen',Trash2]);
  else{
   if(doc.status==='draft')actions.push(['edit','Bearbeiten',Pencil]);
   if(doc.kind==='offer'&&features.invoices!==false)actions.push(['convert',converted?'Rechnung öffnen':'In Rechnung umwandeln',FileText]);
@@ -30,5 +30,5 @@ export default function DocumentMenu({doc,busy,choose,converted}:any){
   const scroll=()=>close();document.addEventListener('pointerdown',outside);document.addEventListener('keydown',key,true);window.addEventListener('resize',scroll);window.addEventListener('scroll',scroll,true);
   return()=>{document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',key,true);window.removeEventListener('resize',scroll);window.removeEventListener('scroll',scroll,true);};
  },[!!position]);
- return <><button ref={trigger} className="documentMoreButton" disabled={busy} aria-label={t('Aktionen {number}',{number:doc.number})} aria-haspopup="menu" aria-expanded={!!position} onClick={toggle}><MoreHorizontal size={22}/></button>{position&&createPortal(<div ref={panel} className="documentRowMenu" role="menu" aria-label={t('Aktionen {number}',{number:doc.number})} style={position}>{actions.map(([id,label,Icon])=><button role="menuitem" className={id==='delete'?'danger':''} key={id} onClick={()=>{close(true);choose(doc,id)}}><Icon size={18}/><span>{t(label)}</span></button>)}</div>,document.body)}</>;
+ return <><button ref={trigger} className="documentMoreButton" disabled={busy} aria-label={t('Aktionen {number}',{number:doc.number})} aria-haspopup="menu" aria-expanded={!!position} onClick={toggle}><MoreHorizontal size={22}/></button>{position&&createPortal(<div ref={panel} className="documentRowMenu" role="menu" aria-label={t('Aktionen {number}',{number:doc.number})} style={position}>{actions.map(([id,label,Icon])=><button role="menuitem" className={['delete','purge'].includes(id)?'danger':''} key={id} onClick={()=>{close(true);choose(doc,id)}}><Icon size={18}/><span>{t(label)}</span></button>)}</div>,document.body)}</>;
 }

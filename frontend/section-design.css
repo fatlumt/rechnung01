@@ -54,3 +54,5 @@
 }
 
 .customerTabs{display:flex;gap:8px;padding:0 20px 18px;flex-wrap:wrap}.customerTabs button{min-height:42px;display:flex;align-items:center;gap:7px}.customerActions{display:flex;justify-content:space-between;gap:12px;margin-top:16px}.customerActions button{display:flex;align-items:center;gap:6px;min-height:44px}.customerActions .customerDelete{color:#b42318}
+
+.trashNotice{margin:0 20px 18px;padding:16px;border:1px solid #f0c9c4;border-radius:14px;background:#fff6f4;color:#74352d}.trashNotice p{margin:0 0 8px;line-height:1.5}.trashNotice small{display:block;margin-bottom:12px;line-height:1.5}.trashNotice button{display:flex;align-items:center;gap:8px;min-height:44px}.customerActions{flex-wrap:wrap}
