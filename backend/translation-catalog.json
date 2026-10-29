@@ -5189,6 +5189,36 @@
       "de": "Dieser Beleg ist im Papierkorb. Bitte zuerst wiederherstellen.",
       "en": "This document is in the trash. Please restore it first.",
       "sq": "Ky dokument është në kosh. Ju lutemi rikthejeni fillimisht."
+    },
+    "Wird verarbeitet …": {
+      "de": "Wird verarbeitet …",
+      "en": "Processing …",
+      "sq": "Duke përpunuar …"
+    },
+    "Bitte kurz warten.": {
+      "de": "Bitte kurz warten.",
+      "en": "Please wait a moment.",
+      "sq": "Ju lutemi prisni pak."
+    },
+    "Es dauert etwas länger. Bitte nicht erneut speichern.": {
+      "de": "Es dauert etwas länger. Bitte nicht erneut speichern.",
+      "en": "This is taking a little longer. Please do not save again.",
+      "sq": "Po zgjat pak më shumë. Ju lutemi mos ruani përsëri."
+    },
+    "Die Anfrage dauert zu lange. Der Vorgang könnte gespeichert sein. Bitte den gespeicherten Stand prüfen, bevor Sie erneut speichern.": {
+      "de": "Die Anfrage dauert zu lange. Der Vorgang könnte gespeichert sein. Bitte den gespeicherten Stand prüfen, bevor Sie erneut speichern.",
+      "en": "The request timed out. The change may have been saved. Please check the saved state before saving again.",
+      "sq": "Kërkesa zgjati shumë. Ndryshimi mund të jetë ruajtur. Kontrolloni gjendjen e ruajtur përpara se të ruani përsëri."
+    },
+    "Das Laden dauert zu lange. Bitte erneut laden.": {
+      "de": "Das Laden dauert zu lange. Bitte erneut laden.",
+      "en": "Loading timed out. Please reload.",
+      "sq": "Ngarkimi zgjati shumë. Ju lutemi ngarkoni përsëri."
+    },
+    "Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern.": {
+      "de": "Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern.",
+      "en": "Saved. The view could not be refreshed. Please reload instead of saving again.",
+      "sq": "U ruajt. Pamja nuk mund të përditësohej. Ju lutemi ngarkoni përsëri, mos ruani sërish."
     }
   }
 }

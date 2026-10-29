@@ -31,7 +31,14 @@ function data_post(string $owner,array $b):array {
  // Serialise each business's mutations, including numbering and partial payments.
  one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
  if(!current_user())fail('Bitte erneut anmelden.',401);
- feature_guard($owner,$b);$result=data_change($owner,$b);db()->commit();return $result;
+ feature_guard($owner,$b);$result=data_change($owner,$b);
+ // Small mutations return their authoritative result without reloading all documents.
+ if(in_array($b['action']??'',['status','pay','delete','restore','archive','unarchive','issue','accept','refreshLogo'],true)){
+  $id=text($b['id']??'',36,true);
+  $row=one('SELECT d.*,COALESCE(f.amount,0) AS fee FROM kr_documents d LEFT JOIN kr_dunning_fees f ON f.document_id=d.id AND f.owner=d.owner WHERE d.owner=? AND d.id=?',[$owner,$id]);
+  if($row){$doc=invoice_values($row);$doc['archived']=(bool)one('SELECT document_id FROM kr_document_archive WHERE owner=? AND document_id=?',[$owner,$id]);$doc['trashed']=document_is_trashed($owner,$id);$result['documentPatch']=$doc;$result['documentPayments']=array_map(fn($r)=>array_merge($r,['amount'=>(int)$r['amount']]),query('SELECT * FROM kr_payments WHERE owner=? AND document_id=? ORDER BY date DESC,id',[$owner,$id])->fetchAll());}
+ }
+ db()->commit();return $result;
 }
 function data_change(string $owner,array $b):array {
  $action=$b['action']??'';
