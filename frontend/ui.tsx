@@ -1,3 +1,5 @@
+import {applyDocumentPatch} from './data-cache';
+import {beginActivity} from './activity';
 import {t,useLocale,languages,setTranslationOverrides} from './i18n';
 import LanguagePicker from './language-picker';
 import TranslationAdmin from './translation-admin';
@@ -50,13 +52,32 @@ function Address({value,set,company=false,locked=false}:Any){return <><Field lab
 export default function App({email,user,onLogout}:{email:string,user:any,onLogout:()=>Promise<void>}){
 useLocale();
 const [data,setData]=useState<Any>(null),[view,setView]=useState('overview'),[showArchive,setShowArchive]=useState(false),[showTrash,setShowTrash]=useState(false),[modal,setModal]=useState<Any>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[query,setQuery]=useState(''),[filter,setFilter]=useState('Alle'),[dateFrom,setDateFrom]=useState(''),[dateTo,setDateTo]=useState(''),[mobileMenu,setMobileMenu]=useState(false),[setupHelp,setSetupHelp]=useState(false),[previewReady,setPreviewReady]=useState(false);
-async function load(){const d=await api('data');d.documents=d.documents.map((doc:Any)=>({...doc,archived:(d.archivedDocumentIds||[]).includes(doc.id),trashed:(d.trashedDocumentIds||[]).includes(doc.id)}));setData(d);return d;}
-useEffect(()=>{load().catch(e=>setError(e.message));const focus=()=>load().catch(()=>{});window.addEventListener('focus',focus);window.addEventListener('mail-attempt',focus);return()=>{window.removeEventListener('focus',focus);window.removeEventListener('mail-attempt',focus)}},[]);
+const dataRef=useRef<Any>(null),loadRequest=useRef<Promise<Any>|null>(null),revision=useRef(0),saving=useRef(false),lastLoaded=useRef(0);
+function storeData(d:Any){dataRef.current=d;setData(d);lastLoaded.current=Date.now();return d;}
+async function load(force=false):Promise<Any>{
+ if(force&&loadRequest.current){try{await loadRequest.current}catch{}}
+ if(loadRequest.current)return loadRequest.current;
+ const currentRevision=revision.current;
+ const request=api('data').then(d=>{d.documents=d.documents.map((doc:Any)=>({...doc,archived:(d.archivedDocumentIds||[]).includes(doc.id),trashed:(d.trashedDocumentIds||[]).includes(doc.id)}));return currentRevision===revision.current?storeData(d):dataRef.current||d;});
+ loadRequest.current=request;try{return await request}finally{if(loadRequest.current===request)loadRequest.current=null;}
+}
+useEffect(()=>{load().catch(e=>setError(e.message));const focus=()=>{if(!saving.current&&Date.now()-lastLoaded.current>15000)load().catch(()=>{})};const mail=()=>{if(!saving.current)load().catch(()=>{})};window.addEventListener('focus',focus);window.addEventListener('mail-attempt',mail);return()=>{window.removeEventListener('focus',focus);window.removeEventListener('mail-attempt',mail)}},[]);
 useEffect(()=>{if(!data)return;const params=new URLSearchParams(location.search);const target=params.get('document');if(target){const doc=data.documents.find((d:Any)=>d.id===target);if(doc)setModal({type:'detail',doc});else setNotice(t('Beleg nicht verfügbar.'));}if(params.has('notifications'))document.querySelectorAll('details.notificationCenter').forEach(e=>e.setAttribute('open',''));if(params.has('push-settings')){setView('settings');}if(target||params.has('notifications')||params.has('push-settings')){params.delete('document');params.delete('notifications');params.delete('push-settings');history.replaceState(null,'',location.pathname+(params.size?'?'+params.toString():''));}},[data]);
 useEffect(()=>{if(data?.features&&viewFeature[view]&&data.features[viewFeature[view]]===false){setView('overview');setModal(null)}},[data?.features,view]);
 useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!busy)setModal(null)};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[busy]);
 useLayoutEffect(()=>{if(!modal&&!mobileMenu)return;return lockPageScroll()},[!!(modal||mobileMenu)]);
-async function act(body:Any,close=true,pdf=false,preview=false){setBusy(true);setError('');setNotice('');try{const result=await api('data',body);const next=await load();setNotice(t("Änderungen gespeichert."));if(pdf||preview){const doc=next.documents.find((d:Any)=>d.id===(result.id||body.id));setModal({type:'detail',doc});try{if(pdf)await downloadInvoicePdf(doc,next.payments,next.documents)}catch{setError(t("Beleg gespeichert. PDF konnte nicht erstellt werden. Bitte PDF-Download erneut versuchen."))}}else if(close)setModal(null);else if(modal?.doc)setModal({type:'detail',doc:next.documents.find((d:Any)=>d.id===modal.doc.id)});return result;}catch(e:Any){setError(e.message);return null;}finally{setBusy(false);}}
+async function act(body:Any,close=true,pdf=false,preview=false){
+ if(saving.current)return null;saving.current=true;revision.current++;const endActivity=beginActivity();setBusy(true);setError('');setNotice('');
+ try{
+  const result=await api('data',body);revision.current++;
+  let next=applyDocumentPatch(dataRef.current,result);
+  if(next)storeData(next);else{try{next=await load(true)}catch{setModal(null);setError(t("Gespeichert. Die Ansicht konnte nicht aktualisiert werden. Bitte erneut laden, nicht erneut speichern."));return result;}}
+  setNotice(t("Änderungen gespeichert."));
+  if(pdf||preview){const doc=next.documents.find((d:Any)=>d.id===(result.id||body.id));setModal({type:'detail',doc});try{if(pdf)await downloadInvoicePdf(doc,next.payments,next.documents)}catch{setError(t("Beleg gespeichert. PDF konnte nicht erstellt werden. Bitte PDF-Download erneut versuchen."))}}
+  else if(close)setModal(null);else if(modal?.doc)setModal({type:'detail',doc:next.documents.find((d:Any)=>d.id===modal.doc.id)});
+  return result;
+ }catch(e:Any){setError(e.message);return null;}finally{saving.current=false;setBusy(false);endActivity();}
+}
 const currency=currencyOf(data?.company);const docs=data?.documents||[],customers=data?.customers||[],invoices=docs.filter((d:Any)=>d.kind==='invoice'&&d.status!=='draft'),outstanding=invoices.reduce((s:number,d:Any)=>s+d.total-d.paid,0),overdue=invoices.filter((d:Any)=>d.data.due<today()&&d.total>d.paid),paid=invoices.reduce((s:number,d:Any)=>s+d.paid,0);
 const allowed=(key:string)=>data?.features?.[key]!==false;const visibleNav=nav.filter(n=>!viewFeature[n[0]]||allowed(viewFeature[n[0]]));
 function change(v:string){if(viewFeature[v]&&!allowed(viewFeature[v])){setError(t("Diese Funktion ist für Ihr Konto nicht freigeschaltet."));return;}setMobileMenu(false);setShowArchive(false);setShowTrash(false);setView(v);setQuery('');setFilter('Alle');setDateFrom('');setDateTo('');setError('');}
