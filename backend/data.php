@@ -36,6 +36,14 @@ function data_post(string $owner,array $b):array {
  one('SELECT id FROM kr_users WHERE id=? FOR UPDATE',[$owner]);
  if(!current_user())fail('Bitte erneut anmelden.',401);
  feature_guard($owner,$b);$result=data_change($owner,$b);
+ // Save and issue together so a failed issue cannot leave a half-finished save.
+ if(($b['issueNow']??false)===true && in_array($b['action']??'',['create','edit','convert'],true)){
+  $savedId=text($result['id']??$b['id']??'',36,true);
+  $saved=one('SELECT version,status FROM kr_documents WHERE owner=? AND id=?',[$owner,$savedId]);
+  if(!$saved)fail('Beleg nicht gefunden.',404);
+  if($saved['status']==='draft')data_change($owner,['action'=>'issue','id'=>$savedId,'version'=>(int)$saved['version']]);
+ }
+
  // Small mutations return their authoritative result without reloading all documents.
  if(in_array($b['action']??'',['status','pay','delete','restore','archive','unarchive','issue','accept','refreshLogo'],true)){
   $id=text($b['id']??'',36,true);
