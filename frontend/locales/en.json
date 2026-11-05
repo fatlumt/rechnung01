@@ -1058,5 +1058,10 @@
   "Endgültiges Löschen muss bestätigt werden.": "Permanent deletion must be confirmed.",
   "Ungültiger Papierkorb.": "Invalid trash category.",
   "Ungültige Auswahl.": "Invalid selection.",
-  "Papierkorb wurde geändert. Bitte neu laden.": "Trash has changed. Please reload."
+  "Papierkorb wurde geändert. Bitte neu laden.": "Trash has changed. Please reload.",
+  "Beleg speichern": "Save document",
+  "Als Entwurf speichern": "Save as draft",
+  "Beleg ausstellen und Vorschau öffnen.": "Issue the document and open its preview.",
+  "Beleg ausstellen und PDF herunterladen.": "Issue the document and download the PDF.",
+  "Später weiterbearbeiten und ausstellen.": "Continue editing and issue later."
 }

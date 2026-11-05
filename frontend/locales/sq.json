@@ -1058,5 +1058,10 @@
   "Endgültiges Löschen muss bestätigt werden.": "Fshirja e përhershme duhet të konfirmohet.",
   "Ungültiger Papierkorb.": "Kategori koshi e pavlefshme.",
   "Ungültige Auswahl.": "Përzgjedhje e pavlefshme.",
-  "Papierkorb wurde geändert. Bitte neu laden.": "Koshi ka ndryshuar. Ju lutemi rifreskoni."
+  "Papierkorb wurde geändert. Bitte neu laden.": "Koshi ka ndryshuar. Ju lutemi rifreskoni.",
+  "Beleg speichern": "Ruaj dokumentin",
+  "Als Entwurf speichern": "Ruaj si draft",
+  "Beleg ausstellen und Vorschau öffnen.": "Lësho dokumentin dhe hap pamjen paraprake.",
+  "Beleg ausstellen und PDF herunterladen.": "Lësho dokumentin dhe shkarko PDF-në.",
+  "Später weiterbearbeiten und ausstellen.": "Vazhdo redaktimin dhe lëshoje më vonë."
 }
