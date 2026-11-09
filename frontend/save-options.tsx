@@ -4,9 +4,9 @@ import {t} from './i18n';
 import './save-options.css';
 
 type SaveMode='save'|'pdf'|'draft';
-type Props={busy:boolean;close:()=>void;save:(mode:SaveMode)=>Promise<void>};
+type Props={published?:boolean;busy:boolean;close:()=>void;save:(mode:SaveMode)=>Promise<void>};
 
-export default function SaveOptions({busy,close,save}:Props){
+export default function SaveOptions({busy,close,save,published=false}:Props){
  const dialog=useRef<HTMLDialogElement>(null);
  const pending=useRef(false);
  const [selected,setSelected]=useState<SaveMode|null>(null);
@@ -27,10 +27,10 @@ export default function SaveOptions({busy,close,save}:Props){
   onKeyDown={e=>{if(e.key==='Escape')e.stopPropagation()}}
   onCancel={e=>{e.preventDefault();if(!locked)close()}}>
   <header className="documentSaveHeading"><h2 id="document-save-title">{t('Beleg speichern')}</h2><button type="button" className="iconButton" disabled={locked} aria-label={t('Schliessen')} onClick={close}><X size={22}/></button></header>
-  <div className="documentSaveChoices">{choices.map(({mode,label,description,Icon})=>
+  <div className="documentSaveChoices">{choices.filter(c=>!published||c.mode!=='draft').map(({mode,label,description,Icon})=>
    <button key={mode} type="button" className="documentSaveChoice" disabled={locked} onClick={()=>choose(mode)}>
     <span className="documentSaveIcon">{selected===mode?<LoaderCircle className="saveSpinner" size={23}/>:<Icon size={23}/>}</span>
-    <span><strong>{selected===mode?t('Speichert …'):t(label)}</strong><small>{t(description)}</small></span>
+    <span><strong>{selected===mode?t('Speichert …'):t(label)}</strong><small>{t(published?(mode==='pdf'?'Änderungen speichern und PDF herunterladen.':'Änderungen speichern und Vorschau öffnen.'):description)}</small></span>
    </button>
   )}</div>
   <button className="secondary documentSaveCancel" type="button" disabled={locked} onClick={close}>{t('Abbrechen')}</button>

@@ -11,7 +11,7 @@ export default function DocumentMenu({doc,busy,choose,converted}:any){
  const actions:any[]=[];
  if(doc.trashed)actions.push(['restore','Wiederherstellen',ArchiveRestore],['purge','Endgültig löschen',Trash2]);
  else{
-  if(doc.status==='draft')actions.push(['edit','Bearbeiten',Pencil]);
+  if(doc.status==='draft'||(doc.kind==='offer'&&['issued','accepted'].includes(doc.status)))actions.push(['edit','Bearbeiten',Pencil]);
   if(doc.kind==='offer'&&features.invoices!==false)actions.push(['convert',converted?'Rechnung öffnen':'In Rechnung umwandeln',FileText]);
   if(doc.kind==='invoice'&&doc.status!=='draft'&&doc.paid<doc.total&&features.reminders!==false){
    actions.push(['reminder','Zahlungserinnerung erstellen',BellRing]);

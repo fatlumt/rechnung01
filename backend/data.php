@@ -7,6 +7,9 @@ function document_archive_schema():void {
  query('CREATE TABLE IF NOT EXISTS kr_customer_trash (owner CHAR(36) NOT NULL,customer_id CHAR(36) NOT NULL,created DATETIME NOT NULL,PRIMARY KEY(owner,customer_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
  query('CREATE TABLE IF NOT EXISTS kr_document_archive (owner CHAR(36) NOT NULL,document_id CHAR(36) NOT NULL,created DATETIME NOT NULL,PRIMARY KEY(owner,document_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
 }
+function offer_revision_schema():void {
+ query('CREATE TABLE IF NOT EXISTS kr_offer_revisions (owner CHAR(36) NOT NULL,document_id CHAR(36) NOT NULL,version INT NOT NULL,snapshot MEDIUMTEXT NOT NULL,created DATETIME NOT NULL,PRIMARY KEY(owner,document_id,version)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+}
 function data_get(string $owner):array {
  document_archive_schema();
  features_schema();hours_schema();business_schema();projects_schema();mail_schema();
@@ -29,7 +32,7 @@ function add_document(string $owner,string $kind,array $data,string $status='dra
  query('INSERT INTO kr_documents(id,owner,number,kind,status,data,total,source_offer,created) VALUES(?,?,?,?,?,?,?,?,?)',[$id,$owner,$number,$kind,$status,encode($data),$sum,$kind==='invoice'?($data['sourceId']??null):null,date('Y-m-d H:i:s')]);project_attach_new($owner,$id,$data);return ['id'=>$id];
 }
 function data_post(string $owner,array $b):array {
- document_archive_schema();
+ document_archive_schema();offer_revision_schema();
  features_schema();hours_schema();business_schema();projects_schema();mail_schema();
  db()->beginTransaction();
  // Serialise each business's mutations, including numbering and partial payments.
@@ -80,7 +83,8 @@ function data_change(string $owner,array $b):array {
   return ['ok'=>true];
  }
  document_require_active($owner,$id);
- if($action==='edit'){if($d['status']!=='draft')fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);$v['language']=document_language($b['data']['language']??$d['data']['language']??'de');$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>$v['customerId']===$d['data']['customerId']&&!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$v['customerId']])?$d['data']['customer']:customer_snapshot($owner,$v['customerId'])]);document_country($v);apply_deposits($owner,$v,$id);reserve_deposits($owner,$id,$v);query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);if(features_for($owner)['projects'])project_document_link($owner,$id,$v['projectId']??'',$v['customerId']);return ['ok'=>true];}
+ if($action==='offerHistory'){if($d['kind']!=='offer')fail('Nur Offerten haben einen Versionsverlauf.');return ['revisions'=>array_map(fn($row)=>['created'=>$row['created'],'document'=>json_decode($row['snapshot'],true)],query('SELECT snapshot,created FROM kr_offer_revisions WHERE owner=? AND document_id=? ORDER BY version DESC',[$owner,$id])->fetchAll())];}
+ if($action==='edit'){if($d['status']!=='draft'&&!($d['kind']==='offer'&&in_array($d['status'],['issued','accepted'],true)))fail('Ausgestellte Belege können nicht bearbeitet werden.');$v=draft($b['data']??null);$v['language']=document_language($b['data']['language']??$d['data']['language']??'de');$v['templateId']=template_id($b['data']['templateId']??$d['data']['templateId']??'classic');if($v['kind']!==$d['kind'])fail('Belegtyp kann nicht geändert werden.');check_vat($v,$d['data']['company']);$v=array_merge($d['data'],$v,['customer'=>$v['customerId']===$d['data']['customerId']&&!one('SELECT id FROM kr_customers WHERE owner=? AND id=?',[$owner,$v['customerId']])?$d['data']['customer']:customer_snapshot($owner,$v['customerId'])]);document_country($v);apply_deposits($owner,$v,$id);reserve_deposits($owner,$id,$v);if($d['kind']==='offer'&&$d['status']!=='draft'){query('INSERT INTO kr_offer_revisions(owner,document_id,version,snapshot,created) VALUES(?,?,?,?,?)',[$owner,$id,$d['version'],encode($d),date('Y-m-d H:i:s')]);if($d['status']==='accepted')query("UPDATE kr_documents SET status='issued' WHERE owner=? AND id=?",[$owner,$id]);}query('UPDATE kr_documents SET data=?,total=?,version=version+1 WHERE owner=? AND id=?',[encode($v),document_total($v),$owner,$id]);if(features_for($owner)['projects'])project_document_link($owner,$id,$v['projectId']??'',$v['customerId']);return ['ok'=>true];}
  if($action==='refreshLogo'){
   if($d['status']!=='draft')fail('Nur Entwürfe können ein neues Firmenlogo übernehmen.');
   $profile=one('SELECT data FROM kr_businesses WHERE owner=?',[$owner]);if(!$profile)fail('Bitte zuerst Firmendaten speichern.');
