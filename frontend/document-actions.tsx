@@ -11,7 +11,10 @@ function ActionDialog({title,close,children}: {title:string;close:()=>void;child
 export default function DocumentActions({status,files,manage,sending,history}:any){
  const [open,setOpen]=useState('');
  const close=()=>setOpen('');
- function action(e:any){if(e.target.closest('button')){e.currentTarget.closest('dialog')?.close();close();}}
+ // Close after the selected button runs. Closing React state during capture
+ // unmounts the button before React can deliver its click handler.
+ function action(e:any){if(e.target.closest('button:not(:disabled)'))close();}
+ function beforeFileAction(e:any){if(e.target.closest('button:not(:disabled)'))e.currentTarget.closest('dialog')?.close();}
  return <><div className="documentCompactActions noPrint">{status}<div className="documentActionRow"><button className="secondary" onClick={()=>setOpen('files')}><FileDown size={20}/><span>{t('PDF & Drucken')}</span></button><button className="secondary" disabled={!sending} onClick={()=>setOpen('send')}><Send size={20}/><span>{t('Versenden')}</span></button><button className="secondary" onClick={()=>setOpen('manage')}><MoreHorizontal size={20}/><span>{t('Weitere Aktionen')}</span></button></div></div>
- {open&&<ActionDialog title={open==='files'?'PDF & Drucken':open==='send'?'Versenden':'Weitere Aktionen'} close={close}>{open==='files'?<div onClickCapture={action}>{files}</div>:open==='send'?sending:<><div onClickCapture={action}>{manage}</div>{history}</>}</ActionDialog>}</>;
+ {open&&<ActionDialog title={open==='files'?'PDF & Drucken':open==='send'?'Versenden':'Weitere Aktionen'} close={close}>{open==='files'?<div onClickCapture={beforeFileAction} onClick={action}>{files}</div>:open==='send'?sending:<><div onClick={action}>{manage}</div>{history}</>}</ActionDialog>}</>;
 }
